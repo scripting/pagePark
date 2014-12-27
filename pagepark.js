@@ -1,5 +1,27 @@
 var myVersion = "0.40", myProductName = "pagePark", myPort = 80;
 
+//The MIT License (MIT)
+	
+	//Copyright (c) 2014 Dave Winer
+	
+	//Permission is hereby granted, free of charge, to any person obtaining a copy
+	//of this software and associated documentation files (the "Software"), to deal
+	//in the Software without restriction, including without limitation the rights
+	//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	//copies of the Software, and to permit persons to whom the Software is
+	//furnished to do so, subject to the following conditions:
+	
+	//The above copyright notice and this permission notice shall be included in all
+	//copies or substantial portions of the Software.
+	
+	//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	//SOFTWARE.
+
 var fs = require ("fs");
 var request = require ("request");
 var urlpack = require ("url");
@@ -309,15 +331,15 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		}
 	try {
 		var parsedUrl = urlpack.parse (httpRequest.url, true), host, port;
-		var lowercasepath = parsedUrl.pathname.toLowerCase (), now = new Date ();
+		var lowerpath = parsedUrl.pathname.toLowerCase (), now = new Date ();
 		//set host, port
 			host = httpRequest.headers.host;
 			if (stringContains (host, ":")) {
 				port = stringNthField (host, ":", 2);
 				host = stringNthField (host, ":", 1);
 				}
-		console.log ("Received request: " + httpRequest.url);
-		switch (lowercasepath) {
+		console.log (httpRequest.method + " " + host + ":" + port + " " + lowerpath);
+		switch (lowerpath) {
 			case "/version":
 				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
 				httpResponse.end (myVersion);    
@@ -347,7 +369,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 										}
 									else {
 										var ext = stringLastField (f, ".").toLowerCase (), type = httpExt2MIME (ext);
-										console.log ("handleHttpRequest: f == " + f + ", type == " + type);
 										switch (ext) {
 											case "js":
 												try {
