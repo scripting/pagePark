@@ -1,6 +1,6 @@
-var myVersion = "0.40", myProductName = "pagePark", myPort = 80;
+var myVersion = "0.41", myProductName = "pagePark", myPort = 80;
 
-//The MIT License (MIT)
+	//The MIT License (MIT)
 	
 	//Copyright (c) 2014 Dave Winer
 	
