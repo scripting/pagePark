@@ -20,6 +20,9 @@ var fnameStats = "prefs/stats.json";
 var domainsPath = "domains/";
 var httpDefaultFilename = "index.html";
 
+var mdTemplatePath = "prefs/mdTemplate.txt";
+var urlDefaultTemplate = "http://fargo.io/code/noderunner/defaultmarkdowntemplate.txt";
+
 //routines from utils.js, fs.js
 	function getBoolean (val) {  
 		switch (typeof (val)) {
@@ -38,6 +41,12 @@ var httpDefaultFilename = "index.html";
 				break;
 			}
 		return (false);
+		}
+	function isAlpha (ch) {
+		return (((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')));
+		}
+	function isNumeric (ch) {
+		return ((ch >= '0') && (ch <= '9'));
 		}
 	function jsonStringify (jstruct) { 
 		return (JSON.stringify (jstruct, undefined, 4));
@@ -100,6 +109,94 @@ var httpDefaultFilename = "index.html";
 			}
 		return ("");
 		}
+	function stringLastField (s, chdelim) { 
+		var ct = stringCountFields (s, chdelim);
+		if (ct == 0) { //8/31/14 by DW
+			return (s);
+			}
+		return (stringNthField (s, chdelim, ct));
+		}
+	function multipleReplaceAll (s, adrTable, flCaseSensitive, startCharacters, endCharacters) { 
+		if(flCaseSensitive===undefined){
+			flCaseSensitive = false;
+			}
+		if(startCharacters===undefined){
+			startCharacters="";
+			}
+		if(endCharacters===undefined){
+			endCharacters="";
+			}
+		for( var item in adrTable){
+			var replacementValue = adrTable[item];
+			var regularExpressionModifier = "g";
+			if(!flCaseSensitive){
+				regularExpressionModifier = "gi";
+				}
+			var regularExpressionString = (startCharacters+item+endCharacters).replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+			var regularExpression = new RegExp(regularExpressionString, regularExpressionModifier);
+			s = s.replace(regularExpression, replacementValue);
+			}
+		return s;
+		}
+	function httpExt2MIME (ext) { //12/24/14 by DW
+		var lowerext = ext.toLowerCase ();
+		var map = {
+			"au": "audio/basic",
+			"avi": "application/x-msvideo",
+			"bin": "application/x-macbinary",
+			"css": "text/css",
+			"dcr": "application/x-director",
+			"dir": "application/x-director",
+			"dll": "application/octet-stream",
+			"doc": "application/msword",
+			"dtd": "text/dtd",
+			"dxr": "application/x-director",
+			"exe": "application/octet-stream",
+			"fatp": "text/html",
+			"ftsc": "text/html",
+			"fttb": "text/html",
+			"gif": "image/gif",
+			"gz": "application/x-gzip",
+			"hqx": "application/mac-binhex40",
+			"htm": "text/html",
+			"html": "text/html",
+			"jpeg": "image/jpeg",
+			"jpg": "image/jpeg",
+			"js": "application/javascript",
+			"mid": "audio/x-midi",
+			"midi": "audio/x-midi",
+			"mov": "video/quicktime",
+			"mp3": "audio/mpeg",
+			"pdf": "application/pdf",
+			"png": "image/png",
+			"ppt": "application/mspowerpoint",
+			"ps": "application/postscript",
+			"ra": "audio/x-pn-realaudio",
+			"ram": "audio/x-pn-realaudio",
+			"sit": "application/x-stuffit",
+			"sys": "application/octet-stream",
+			"tar": "application/x-tar",
+			"text": "text/plain",
+			"txt": "text/plain",
+			"wav": "audio/x-wav",
+			"wrl": "x-world/x-vrml",
+			"xml": "text/xml",
+			"zip": "application/zip"
+			};
+		for (x in map) {
+			if (x.toLowerCase () == lowerext) {
+				return (map [x]);
+				}
+			}
+		return ("text/plain");
+		}
+	function httpReadUrl (url, callback) {
+		request (url, function (error, response, body) {
+			if (!error && (response.statusCode == 200)) {
+				callback (body) 
+				}
+			});
+		}
 	function fsSureFilePath (path, callback) { 
 		var splits = path.split ("/"), path = "";
 		if (splits.length > 0) {
@@ -161,7 +258,10 @@ function readStats (f, stats, callback) {
 				});
 			}
 		else {
-			writeStats (fname, stats);
+			writeStats (f, stats);
+			if (callback != undefined) {
+				callback ();
+				}
 			}
 		});
 	}
@@ -229,55 +329,56 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			default: //see if it's a path in the domains folder, if not 404
 				var f = domainsPath + host + parsedUrl.pathname;
 				if (checkPathForIllegalChars (f)) {
-					fs.stat (f, function (err, stats) {
-						if (err) {
-							return404 ();
-							}
-						else {
-							if (stats.isDirectory ()) {
-								if (!endsWith (f, "/")) {
-									f += "/";
-									}
-								f += "index.html";
+					fsSureFilePath (f, function () { //make sure domains folder exists
+						fs.stat (f, function (err, stats) {
+							if (err) {
+								return404 ();
 								}
-							fs.readFile (f, function (err, data) {
-								if (err) {
-									httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-									httpResponse.end ("There was an error reading the file.");    
-									}
-								else {
-									var ext = stringLower (stringLastField (f, ".")), type = httpExt2MIME (ext);
-									console.log ("handleHttpRequest: f == " + f + ", type == " + type);
-									switch (ext) {
-										case "js":
-											try {
-												var val = eval (data.toString ());
-												httpResponse.writeHead (200, {"Content-Type": "text/html"});
-												httpResponse.end (val.toString ());    
-												}
-											catch (err) {
-												httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-												httpResponse.end ("Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
-												}
-											break;
-										case "md":
-											getMarkdownTemplate (function (theTemplate) {
-												var mdtext = data.toString (), pagetable = new Object ();
-												pagetable.bodytext = marked (mdtext);
-												pagetable.title = stringLastField (f, "/");
-												var s = multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-												httpResponse.writeHead (200, {"Content-Type": "text/html"});
-												httpResponse.end (s);    
-												});
-											break;
-										default:
-											httpResponse.writeHead (200, {"Content-Type": type});
-											httpResponse.end (data);    
-											break;
+							else {
+								if (stats.isDirectory ()) {
+									if (!endsWith (f, "/")) {
+										f += "/";
 										}
+									f += "index.html";
 									}
-								});
-							}
+								fs.readFile (f, function (err, data) {
+									if (err) {
+										return404 ();
+										}
+									else {
+										var ext = stringLastField (f, ".").toLowerCase (), type = httpExt2MIME (ext);
+										console.log ("handleHttpRequest: f == " + f + ", type == " + type);
+										switch (ext) {
+											case "js":
+												try {
+													var val = eval (data.toString ());
+													httpResponse.writeHead (200, {"Content-Type": "text/html"});
+													httpResponse.end (val.toString ());    
+													}
+												catch (err) {
+													httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+													httpResponse.end ("Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
+													}
+												break;
+											case "md":
+												getMarkdownTemplate (function (theTemplate) {
+													var mdtext = data.toString (), pagetable = new Object ();
+													pagetable.bodytext = marked (mdtext);
+													pagetable.title = stringLastField (f, "/");
+													var s = multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+													httpResponse.writeHead (200, {"Content-Type": "text/html"});
+													httpResponse.end (s);    
+													});
+												break;
+											default:
+												httpResponse.writeHead (200, {"Content-Type": type});
+												httpResponse.end (data);    
+												break;
+											}
+										}
+									});
+								}
+							});
 						});
 					}
 				else {
