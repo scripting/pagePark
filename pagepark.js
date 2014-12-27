@@ -1,4 +1,4 @@
-var myVersion = "0.42", myProductName = "pagePark", myPort = 80;
+var myVersion = "0.42", myProductName = "pagePark";
 
 	//The MIT License (MIT)
 	
@@ -397,7 +397,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			else {
 				port = 80;
 				}
-		console.log (httpRequest.method + " " + host + ":" + port + " " + lowerpath);
+		console.log (now.toLocaleTimeString () + " " + httpRequest.method + " " + host + ":" + port + " " + lowerpath);
 		switch (lowerpath) {
 			case "/version":
 				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
