@@ -1,4 +1,4 @@
-var myVersion = "0.41", myProductName = "pagePark", myPort = 80;
+var myVersion = "0.42", myProductName = "pagePark", myPort = 80;
 
 	//The MIT License (MIT)
 	
@@ -29,7 +29,8 @@ var http = require ("http");
 var marked = require ("marked");
 
 var pageParkPrefs = {
-	myPort: 80
+	myPort: 80,
+	indexFilename: "index"
 	};
 var fnamePrefs = "prefs/prefs.json";
 
@@ -40,7 +41,6 @@ var pageParkStats = {
 var fnameStats = "prefs/stats.json";
 
 var domainsPath = "domains/";
-var httpDefaultFilename = "index.html";
 
 var mdTemplatePath = "prefs/mdTemplate.txt";
 var urlDefaultTemplate = "http://fargo.io/code/noderunner/defaultmarkdowntemplate.txt";
@@ -321,6 +321,9 @@ function checkPathForIllegalChars (path) {
 			return (false);
 			}
 		}
+	if (stringContains (path, "./")) {
+		return (false);
+		}
 	return (true);
 	}
 
@@ -329,6 +332,59 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		httpResponse.writeHead (404, {"Content-Type": "text/plain"});
 		httpResponse.end ("The file was not found.");    
 		}
+	
+	function findIndexFile (folder, callback) {
+		fs.readdir (folder, function (err, list) {
+			for (var i = 0; i < list.length; i++) {
+				var fname = list [i];
+				if (stringCountFields (fname, ".") == 2) { //something like xxx.yyy
+					if (stringNthField (fname, ".", 1).toLowerCase () == pageParkPrefs.indexFilename) { //something like index.wtf
+						callback (folder + fname);
+						return;
+						}
+					}
+				}
+			return404 ();
+			});
+		}
+	function serveFile (f) {
+		fs.readFile (f, function (err, data) {
+			if (err) {
+				return404 ();
+				}
+			else {
+				var ext = stringLastField (f, ".").toLowerCase (), type = httpExt2MIME (ext);
+				switch (ext) {
+					case "js":
+						try {
+							var val = eval (data.toString ());
+							httpResponse.writeHead (200, {"Content-Type": "text/html"});
+							httpResponse.end (val.toString ());    
+							}
+						catch (err) {
+							httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+							httpResponse.end ("Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
+							}
+						break;
+					case "md":
+						getMarkdownTemplate (function (theTemplate) {
+							var mdtext = data.toString (), pagetable = new Object ();
+							pagetable.bodytext = marked (mdtext);
+							pagetable.title = stringLastField (f, "/");
+							var s = multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+							httpResponse.writeHead (200, {"Content-Type": "text/html"});
+							httpResponse.end (s);    
+							});
+						break;
+					default:
+						httpResponse.writeHead (200, {"Content-Type": type});
+						httpResponse.end (data);    
+						break;
+					}
+				}
+			});
+		}
+	
 	try {
 		var parsedUrl = urlpack.parse (httpRequest.url, true), host, port;
 		var lowerpath = parsedUrl.pathname.toLowerCase (), now = new Date ();
@@ -337,6 +393,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			if (stringContains (host, ":")) {
 				port = stringNthField (host, ":", 2);
 				host = stringNthField (host, ":", 1);
+				}
+			else {
+				port = 80;
 				}
 		console.log (httpRequest.method + " " + host + ":" + port + " " + lowerpath);
 		switch (lowerpath) {
@@ -361,43 +420,13 @@ function handleHttpRequest (httpRequest, httpResponse) {
 									if (!endsWith (f, "/")) {
 										f += "/";
 										}
-									f += "index.html";
+									findIndexFile (f, function (findex) {
+										serveFile (findex);
+										});
 									}
-								fs.readFile (f, function (err, data) {
-									if (err) {
-										return404 ();
-										}
-									else {
-										var ext = stringLastField (f, ".").toLowerCase (), type = httpExt2MIME (ext);
-										switch (ext) {
-											case "js":
-												try {
-													var val = eval (data.toString ());
-													httpResponse.writeHead (200, {"Content-Type": "text/html"});
-													httpResponse.end (val.toString ());    
-													}
-												catch (err) {
-													httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-													httpResponse.end ("Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
-													}
-												break;
-											case "md":
-												getMarkdownTemplate (function (theTemplate) {
-													var mdtext = data.toString (), pagetable = new Object ();
-													pagetable.bodytext = marked (mdtext);
-													pagetable.title = stringLastField (f, "/");
-													var s = multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-													httpResponse.writeHead (200, {"Content-Type": "text/html"});
-													httpResponse.end (s);    
-													});
-												break;
-											default:
-												httpResponse.writeHead (200, {"Content-Type": type});
-												httpResponse.end (data);    
-												break;
-											}
-										}
-									});
+								else {
+									serveFile (f);
+									}
 								}
 							});
 						});
