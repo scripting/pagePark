@@ -1,4 +1,4 @@
-var myVersion = "0.42", myProductName = "pagePark";
+var myVersion = "0.45", myProductName = "pagePark";
 
 	//The MIT License (MIT)
 	
@@ -27,6 +27,7 @@ var request = require ("request");
 var urlpack = require ("url");
 var http = require ("http");
 var marked = require ("marked");
+var dns = require ("dns");
 
 var pageParkPrefs = {
 	myPort: 80,
@@ -36,14 +37,17 @@ var fnamePrefs = "prefs/prefs.json";
 
 var pageParkStats = {
 	ctStarts: 0, 
-	whenLastStart: new Date (0)
+	whenLastStart: new Date (0),
+	ctHits: 0, ctHitsToday: 0,
+	whenLastHit: new Date (0),
+	hitsByDomain: {}
 	};
-var fnameStats = "prefs/stats.json";
+var fnameStats = "prefs/stats.json", flStatsDirty = false;
 
 var domainsPath = "domains/";
 
 var mdTemplatePath = "prefs/mdTemplate.txt";
-var urlDefaultTemplate = "http://fargo.io/code/noderunner/defaultmarkdowntemplate.txt";
+var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
 
 //routines from utils.js, fs.js
 	function getBoolean (val) {  
@@ -77,6 +81,11 @@ var urlDefaultTemplate = "http://fargo.io/code/noderunner/defaultmarkdowntemplat
 		var now = new Date ();
 		when = new Date (when);
 		return ((now - when) / 1000);
+		}
+	function sameDay (d1, d2) { //returns true if the two dates are on the same day
+		d1 = new Date (d1);
+		d2 = new Date (d2);
+		return ((d1.getFullYear () == d2.getFullYear ()) && (d1.getMonth () == d2.getMonth ()) && (d1.getDate () == d2.getDate ()));
 		}
 	function endsWith (s, possibleEnding, flUnicase) {
 		if ((s == undefined) || (s.length == 0)) { 
@@ -327,6 +336,13 @@ function checkPathForIllegalChars (path) {
 	return (true);
 	}
 
+function everySecond () {
+	if (flStatsDirty) {
+		writeStats (fnameStats, pageParkStats);
+		flStatsDirty = false;
+		}
+	}
+
 function handleHttpRequest (httpRequest, httpResponse) {
 	function return404 () {
 		httpResponse.writeHead (404, {"Content-Type": "text/plain"});
@@ -386,7 +402,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		}
 	
 	try {
-		var parsedUrl = urlpack.parse (httpRequest.url, true), host, port;
+		var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
 		var lowerpath = parsedUrl.pathname.toLowerCase (), now = new Date ();
 		//set host, port
 			host = httpRequest.headers.host;
@@ -397,7 +413,41 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			else {
 				port = 80;
 				}
-		console.log (now.toLocaleTimeString () + " " + httpRequest.method + " " + host + ":" + port + " " + lowerpath);
+			lowerhost = host.toLowerCase ();
+		//set referrer
+			referrer = httpRequest.headers.referer;
+			if (referrer == undefined) {
+				referrer = "";
+				}
+			
+		//stats
+			//hits by domain
+				if (pageParkStats.hitsByDomain [lowerhost] == undefined) {
+					pageParkStats.hitsByDomain [lowerhost] = 1;
+					}
+				else {
+					pageParkStats.hitsByDomain [lowerhost]++;
+					}
+			//hits today
+				if (!sameDay (now, pageParkStats.whenLastHit)) { //day rollover
+					pageParkStats.ctHitsToday = 0;
+					}
+			pageParkStats.ctHits++;
+			pageParkStats.ctHitsToday++;
+			pageParkStats.whenLastHit = now;
+			flStatsDirty = true;
+		
+		//log the request
+			dns.reverse (httpRequest.connection.remoteAddress, function (err, domains) {
+				var client = httpRequest.connection.remoteAddress;
+				if (!err) {
+					if (domains.length > 0) {
+						client = domains [0];
+						}
+					}
+				console.log (now.toLocaleTimeString () + " " + httpRequest.method + " " + host + ":" + port + " " + lowerpath + " " + referrer + " " + client);
+				});
+		
 		switch (lowerpath) {
 			case "/version":
 				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
@@ -407,10 +457,18 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
 				httpResponse.end (now.toString ());    
 				break;
+			case "/status": 
+				var status = {
+					prefs: pageParkPrefs,
+					status: pageParkStats
+					}
+				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
+				httpResponse.end (jsonStringify (status));    
+				break;
 			default: //see if it's a path in the domains folder, if not 404
 				var f = domainsPath + host + parsedUrl.pathname;
 				if (checkPathForIllegalChars (f)) {
-					fsSureFilePath (f, function () { //make sure domains folder exists
+					fsSureFilePath (domainsPath, function () { //make sure domains folder exists
 						fs.stat (f, function (err, stats) {
 							if (err) {
 								return404 ();
@@ -451,8 +509,9 @@ function startup () {
 			console.log (myProductName + " v" + myVersion + ".");
 			pageParkStats.ctStarts++;
 			pageParkStats.whenLastStart = now;
-			writeStats (fnameStats, pageParkStats);
+			flStatsDirty = true;
 			http.createServer (handleHttpRequest).listen (pageParkPrefs.myPort);
+			setInterval (everySecond, 1000); 
 			});
 		});
 	}
