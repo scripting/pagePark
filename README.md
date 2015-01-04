@@ -19,6 +19,8 @@ http://noderunner.org/ -- simple home page
 
 http://lucky.wtf/ -- images
 
+http://lucky.wtf/test.md -- markdown page
+
 http://lucky.wtf/badass/ -- index file in a sub-directory
 
 http://lucky.wtf/badass/butt.js -- a page implemented in a script
