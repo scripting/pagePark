@@ -17,9 +17,9 @@ This is the second of three early 2015 "server snacks" by Dave Winer.
 
 #### How it works
 
-1. PagePark will automatically create a prefs folder folder. 
+1. PagePark will automatically create a *prefs* sub-folder. 
 
-2. Add your web content under domains. Each folder's name is the name of a domain. The contents within the folder are what we serve.
+2. Add your web content under domains. Each folder's name is the name of a domain. The contents within the folder are what we serve. <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">Screen shot</a>.
 
 3. Serves all major media types including audio and video. Files whose names end with .md are passed through the built-in Markdown processor. Files ending with .js are interpreted as scripts. The text they return is what we serve.
 
