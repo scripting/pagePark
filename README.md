@@ -1,7 +1,7 @@
 PagePark
 ========
 
-I wrote this simple Node.js folder-based HTTP server that serves simple static and dynamic pages for domains I've bought but not yet used.
+I wrote this simple Node.js folder-based app that serves static and dynamic pages for domains I've bought but not yet used.
 
 It's also designed to be simple code you can learn from, or form to be whatever you like. But it's 90 percent of what all web servers do, so if you learn how to run <a href="http://pagepark.io/">PagePark</a>, you're learning how to run a web server.
 
