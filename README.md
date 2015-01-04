@@ -15,7 +15,7 @@ xxx
 
 #### Example URLs
 
-http://noderunnder.org/ -- simple home page
+http://noderunner.org/ -- simple home page
 
 http://lucky.wtf/ -- images
 
