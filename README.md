@@ -53,8 +53,6 @@ http://pagepark.io/ -- the home page for this product, served by the product
 
 http://karass.co/nosuchfile.html -- file not found
 
-http://pagepark.io/status -- information about the server
-
 http://pagepark.io/version -- the version of PagePark that's running on the server
 
 http://pagepark.io/now -- the time on the server
