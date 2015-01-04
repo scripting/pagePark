@@ -11,11 +11,13 @@ This is the second of three early 2015 "server snacks" by Dave Winer.
 
 1. Create a folder to host your website. 
 
+2. Create a sub-folder named *domains*.
+
 2. Copy pagepark.js into that folder, and run it: node pagepark.js
 
 #### How it works
 
-1. It will automatically create a prefs folder and a domains folder. 
+1. PagePark will automatically create a prefs folder folder. 
 
 2. Add your web content under domains. Each folder's name is the name of a domain. The contents within the folder are what we serve.
 
