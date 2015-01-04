@@ -1,4 +1,4 @@
-var myVersion = "0.45", myProductName = "pagePark";
+var myVersion = "0.46", myProductName = "Page Park";
 
 	//The MIT License (MIT)
 	
@@ -28,6 +28,8 @@ var urlpack = require ("url");
 var http = require ("http");
 var marked = require ("marked");
 var dns = require ("dns");
+
+var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
 var pageParkPrefs = {
 	myPort: 80,
@@ -260,16 +262,31 @@ var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.
 			}
 		}
 
+function getFullFilePath (relpath) { //1/3/15 by DW
+	var folderpath = folderPathFromEnv;
+	if (folderpath == undefined) { //the environment variable wasn't specified
+		return (relpath);
+		}
+	if (!endsWith (folderpath, "/")) {
+		folderpath += "/";
+		}
+	if (beginsWith (relpath, "/")) {
+		relpath = stringDelete (relpath, 1, 1);
+		}
+	return (folderpath + relpath);
+	}
 function writeStats (fname, stats) {
-	fsSureFilePath (fname, function () {
-		fs.writeFile (fname, jsonStringify (stats), function (err) {
+	var f = getFullFilePath (fname);
+	fsSureFilePath (f, function () {
+		fs.writeFile (f, jsonStringify (stats), function (err) {
 			if (err) {
 				console.log ("writeStats: error == " + err.message);
 				}
 			});
 		});
 	}
-function readStats (f, stats, callback) {
+function readStats (fname, stats, callback) {
+	var f = getFullFilePath (fname);
 	fs.exists (f, function (flExists) {
 		if (flExists) {
 			fs.readFile (f, function (err, data) {
@@ -281,7 +298,7 @@ function readStats (f, stats, callback) {
 					for (var x in storedStats) {
 						stats [x] = storedStats [x];
 						}
-					writeStats (f, stats);
+					writeStats (fname, stats);
 					}
 				if (callback != undefined) {
 					callback ();
@@ -289,7 +306,7 @@ function readStats (f, stats, callback) {
 				});
 			}
 		else {
-			writeStats (f, stats);
+			writeStats (fname, stats);
 			if (callback != undefined) {
 				callback ();
 				}
@@ -297,7 +314,8 @@ function readStats (f, stats, callback) {
 		});
 	}
 function getMarkdownTemplate (callback) {
-	fs.readFile (mdTemplatePath, function (err, data) {
+	var f = getFullFilePath (mdTemplatePath);
+	fs.readFile (f, function (err, data) {
 		if (err) {
 			httpReadUrl (urlDefaultTemplate, function (s) {
 				fs.writeFile (mdTemplatePath, s, function (err) {
