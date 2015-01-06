@@ -1,9 +1,13 @@
 PagePark
 ========
 
-I wrote this simple Node.js folder-based app that serves static and dynamic pages for domains I've bought but not yet used.
+I wrote this simple HTTP server to park domains I've bought but not yet used.
 
-It's also designed to be simple code you can learn from, or form to be whatever you like. But it's 90 percent of what all web servers do, so if you learn how to run <a href="http://pagepark.io/">PagePark</a>, you're learning how to run a web server.
+It's written in JavaScript and runs in Node.js.
+
+Each domain is in its own folder. The content for that domain is in the folder. I went a little wild with content types, it can serve Markdown docs, or run JS code. Yet it's still very simple. Which is the point. ;-)
+
+It's 90 percent of what all web servers do, so if you learn how to run <a href="http://pagepark.io/">PagePark</a>, you're learning how to run a web server. A real one you can use to host your sites. And it's easy to hack the code if you want to.
 
 This is the second of three early 2015 "server snacks" by Dave Winer.
 
