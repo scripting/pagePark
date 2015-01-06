@@ -9,8 +9,6 @@ Each domain is in its own folder. The content for that domain is in the folder. 
 
 It's 90 percent of what all web servers do, so if you learn how to run <a href="http://pagepark.io/">PagePark</a>, you're learning how to run a web server. A real one you can use to host your sites. And it's easy to hack the code if you want to.
 
-This is the second of three early 2015 "server snacks" by Dave Winer.
-
 #### How to
 
 1. Create a folder to host your website. 
