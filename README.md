@@ -75,7 +75,9 @@ There will always be more work to do here. ;-)
 
 ##### v0.47 1/7/15 by DW
 
-Fixed first time startup problem creating prefs.json and stats.json. 
+Added a package.json file to the repository.
+
+Fixed first-time startup problem creating prefs.json and stats.json. 
 
 Also, we now make sure the *domains* folder exists at startup.
 
