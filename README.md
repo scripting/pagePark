@@ -71,6 +71,16 @@ I wanted to make code that could be used for people who are just getting started
 
 There will always be more work to do here. ;-)
 
+#### Updates
+
+##### v0.47 1/7/15 by DW
+
+Fixed first time startup problem creating prefs.json and stats.json. 
+
+Also, we now make sure the *domains* folder exists at startup.
+
+Fixed a problem in handling requests if you specified a different folder for PagePark to serve from. 
+
 #### Questions, comments?
 
 Please post a note on the <a href="https://groups.google.com/forum/#!forum/server-snacks">Server Snacks</a> mail list. 

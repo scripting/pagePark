@@ -1,4 +1,4 @@
-var myVersion = "0.46", myProductName = "Page Park";
+var myVersion = "0.47", myProductName = "PagePark";
 
 	//The MIT License (MIT)
 	
@@ -31,13 +31,13 @@ var dns = require ("dns");
 
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
-var pageParkPrefs = {
+var pageparkPrefs = {
 	myPort: 80,
 	indexFilename: "index"
 	};
 var fnamePrefs = "prefs/prefs.json";
 
-var pageParkStats = {
+var pageparkStats = {
 	ctStarts: 0, 
 	whenLastStart: new Date (0),
 	ctHits: 0, ctHitsToday: 0,
@@ -275,44 +275,6 @@ function getFullFilePath (relpath) { //1/3/15 by DW
 		}
 	return (folderpath + relpath);
 	}
-function writeStats (fname, stats) {
-	var f = getFullFilePath (fname);
-	fsSureFilePath (f, function () {
-		fs.writeFile (f, jsonStringify (stats), function (err) {
-			if (err) {
-				console.log ("writeStats: error == " + err.message);
-				}
-			});
-		});
-	}
-function readStats (fname, stats, callback) {
-	var f = getFullFilePath (fname);
-	fs.exists (f, function (flExists) {
-		if (flExists) {
-			fs.readFile (f, function (err, data) {
-				if (err) {
-					console.log ("readStats: error reading file " + f + " == " + err.message)
-					}
-				else {
-					var storedStats = JSON.parse (data.toString ());
-					for (var x in storedStats) {
-						stats [x] = storedStats [x];
-						}
-					writeStats (fname, stats);
-					}
-				if (callback != undefined) {
-					callback ();
-					}
-				});
-			}
-		else {
-			writeStats (fname, stats);
-			if (callback != undefined) {
-				callback ();
-				}
-			}
-		});
-	}
 function getMarkdownTemplate (callback) {
 	var f = getFullFilePath (mdTemplatePath);
 	fs.readFile (f, function (err, data) {
@@ -356,7 +318,7 @@ function checkPathForIllegalChars (path) {
 
 function everySecond () {
 	if (flStatsDirty) {
-		writeStats (fnameStats, pageParkStats);
+		writeStats (fnameStats, pageparkStats);
 		flStatsDirty = false;
 		}
 	}
@@ -372,7 +334,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			for (var i = 0; i < list.length; i++) {
 				var fname = list [i];
 				if (stringCountFields (fname, ".") == 2) { //something like xxx.yyy
-					if (stringNthField (fname, ".", 1).toLowerCase () == pageParkPrefs.indexFilename) { //something like index.wtf
+					if (stringNthField (fname, ".", 1).toLowerCase () == pageparkPrefs.indexFilename) { //something like index.wtf
 						callback (folder + fname);
 						return;
 						}
@@ -440,19 +402,19 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			
 		//stats
 			//hits by domain
-				if (pageParkStats.hitsByDomain [lowerhost] == undefined) {
-					pageParkStats.hitsByDomain [lowerhost] = 1;
+				if (pageparkStats.hitsByDomain [lowerhost] == undefined) {
+					pageparkStats.hitsByDomain [lowerhost] = 1;
 					}
 				else {
-					pageParkStats.hitsByDomain [lowerhost]++;
+					pageparkStats.hitsByDomain [lowerhost]++;
 					}
 			//hits today
-				if (!sameDay (now, pageParkStats.whenLastHit)) { //day rollover
-					pageParkStats.ctHitsToday = 0;
+				if (!sameDay (now, pageparkStats.whenLastHit)) { //day rollover
+					pageparkStats.ctHitsToday = 0;
 					}
-			pageParkStats.ctHits++;
-			pageParkStats.ctHitsToday++;
-			pageParkStats.whenLastHit = now;
+			pageparkStats.ctHits++;
+			pageparkStats.ctHitsToday++;
+			pageparkStats.whenLastHit = now;
 			flStatsDirty = true;
 		
 		//log the request
@@ -477,14 +439,14 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				break;
 			case "/status": 
 				var status = {
-					prefs: pageParkPrefs,
-					status: pageParkStats
+					prefs: pageparkPrefs,
+					status: pageparkStats
 					}
 				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
 				httpResponse.end (jsonStringify (status));    
 				break;
 			default: //see if it's a path in the domains folder, if not 404
-				var f = domainsPath + host + parsedUrl.pathname;
+				var f = getFullFilePath (domainsPath) + host + parsedUrl.pathname;
 				if (checkPathForIllegalChars (f)) {
 					fsSureFilePath (domainsPath, function () { //make sure domains folder exists
 						fs.stat (f, function (err, stats) {
@@ -520,16 +482,69 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		}
 	}
 
+
+function writeStats (fname, stats, callback) {
+	var f = getFullFilePath (fname);
+	fsSureFilePath (f, function () {
+		fs.writeFile (f, jsonStringify (stats), function (err) {
+			if (err) {
+				console.log ("writeStats: error == " + err.message);
+				}
+			if (callback != undefined) {
+				callback ();
+				}
+			});
+		});
+	}
+function readStats (fname, stats, callback) {
+	var f = getFullFilePath (fname);
+	fsSureFilePath (f, function () {
+		fs.exists (f, function (flExists) {
+			if (flExists) {
+				fs.readFile (f, function (err, data) {
+					if (err) {
+						console.log ("readStats: error reading file " + f + " == " + err.message)
+						if (callback != undefined) {
+							callback ();
+							}
+						}
+					else {
+						var storedStats = JSON.parse (data.toString ());
+						for (var x in storedStats) {
+							stats [x] = storedStats [x];
+							}
+						writeStats (fname, stats, function () {
+							if (callback != undefined) {
+								callback ();
+								}
+							});
+						}
+					});
+				}
+			else {
+				writeStats (fname, stats, function () {
+					if (callback != undefined) {
+						callback ();
+						}
+					});
+				}
+			});
+		});
+	}
+
+
 function startup () {
-	readStats (fnamePrefs, pageParkPrefs, function () {
-		readStats (fnameStats, pageParkStats, function () {
-			var now = new Date ();
-			console.log (myProductName + " v" + myVersion + ".");
-			pageParkStats.ctStarts++;
-			pageParkStats.whenLastStart = now;
-			flStatsDirty = true;
-			http.createServer (handleHttpRequest).listen (pageParkPrefs.myPort);
-			setInterval (everySecond, 1000); 
+	readStats (fnamePrefs, pageparkPrefs, function () {
+		readStats (fnameStats, pageparkStats, function () {
+			fsSureFilePath (getFullFilePath (domainsPath) + "x", function () { //make sure domains folder exists
+				var now = new Date ();
+				console.log (myProductName + " v" + myVersion + ".");
+				pageparkStats.ctStarts++;
+				pageparkStats.whenLastStart = now;
+				flStatsDirty = true;
+				http.createServer (handleHttpRequest).listen (pageparkPrefs.myPort);
+				setInterval (everySecond, 1000); 
+				});
 			});
 		});
 	}
