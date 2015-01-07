@@ -15,13 +15,11 @@ It's 90 percent of what all web servers do, so if you learn how to run <a href="
 
 1. Create a folder to host your website. 
 
-2. Create a sub-folder named *domains*.
-
 2. Copy pagepark.js into that folder, and run it: node pagepark.js
 
 #### How it works
 
-1. PagePark will automatically create a *prefs* sub-folder. 
+1. PagePark will automatically create a *prefs* sub-folder and a *domains* sub-folder. 
 
 2. Add your web content under domains. Each folder's name is the name of a domain. The contents within the folder are what we serve. <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">Screen shot</a>.
 
