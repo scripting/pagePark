@@ -2,16 +2,14 @@
   "name": "PagePark",
   "description": "A simple Node.js folder-based HTTP server that serves static and dynamic pages for domains.",
   "author": "Dave Winer <dave@smallpicture.com>",
-  "version": "0.40.0",
+  "version": "0.48.0",
   "scripts": {
      "start": "node pagepark.js"
      },
   "dependencies" : {
     "request": "*",
-    "url": "*",
-    "http": "*",
-    "marked": "*",
-    "dns": "*"
+    "mime": "*",
+    "marked": "*"
     }, 
   "license": "MIT",
   "engines": {

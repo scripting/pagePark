@@ -17,13 +17,17 @@ It's 90 percent of what all web servers do, so if you learn how to run <a href="
 
 2. Copy pagepark.js into that folder, and run it: node pagepark.js
 
+#### Screen shot
+
+Here's a <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">screen shot</a> of my PagePark server folder. 
+
 #### How it works
 
 1. PagePark will automatically create a *prefs* sub-folder and a *domains* sub-folder. 
 
 2. Add your web content under domains. Each folder's name is the name of a domain. The contents within the folder are what we serve. <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">Screen shot</a>.
 
-3. Serves all major media types including audio and video. Files whose names end with .md are passed through the built-in Markdown processor. Files ending with .js are interpreted as scripts. The text they return is what we serve.
+3. Serves all major media types including audio and video. Files whose names end with .md are passed through the built-in Markdown processor. Files ending with .js are interpreted as scripts. The text they return is what we serve. Here's an <a href="https://gist.github.com/scripting/2b5e237a105b6cb96287">example</a> of a script that I have <a href="http://lucky.wtf/badass/butt.js">running</a> on one of my servers.
 
 4. The prefs folder contains a file of settings you can change, prefs.json. These include the port that the server runs on and the name of the index file (see below).
 
@@ -37,9 +41,19 @@ It's 90 percent of what all web servers do, so if you learn how to run <a href="
 
 9. There are three special endpoints on all domains: /version, /now and /status that return the version of PagePark that's running, the time on the server and the stats and prefs. 
 
-#### Screen shot
+#### Port 1339
 
-Here's a <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">screen shot</a> of my PagePark server folder. 
+The first time you run PagePark it will open on port 1339. You can change this by editing prefs.json in the prefs folder. 
+
+This means if you want to access a page on your site, the URL will be of the form:
+
+http://myserver.com:1339/somepage.html
+
+The normal port for HTTP is 80. That would have been the natural default, however a lot of Unix servers require the app to be running in supervisor mode in order for it to open on port 80. You can do this by launching PagePark this way:
+
+sudo node pagepark.js
+
+I made the default 1339 because I wanted it to work "out of the box" for first-time users.
 
 #### Example pages
 
@@ -70,6 +84,15 @@ I wanted to make code that could be used for people who are just getting started
 There will always be more work to do here. ;-)
 
 #### Updates
+
+##### v0.48 1/8/15 by DW
+
+The default port the server boots up on is now 1339. Previously it was 80, which is the standard port for HTTP, but on many OSes this requires PagePark to be running in supervisor mode. I added docs above to explain this. 
+
+Changed package.json so that only *request* and *marked* were listed as dependencies. Apparently the others are included in Node without having to list them. 
+
+Instead of keeping our own MIME type table, we use the Node *mime* package, which is also included as a dependency in the package.json file.
+
 
 ##### v0.47 1/7/15 by DW
 

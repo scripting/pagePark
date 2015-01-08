@@ -1,4 +1,4 @@
-var myVersion = "0.47", myProductName = "PagePark";
+var myVersion = "0.48", myProductName = "PagePark";
 
 	//The MIT License (MIT)
 	
@@ -28,6 +28,7 @@ var urlpack = require ("url");
 var http = require ("http");
 var marked = require ("marked");
 var dns = require ("dns");
+var mime = require ("mime"); //1/8/15 by DW
 
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
@@ -89,6 +90,29 @@ var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.
 		d2 = new Date (d2);
 		return ((d1.getFullYear () == d2.getFullYear ()) && (d1.getMonth () == d2.getMonth ()) && (d1.getDate () == d2.getDate ()));
 		}
+	function beginsWith (s, possibleBeginning, flUnicase) { 
+		if (s.length == 0) { //1/1/14 by DW
+			return (false);
+			}
+		if (flUnicase == undefined) {
+			flUnicase = true;
+			}
+		if (flUnicase) {
+			for (var i = 0; i < possibleBeginning.length; i++) {
+				if (s [i].toLowerCase () != possibleBeginning [i].toLowerCase ()) {
+					return (false);
+					}
+				}
+			}
+		else {
+			for (var i = 0; i < possibleBeginning.length; i++) {
+				if (s [i] != possibleBeginning [i]) {
+					return (false);
+					}
+				}
+			}
+		return (true);
+		}
 	function endsWith (s, possibleEnding, flUnicase) {
 		if ((s == undefined) || (s.length == 0)) { 
 			return (false);
@@ -113,8 +137,15 @@ var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.
 			}
 		return (true);
 		}
+	function stringDelete (s, ix, ct) {
+		var start = ix - 1;
+		var end = (ix + ct) - 1;
+		var s1 = s.substr (0, start);
+		var s2 = s.substr (end);
+		return (s1 + s2);
+		}
 	function stringContains (s, whatItMightContain, flUnicase) { 
-		if (flUnicase == undefined) {
+		if (flUnicase === undefined) {
 			flUnicase = true;
 			}
 		if (flUnicase) {
@@ -172,56 +203,10 @@ var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.
 		return s;
 		}
 	function httpExt2MIME (ext) { //12/24/14 by DW
-		var lowerext = ext.toLowerCase ();
-		var map = {
-			"au": "audio/basic",
-			"avi": "application/x-msvideo",
-			"bin": "application/x-macbinary",
-			"css": "text/css",
-			"dcr": "application/x-director",
-			"dir": "application/x-director",
-			"dll": "application/octet-stream",
-			"doc": "application/msword",
-			"dtd": "text/dtd",
-			"dxr": "application/x-director",
-			"exe": "application/octet-stream",
-			"fatp": "text/html",
-			"ftsc": "text/html",
-			"fttb": "text/html",
-			"gif": "image/gif",
-			"gz": "application/x-gzip",
-			"hqx": "application/mac-binhex40",
-			"htm": "text/html",
-			"html": "text/html",
-			"jpeg": "image/jpeg",
-			"jpg": "image/jpeg",
-			"js": "application/javascript",
-			"mid": "audio/x-midi",
-			"midi": "audio/x-midi",
-			"mov": "video/quicktime",
-			"mp3": "audio/mpeg",
-			"pdf": "application/pdf",
-			"png": "image/png",
-			"ppt": "application/mspowerpoint",
-			"ps": "application/postscript",
-			"ra": "audio/x-pn-realaudio",
-			"ram": "audio/x-pn-realaudio",
-			"sit": "application/x-stuffit",
-			"sys": "application/octet-stream",
-			"tar": "application/x-tar",
-			"text": "text/plain",
-			"txt": "text/plain",
-			"wav": "audio/x-wav",
-			"wrl": "x-world/x-vrml",
-			"xml": "text/xml",
-			"zip": "application/zip"
-			};
-		for (x in map) {
-			if (x.toLowerCase () == lowerext) {
-				return (map [x]);
-				}
-			}
-		return ("text/plain");
+		mime.default_type = "text/plain";
+		console.log ("httpExt2MIME: type == " + mime.lookup (ext));
+		return (mime.lookup (ext));
+		
 		}
 	function httpReadUrl (url, callback) {
 		request (url, function (error, response, body) {
@@ -231,7 +216,8 @@ var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.
 			});
 		}
 	function fsSureFilePath (path, callback) { 
-		var splits = path.split ("/"), path = "";
+		var splits = path.split ("/");
+		path = ""; //1/8/15 by DW
 		if (splits.length > 0) {
 			function doLevel (levelnum) {
 				if (levelnum < (splits.length - 1)) {
