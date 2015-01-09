@@ -204,9 +204,7 @@ var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.
 		}
 	function httpExt2MIME (ext) { //12/24/14 by DW
 		mime.default_type = "text/plain";
-		console.log ("httpExt2MIME: type == " + mime.lookup (ext));
 		return (mime.lookup (ext));
-		
 		}
 	function httpReadUrl (url, callback) {
 		request (url, function (error, response, body) {
