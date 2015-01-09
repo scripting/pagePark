@@ -1,4 +1,4 @@
-var myVersion = "0.48", myProductName = "PagePark";
+var myVersion = "0.49", myProductName = "PagePark";
 
 	//The MIT License (MIT)
 	
@@ -33,7 +33,7 @@ var mime = require ("mime"); //1/8/15 by DW
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
 var pageparkPrefs = {
-	myPort: 80,
+	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
 	indexFilename: "index"
 	};
 var fnamePrefs = "prefs/prefs.json";
