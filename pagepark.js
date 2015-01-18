@@ -1,4 +1,4 @@
-var myVersion = "0.49", myProductName = "PagePark";
+var myVersion = "0.51", myProductName = "PagePark";
 
 	//The MIT License (MIT)
 	
@@ -29,6 +29,7 @@ var http = require ("http");
 var marked = require ("marked");
 var dns = require ("dns");
 var mime = require ("mime"); //1/8/15 by DW
+var utils = require ("./lib/utils.js"); //1/18/15 by DW
 
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
@@ -48,171 +49,12 @@ var pageparkStats = {
 var fnameStats = "prefs/stats.json", flStatsDirty = false;
 
 var domainsPath = "domains/";
+	var configFname = "/config.json";
 
 var mdTemplatePath = "prefs/mdTemplate.txt";
 var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
 
 //routines from utils.js, fs.js
-	function getBoolean (val) {  
-		switch (typeof (val)) {
-			case "string":
-				if (val.toLowerCase () == "true") {
-					return (true);
-					}
-				break;
-			case "boolean":
-				return (val);
-				break;
-			case "number":
-				if (val != 0) {
-					return (true);
-					}
-				break;
-			}
-		return (false);
-		}
-	function isAlpha (ch) {
-		return (((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')));
-		}
-	function isNumeric (ch) {
-		return ((ch >= '0') && (ch <= '9'));
-		}
-	function jsonStringify (jstruct) { 
-		return (JSON.stringify (jstruct, undefined, 4));
-		}
-	function secondsSince (when) { 
-		var now = new Date ();
-		when = new Date (when);
-		return ((now - when) / 1000);
-		}
-	function sameDay (d1, d2) { //returns true if the two dates are on the same day
-		d1 = new Date (d1);
-		d2 = new Date (d2);
-		return ((d1.getFullYear () == d2.getFullYear ()) && (d1.getMonth () == d2.getMonth ()) && (d1.getDate () == d2.getDate ()));
-		}
-	function beginsWith (s, possibleBeginning, flUnicase) { 
-		if (s.length == 0) { //1/1/14 by DW
-			return (false);
-			}
-		if (flUnicase == undefined) {
-			flUnicase = true;
-			}
-		if (flUnicase) {
-			for (var i = 0; i < possibleBeginning.length; i++) {
-				if (s [i].toLowerCase () != possibleBeginning [i].toLowerCase ()) {
-					return (false);
-					}
-				}
-			}
-		else {
-			for (var i = 0; i < possibleBeginning.length; i++) {
-				if (s [i] != possibleBeginning [i]) {
-					return (false);
-					}
-				}
-			}
-		return (true);
-		}
-	function endsWith (s, possibleEnding, flUnicase) {
-		if ((s == undefined) || (s.length == 0)) { 
-			return (false);
-			}
-		var ixstring = s.length - 1;
-		if (flUnicase == undefined) {
-			flUnicase = true;
-			}
-		if (flUnicase) {
-			for (var i = possibleEnding.length - 1; i >= 0; i--) {
-				if (s [ixstring--].toLowerCase () != possibleEnding [i].toLowerCase ()) {
-					return (false);
-					}
-				}
-			}
-		else {
-			for (var i = possibleEnding.length - 1; i >= 0; i--) {
-				if (s [ixstring--] != possibleEnding [i]) {
-					return (false);
-					}
-				}
-			}
-		return (true);
-		}
-	function stringDelete (s, ix, ct) {
-		var start = ix - 1;
-		var end = (ix + ct) - 1;
-		var s1 = s.substr (0, start);
-		var s2 = s.substr (end);
-		return (s1 + s2);
-		}
-	function stringContains (s, whatItMightContain, flUnicase) { 
-		if (flUnicase === undefined) {
-			flUnicase = true;
-			}
-		if (flUnicase) {
-			s = s.toLowerCase ();
-			whatItMightContain = whatItMightContain.toLowerCase ();
-			}
-		return (s.indexOf (whatItMightContain) != -1);
-		}
-	function stringCountFields (s, chdelim) {
-		var ct = 1;
-		if (s.length == 0) {
-			return (0);
-			}
-		for (var i = 0; i < s.length; i++) {
-			if (s [i] == chdelim) {
-				ct++;
-				}
-			}
-		return (ct)
-		}
-	function stringNthField (s, chdelim, n) {
-		var splits = s.split (chdelim);
-		if (splits.length >= n) {
-			return splits [n-1];
-			}
-		return ("");
-		}
-	function stringLastField (s, chdelim) { 
-		var ct = stringCountFields (s, chdelim);
-		if (ct == 0) { //8/31/14 by DW
-			return (s);
-			}
-		return (stringNthField (s, chdelim, ct));
-		}
-	function multipleReplaceAll (s, adrTable, flCaseSensitive, startCharacters, endCharacters) { 
-		if(flCaseSensitive===undefined){
-			flCaseSensitive = false;
-			}
-		if(startCharacters===undefined){
-			startCharacters="";
-			}
-		if(endCharacters===undefined){
-			endCharacters="";
-			}
-		for( var item in adrTable){
-			var replacementValue = adrTable[item];
-			var regularExpressionModifier = "g";
-			if(!flCaseSensitive){
-				regularExpressionModifier = "gi";
-				}
-			var regularExpressionString = (startCharacters+item+endCharacters).replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-			var regularExpression = new RegExp(regularExpressionString, regularExpressionModifier);
-			s = s.replace(regularExpression, replacementValue);
-			}
-		return s;
-		}
-	function httpExt2MIME (ext) { //12/24/14 by DW
-		mime.default_type = "text/plain";
-		return (mime.lookup (ext));
-		}
-	function httpReadUrl (url, callback) {
-		request (url, function (error, response, body) {
-			if (!error && (response.statusCode == 200)) {
-				callback (body) 
-				}
-			});
-		}
 	function fsSureFilePath (path, callback) { 
 		var splits = path.split ("/");
 		path = ""; //1/8/15 by DW
@@ -246,16 +88,27 @@ var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.
 			}
 		}
 
+function httpExt2MIME (ext) { //12/24/14 by DW
+	mime.default_type = "text/plain";
+	return (mime.lookup (ext));
+	}
+function httpReadUrl (url, callback) {
+	request (url, function (error, response, body) {
+		if (!error && (response.statusCode == 200)) {
+			callback (body) 
+			}
+		});
+	}
 function getFullFilePath (relpath) { //1/3/15 by DW
 	var folderpath = folderPathFromEnv;
 	if (folderpath == undefined) { //the environment variable wasn't specified
 		return (relpath);
 		}
-	if (!endsWith (folderpath, "/")) {
+	if (!utils.endsWith (folderpath, "/")) {
 		folderpath += "/";
 		}
-	if (beginsWith (relpath, "/")) {
-		relpath = stringDelete (relpath, 1, 1);
+	if (utils.beginsWith (relpath, "/")) {
+		relpath = utils.stringDelete (relpath, 1, 1);
 		}
 	return (folderpath + relpath);
 	}
@@ -280,7 +133,7 @@ function getMarkdownTemplate (callback) {
 	}
 function checkPathForIllegalChars (path) {
 	function isIllegal (ch) {
-		if (isAlpha (ch) || isNumeric (ch)) {
+		if (utils.isAlpha (ch) || utils.isNumeric (ch)) {
 			return (false);
 			}
 		switch (ch) {
@@ -294,7 +147,7 @@ function checkPathForIllegalChars (path) {
 			return (false);
 			}
 		}
-	if (stringContains (path, "./")) {
+	if (utils.stringContains (path, "./")) {
 		return (false);
 		}
 	return (true);
@@ -307,18 +160,37 @@ function everySecond () {
 		}
 	}
 
+
+
 function handleHttpRequest (httpRequest, httpResponse) {
+	function getConfigFile (host, callback) {
+		var f = getFullFilePath (domainsPath) + host + configFname;
+		fs.readFile (f, function (err, data) {
+			if (err) {
+				callback (undefined);
+				}
+			else {
+				try {
+					var config = JSON.parse (data.toString ());
+					callback (config);
+					}
+				catch (err) {
+					console.log ("getConfigFile: error reading " + configFname + " file for host " + host + ". " + err.message);
+					callback (undefined);
+					}
+				}
+			});
+		}
 	function return404 () {
 		httpResponse.writeHead (404, {"Content-Type": "text/plain"});
 		httpResponse.end ("The file was not found.");    
 		}
-	
 	function findIndexFile (folder, callback) {
 		fs.readdir (folder, function (err, list) {
 			for (var i = 0; i < list.length; i++) {
 				var fname = list [i];
-				if (stringCountFields (fname, ".") == 2) { //something like xxx.yyy
-					if (stringNthField (fname, ".", 1).toLowerCase () == pageparkPrefs.indexFilename) { //something like index.wtf
+				if (utils.stringCountFields (fname, ".") == 2) { //something like xxx.yyy
+					if (utils.stringNthField (fname, ".", 1).toLowerCase () == pageparkPrefs.indexFilename) { //something like index.wtf
 						callback (folder + fname);
 						return;
 						}
@@ -333,7 +205,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				return404 ();
 				}
 			else {
-				var ext = stringLastField (f, ".").toLowerCase (), type = httpExt2MIME (ext);
+				var ext = utils.stringLastField (f, ".").toLowerCase (), type = httpExt2MIME (ext);
 				switch (ext) {
 					case "js":
 						try {
@@ -350,8 +222,8 @@ function handleHttpRequest (httpRequest, httpResponse) {
 						getMarkdownTemplate (function (theTemplate) {
 							var mdtext = data.toString (), pagetable = new Object ();
 							pagetable.bodytext = marked (mdtext);
-							pagetable.title = stringLastField (f, "/");
-							var s = multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+							pagetable.title = utils.stringLastField (f, "/");
+							var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
 							httpResponse.writeHead (200, {"Content-Type": "text/html"});
 							httpResponse.end (s);    
 							});
@@ -370,9 +242,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		var lowerpath = parsedUrl.pathname.toLowerCase (), now = new Date ();
 		//set host, port
 			host = httpRequest.headers.host;
-			if (stringContains (host, ":")) {
-				port = stringNthField (host, ":", 2);
-				host = stringNthField (host, ":", 1);
+			if (utils.stringContains (host, ":")) {
+				port = utils.stringNthField (host, ":", 2);
+				host = utils.stringNthField (host, ":", 1);
 				}
 			else {
 				port = 80;
@@ -393,7 +265,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					pageparkStats.hitsByDomain [lowerhost]++;
 					}
 			//hits today
-				if (!sameDay (now, pageparkStats.whenLastHit)) { //day rollover
+				if (!utils.sameDay (now, pageparkStats.whenLastHit)) { //day rollover
 					pageparkStats.ctHitsToday = 0;
 					}
 			pageparkStats.ctHits++;
@@ -427,29 +299,41 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					status: pageparkStats
 					}
 				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-				httpResponse.end (jsonStringify (status));    
+				httpResponse.end (utils.jsonStringify (status));    
 				break;
 			default: //see if it's a path in the domains folder, if not 404
-				var f = getFullFilePath (domainsPath) + host + parsedUrl.pathname;
+				var domainfolder = getFullFilePath (domainsPath) + host;
+				var f = domainfolder + parsedUrl.pathname;
 				if (checkPathForIllegalChars (f)) {
 					fsSureFilePath (domainsPath, function () { //make sure domains folder exists
-						fs.stat (f, function (err, stats) {
-							if (err) {
-								return404 ();
+						getConfigFile (host, function (config) { //get config.json, if it exists -- 1/18/15 by DW
+							if (config != undefined) {
+								console.log ("handleHttpRequest: config == " + utils.jsonStringify (config));
+								if (config.urlSiteRedirect != undefined) {
+									var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
+									httpResponse.writeHead (302, {"Location": urlRedirect, "Content-Type": "text/plain"});
+									httpResponse.end ("Temporary redirect to " + urlRedirect + ".");    
+									return; 
+									}
 								}
-							else {
-								if (stats.isDirectory ()) {
-									if (!endsWith (f, "/")) {
-										f += "/";
-										}
-									findIndexFile (f, function (findex) {
-										serveFile (findex);
-										});
+							fs.stat (f, function (err, stats) {
+								if (err) {
+									return404 ();
 									}
 								else {
-									serveFile (f);
+									if (stats.isDirectory ()) {
+										if (!utils.endsWith (f, "/")) {
+											f += "/";
+											}
+										findIndexFile (f, function (findex) {
+											serveFile (findex);
+											});
+										}
+									else {
+										serveFile (f);
+										}
 									}
-								}
+								});
 							});
 						});
 					}
@@ -470,7 +354,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 function writeStats (fname, stats, callback) {
 	var f = getFullFilePath (fname);
 	fsSureFilePath (f, function () {
-		fs.writeFile (f, jsonStringify (stats), function (err) {
+		fs.writeFile (f, utils.jsonStringify (stats), function (err) {
 			if (err) {
 				console.log ("writeStats: error == " + err.message);
 				}
