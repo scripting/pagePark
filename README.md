@@ -1,6 +1,3 @@
-PagePark
-========
-
 I wrote this simple HTTP server to park domains I've bought but not yet used.
 
 It's written in JavaScript and runs in Node.js.
@@ -85,6 +82,12 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.51 1/18/15 by DW
+
+Created utils.js in the lib folder, and require it in pagepark.js.
+
+New feature: If there's a file called config.json in a domain folder, we read it on every request, and values in that file can change the behavior of the server. The first feature allows you to do a whole-site redirect. Useful if you want to have several names map to the same content. Here's an example of the config.json file that maps a domain to nodestorage.io.
+
 ##### v0.48 1/8/15 by DW
 
 The default port the server boots up on is now 1339. Previously it was 80, which is the standard port for HTTP, but on many OSes this requires PagePark to be running in supervisor mode. I added docs above to explain this. 
@@ -92,7 +95,6 @@ The default port the server boots up on is now 1339. Previously it was 80, which
 Changed package.json so that only *request* and *marked* were listed as dependencies. Apparently the others are included in Node without having to list them. 
 
 Instead of keeping our own MIME type table, we use the Node *mime* package, which is also included as a dependency in the package.json file.
-
 
 ##### v0.47 1/7/15 by DW
 
@@ -107,3 +109,4 @@ Fixed a problem in handling requests if you specified a different folder for Pag
 #### Questions, comments?
 
 Please post a note on the <a href="https://groups.google.com/forum/#!forum/server-snacks">Server Snacks</a> mail list. 
+
