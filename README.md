@@ -1,3 +1,5 @@
+#### PagePark
+
 I wrote this simple HTTP server to park domains I've bought but not yet used.
 
 It's written in JavaScript and runs in Node.js.
@@ -86,7 +88,7 @@ There will always be more work to do here. ;-)
 
 Created utils.js in the lib folder, and require it in pagepark.js.
 
-New feature: If there's a file called config.json in a domain folder, we read it on every request, and values in that file can change the behavior of the server. The first feature allows you to do a whole-site redirect. Useful if you want to have several names map to the same content. Here's an example of the config.json file that maps a domain to nodestorage.io.
+New feature: If there's a file called config.json in a domain folder, we read it on every request, and values in that file can change the behavior of the server. The first feature allows you to do a whole-site redirect. Useful if you want to have several names map to the same content. Here's an <a href="https://gist.github.com/scripting/27be2d8be40577ad0fdf">example</a> of the config.json file that maps a domain to <a href="http://nodestorage.io/">nodestorage.io</a>.
 
 ##### v0.48 1/8/15 by DW
 
