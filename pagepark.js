@@ -1,4 +1,4 @@
-var myVersion = "0.51", myProductName = "PagePark";
+var myVersion = "0.53", myProductName = "PagePark"; 
 
 	//The MIT License (MIT)
 	
@@ -281,6 +281,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 						client = domains [0];
 						}
 					}
+				if (client == undefined) { //1/25/15 by DW
+					client = "";
+					}
 				console.log (now.toLocaleTimeString () + " " + httpRequest.method + " " + host + ":" + port + " " + lowerpath + " " + referrer + " " + client);
 				});
 		
@@ -406,11 +409,11 @@ function startup () {
 		readStats (fnameStats, pageparkStats, function () {
 			fsSureFilePath (getFullFilePath (domainsPath) + "x", function () { //make sure domains folder exists
 				var now = new Date ();
-				console.log (myProductName + " v" + myVersion + ".");
 				pageparkStats.ctStarts++;
 				pageparkStats.whenLastStart = now;
 				flStatsDirty = true;
 				http.createServer (handleHttpRequest).listen (pageparkPrefs.myPort);
+				console.log (""); console.log (myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + "."); console.log ("");
 				setInterval (everySecond, 1000); 
 				});
 			});
