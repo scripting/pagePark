@@ -84,6 +84,14 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.54 2/18/15 by DW
+
+A new feature for pages implemented as scripts. If the script returns the value <i>undefined</i> PagePark will not return a value to the HTTP client, it assumes that the script will do this. 
+
+To make it possible for a script page to return a value to the client, there's a new built-in function httpReturn. It takes two parameters, the value, a string, and the type, a MIME type. For example you might have a script that makes an HTTP request and returns a value based on the result to the caller.
+
+Here's an <a href="https://gist.github.com/scripting/a3a8232d193ea88e04ba">example script</a> that illustrates.
+
 ##### v0.51 1/18/15 by DW
 
 Created utils.js in the lib folder, and require it in pagepark.js.
