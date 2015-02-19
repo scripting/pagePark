@@ -1,4 +1,4 @@
-var myVersion = "0.53", myProductName = "PagePark"; 
+var myVersion = "0.54", myProductName = "PagePark"; 
 
 	//The MIT License (MIT)
 	
@@ -200,6 +200,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			});
 		}
 	function serveFile (f) {
+		function httpReturn (val, type) { //2/17/15 by DW
+			httpResponse.writeHead (200, {"Content-Type": type});
+			httpResponse.end (val.toString ());    
+			}
 		fs.readFile (f, function (err, data) {
 			if (err) {
 				return404 ();
@@ -210,8 +214,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					case "js":
 						try {
 							var val = eval (data.toString ());
-							httpResponse.writeHead (200, {"Content-Type": "text/html"});
-							httpResponse.end (val.toString ());    
+							if (val !== undefined) { //2/17/15 by DW
+								httpResponse.writeHead (200, {"Content-Type": "text/html"});
+								httpResponse.end (val.toString ());    
+								}
 							}
 						catch (err) {
 							httpResponse.writeHead (500, {"Content-Type": "text/plain"});
