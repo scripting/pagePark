@@ -100,11 +100,11 @@ As an experiment, I mapped the domain my.this.how to point to a folder in my pub
 
 4. I created a <a href="https://gist.github.com/scripting/f06e32acdee685510211">config.json file</a> in that folder, pointing to the pageParkDemo folder in my Dropbox folder.
 
-To test the setup, I just went to <a href="http://my.this.how/">http://my.this.how/</a>, where I saw "this is just a demo".
+To test the setup, I just went to <a href="http://my.this.how/">my.this.how</a>, where I saw "this is just a demo".
 
 Just for fun I put a <a href="http://my.this.how/saul.png">picture</a> in that folder, to see if it works.
 
-Obviously it can get a lot more elaborate, and you can host the content anywhere, not just in a public Dropbox folder. The key is that the content be accessible over the web. 
+Obviously it can get a lot more elaborate, and you can store the content anywhere, not just in a Dropbox folder. The key is that the content be accessible over the web. 
 
 ##### v0.54 2/18/15 by DW
 
