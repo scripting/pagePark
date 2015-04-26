@@ -49,7 +49,7 @@ var pageparkStats = {
 var fnameStats = "prefs/stats.json", flStatsDirty = false;
 
 var domainsPath = "domains/";
-	var configFname = "/config.json";
+var configFname = "/config.json";
 
 var mdTemplatePath = "prefs/mdTemplate.txt";
 var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
