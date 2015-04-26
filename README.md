@@ -84,6 +84,28 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.55 4/26/15 by DW
+
+With this release you can serve domains whose content is stored elsewhere on the web. 
+
+There's a new optional element of config.json, urlSiteContents. Its value is the URL of a directory on the web that stores the content of the domain. 
+
+As an experiment, I mapped the domain my.this.how to point to a folder in my public Dropbox folder. Here's how I did it.
+
+1. First I created a new sub-folder of my public Dropbox folder called pageParkDemo. I put one file in that folder, index.html.
+
+2. I used the web interface of my domain registrar to point my.this.how at the IP address of my PagePark server.
+
+3. On my PagePark server, I created a sub-folder of the domains folder called my.this.how.
+
+4. I created a <a href="https://gist.github.com/scripting/f06e32acdee685510211">config.json file</a> in that folder, pointing to the pageParkDemo folder in my Dropbox folder.
+
+To test the setup, I just went to <a href="http://my.this.how/">http://my.this.how/</a>, where I saw "this is just a demo".
+
+Just for fun I put a <a href="http://my.this.how/saul.png">picture</a> in that folder, to see if it works.
+
+Obviously it can get a lot more elaborate, and you can host the content anywhere, not just in a public Dropbox folder. The key is that the content be accessible over the web. 
+
 ##### v0.54 2/18/15 by DW
 
 A new feature for pages implemented as scripts. If the script returns the value <i>undefined</i> PagePark will not return a value to the HTTP client, it assumes that the script will do this. 

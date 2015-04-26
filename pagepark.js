@@ -1,4 +1,4 @@
-var myVersion = "0.54", myProductName = "PagePark"; 
+var myVersion = "0.55", myProductName = "PagePark"; 
 
 	//The MIT License (MIT)
 	
@@ -317,11 +317,19 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					fsSureFilePath (domainsPath, function () { //make sure domains folder exists
 						getConfigFile (host, function (config) { //get config.json, if it exists -- 1/18/15 by DW
 							if (config != undefined) {
-								console.log ("handleHttpRequest: config == " + utils.jsonStringify (config));
 								if (config.urlSiteRedirect != undefined) {
 									var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
 									httpResponse.writeHead (302, {"Location": urlRedirect, "Content-Type": "text/plain"});
 									httpResponse.end ("Temporary redirect to " + urlRedirect + ".");    
+									return; 
+									}
+								if (config.urlSiteContents != undefined) { //4/26/15 by DW -- v0.55
+									var path = parsedUrl.pathname;
+									if (path == "/") {
+										path += pageparkPrefs.indexFilename + ".html";
+										}
+									var url = config.urlSiteContents + path;
+									httpRequest.pipe (request (url)).pipe (httpResponse);
 									return; 
 									}
 								}
