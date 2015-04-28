@@ -56,14 +56,11 @@ var mdTemplatePath = "prefs/mdTemplate.txt";
 var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
 
 //routines from utils.js, fs.js
-	function fsSureFilePath (path, callback) { 
+	function fsSureFilePath (path) {
 		var splits = path.split ("/");
 		path = ""; //1/8/15 by DW
 		var defer = q.defer ();
 		if (splits.length < 1) {
-			if (callback != undefined) {
-				callback();
-				}
 			return q.resolve ();
 			}
 		function doLevel (levelnum) {
@@ -81,9 +78,6 @@ var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.
 					});
 				}
 			else {
-				if (callback != undefined) {
-					callback();
-					}
 				defer.resolve ();
 				}
 			}
