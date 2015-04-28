@@ -1,4 +1,4 @@
-var myVersion = "0.55", myProductName = "PagePark"; 
+var myVersion = "0.56", myProductName = "PagePark"; 
 
 	//The MIT License (MIT)
 	
@@ -30,6 +30,7 @@ var marked = require ("marked");
 var dns = require ("dns");
 var mime = require ("mime"); //1/8/15 by DW
 var utils = require ("./lib/utils.js"); //1/18/15 by DW
+var q = require("q");
 
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
@@ -58,34 +59,36 @@ var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.
 	function fsSureFilePath (path, callback) { 
 		var splits = path.split ("/");
 		path = ""; //1/8/15 by DW
-		if (splits.length > 0) {
-			function doLevel (levelnum) {
-				if (levelnum < (splits.length - 1)) {
-					path += splits [levelnum] + "/";
-					fs.exists (path, function (flExists) {
-						if (flExists) {
-							doLevel (levelnum + 1);
-							}
-						else {
-							fs.mkdir (path, undefined, function () {
-								doLevel (levelnum + 1);
-								});
-							}
-						});
-					}
-				else {
-					if (callback != undefined) {
-						callback ();
-						}
-					}
-				}
-			doLevel (0);
-			}
-		else {
+		var defer = q.defer ();
+		if (splits.length < 1) {
 			if (callback != undefined) {
-				callback ();
+				callback();
+				}
+			return q.resolve ();
+			}
+		function doLevel (levelnum) {
+			if (levelnum < (splits.length - 1)) {
+				path += splits [levelnum] + "/";
+				fs.exists (path, function (flExists) {
+					if (flExists) {
+						doLevel (levelnum + 1);
+						}
+					else {
+						fs.mkdir (path, undefined, function () {
+							doLevel (levelnum + 1);
+							});
+						}
+					});
+				}
+			else {
+				if (callback != undefined) {
+					callback();
+					}
+				defer.resolve ();
 				}
 			}
+		doLevel (0);
+		return defer.promise;
 		}
 
 function httpExt2MIME (ext) { //12/24/14 by DW
@@ -370,58 +373,37 @@ function handleHttpRequest (httpRequest, httpResponse) {
 
 function writeStats (fname, stats, callback) {
 	var f = getFullFilePath (fname);
-	fsSureFilePath (f, function () {
-		fs.writeFile (f, utils.jsonStringify (stats), function (err) {
-			if (err) {
+	return fsSureFilePath (f).then (function () {
+		return q.nfcall (fs.writeFile, f, utils.jsonStringify (stats)).fail (function (err) {
 				console.log ("writeStats: error == " + err.message);
-				}
-			if (callback != undefined) {
-				callback ();
-				}
-			});
+				});
 		});
 	}
-function readStats (fname, stats, callback) {
+function readStats (fname, stats) {
 	var f = getFullFilePath (fname);
-	fsSureFilePath (f, function () {
-		fs.exists (f, function (flExists) {
-			if (flExists) {
-				fs.readFile (f, function (err, data) {
-					if (err) {
-						console.log ("readStats: error reading file " + f + " == " + err.message)
-						if (callback != undefined) {
-							callback ();
-							}
-						}
-					else {
-						var storedStats = JSON.parse (data.toString ());
-						for (var x in storedStats) {
-							stats [x] = storedStats [x];
-							}
-						writeStats (fname, stats, function () {
-							if (callback != undefined) {
-								callback ();
-								}
-							});
-						}
-					});
+	return fsSureFilePath (f).then (function () {
+		return q.nfcall (fs.readFile, f, "utf-8");
+		}, function (error) {
+			return writeStats (fname, stats);
+		}).then (function(data) {
+			var storedStats = JSON.parse (data.toString ());
+			for (var x in storedStats) {
+				stats [x] = storedStats [x];
 				}
-			else {
-				writeStats (fname, stats, function () {
-					if (callback != undefined) {
-						callback ();
-						}
-					});
-				}
-			});
+			return writeStats (fname, stats);
+		}, function (error) {
+			console.log ("readStats: error reading file " + f + " == " + err.message)
+			return writeStats (fname, stats);
 		});
 	}
-
 
 function startup () {
-	readStats (fnamePrefs, pageparkPrefs, function () {
-		readStats (fnameStats, pageparkStats, function () {
-			fsSureFilePath (getFullFilePath (domainsPath) + "x", function () { //make sure domains folder exists
+	readStats (fnamePrefs, pageparkPrefs).then (function () {
+		return readStats (fnameStats, pageparkStats);
+		}).then (function () {
+			//make sure domains folder exists
+			return fsSureFilePath (getFullFilePath (domainsPath) + "x");
+			}).then (function () { 
 				var now = new Date ();
 				pageparkStats.ctStarts++;
 				pageparkStats.whenLastStart = now;
@@ -430,7 +412,5 @@ function startup () {
 				console.log (""); console.log (myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + "."); console.log ("");
 				setInterval (everySecond, 1000); 
 				});
-			});
-		});
 	}
 startup ();
