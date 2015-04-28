@@ -10,7 +10,8 @@
     "request": "*",
     "mime": "*",
     "marked": "*",
-    "q": "*"
+    "q": "*",
+    "mkdirp": "*"
     }, 
   "license": "MIT",
   "engines": {

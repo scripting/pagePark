@@ -30,7 +30,8 @@ var marked = require ("marked");
 var dns = require ("dns");
 var mime = require ("mime"); //1/8/15 by DW
 var utils = require ("./lib/utils.js"); //1/18/15 by DW
-var q = require("q");
+var q = require ("q"); //4/28/2015 by FM
+var mkdirp = require ("mkdirp"); //4/28/2015 by FM
 
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
@@ -55,33 +56,28 @@ var configFname = "/config.json";
 var mdTemplatePath = "prefs/mdTemplate.txt";
 var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
 
+var readFile = q.denodeify (fs.readFile);
+var writeFile = q.denodeify (fs.writeFile);
+
 //routines from utils.js, fs.js
 	function fsSureFilePath (path) {
-		var splits = path.split ("/");
-		path = ""; //1/8/15 by DW
 		var defer = q.defer ();
-		if (splits.length < 1) {
-			return q.resolve ();
-			}
-		function doLevel (levelnum) {
-			if (levelnum < (splits.length - 1)) {
-				path += splits [levelnum] + "/";
-				fs.exists (path, function (flExists) {
-					if (flExists) {
-						doLevel (levelnum + 1);
+		var splits = path.split ("/");
+		splits.pop();
+		path = splits.join("/");
+		fs.exists (path, function (flExists) {
+			if (flExists) {
+				defer.resolve ();
+				} 
+			else {
+				mkdirp(path, function (err) {
+					if (err) {
+						console.log ('Error making directory: ' + path);
 						}
-					else {
-						fs.mkdir (path, undefined, function () {
-							doLevel (levelnum + 1);
-							});
-						}
+						defer.resolve ();
 					});
 				}
-			else {
-				defer.resolve ();
-				}
-			}
-		doLevel (0);
+			});
 		return defer.promise;
 		}
 
@@ -163,7 +159,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 	function getConfigFile (host) {
 		var f = getFullFilePath (domainsPath) + host + configFname;
 		var defer = q.defer();
-		q.nfcall (fs.readFile, f).then (function (data) {
+		readFile (f).then (function (data) {
 			var config = JSON.parse (data.toString ());
 			defer.resolve(config);
 			}, function (err) {
@@ -368,7 +364,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 function writeStats (fname, stats, callback) {
 	var f = getFullFilePath (fname);
 	return fsSureFilePath (f).then (function () {
-		return q.nfcall (fs.writeFile, f, utils.jsonStringify (stats)).fail (function (err) {
+		return writeFile (f, utils.jsonStringify (stats)).fail (function (err) {
 				console.log ("writeStats: error == " + err.message);
 				});
 		});
@@ -376,17 +372,18 @@ function writeStats (fname, stats, callback) {
 function readStats (fname, stats) {
 	var f = getFullFilePath (fname);
 	return fsSureFilePath (f).then (function () {
-		return q.nfcall (fs.readFile, f, "utf-8");
-		}, function (error) {
-			return writeStats (fname, stats);
-		}).then (function(data) {
+		return readFile (f, "utf-8").then (function(data) {
 			var storedStats = JSON.parse (data.toString ());
 			for (var x in storedStats) {
 				stats [x] = storedStats [x];
 				}
 			return writeStats (fname, stats);
-		}, function (error) {
-			console.log ("readStats: error reading file " + f + " == " + err.message)
+			}, function (err) {
+				console.log ("readStats: error reading file " + f + " == " + err.message)
+				return writeStats (fname, stats);
+			});
+		}, function (err) {
+			console.log (err);
 			return writeStats (fname, stats);
 		});
 	}
