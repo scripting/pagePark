@@ -166,41 +166,39 @@ function everySecond () {
 
 
 function handleHttpRequest (httpRequest, httpResponse) {
-	function getConfigFile (host, callback) {
+	function getConfigFile (host) {
 		var f = getFullFilePath (domainsPath) + host + configFname;
-		fs.readFile (f, function (err, data) {
-			if (err) {
-				callback (undefined);
-				}
-			else {
-				try {
-					var config = JSON.parse (data.toString ());
-					callback (config);
-					}
-				catch (err) {
-					console.log ("getConfigFile: error reading " + configFname + " file for host " + host + ". " + err.message);
-					callback (undefined);
-					}
-				}
-			});
+		var defer = q.defer();
+		q.nfcall (fs.readFile, f).then (function (data) {
+			var config = JSON.parse (data.toString ());
+			defer.resolve(config);
+			}, function (err) {
+				defer.resolve();
+			}).catch (function (err) {
+				console.log ("getConfigFile: error reading " + configFname + " file for host " + host + ". " + err.message);
+				defer.resolve();
+				});
+		return defer.promise;
 		}
 	function return404 () {
 		httpResponse.writeHead (404, {"Content-Type": "text/plain"});
 		httpResponse.end ("The file was not found.");    
 		}
 	function findIndexFile (folder, callback) {
-		fs.readdir (folder, function (err, list) {
+		var defer = q.defer();
+		q.nfcall (fs.readdir, folder).then (function (list) {
 			for (var i = 0; i < list.length; i++) {
 				var fname = list [i];
 				if (utils.stringCountFields (fname, ".") == 2) { //something like xxx.yyy
 					if (utils.stringNthField (fname, ".", 1).toLowerCase () == pageparkPrefs.indexFilename) { //something like index.wtf
-						callback (folder + fname);
-						return;
+						return defer.resolve (folder + fname);
 						}
 					}
 				}
 			return404 ();
+			defer.reject();
 			});
+			return defer.promise;
 		}
 	function serveFile (f) {
 		function httpReturn (val, type) { //2/17/15 by DW
@@ -317,8 +315,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				var domainfolder = getFullFilePath (domainsPath) + host;
 				var f = domainfolder + parsedUrl.pathname;
 				if (checkPathForIllegalChars (f)) {
-					fsSureFilePath (domainsPath, function () { //make sure domains folder exists
-						getConfigFile (host, function (config) { //get config.json, if it exists -- 1/18/15 by DW
+					//make sure domains folder exists
+					fsSureFilePath (domainsPath).then (function () {
+						//get config.json, if it exists -- 1/18/15 by DW
+						getConfigFile (host).then (function (config) { 
 							if (config != undefined) {
 								if (config.urlSiteRedirect != undefined) {
 									var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
@@ -345,7 +345,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 										if (!utils.endsWith (f, "/")) {
 											f += "/";
 											}
-										findIndexFile (f, function (findex) {
+										findIndexFile (f).then (function (findex) {
 											serveFile (findex);
 											});
 										}
