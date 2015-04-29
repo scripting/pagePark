@@ -113,13 +113,13 @@ function getMarkdownTemplate () {
 	fsReadFile (f).then (function (data) {
 		defer.resolve(data);
 	}, function (err) {
-		httpReadUrl (urlDefaultTemplate, function (s) {
+		httpReadUrl (urlDefaultTemplate).then (function (s) {
 			fsWriteFile (mdTemplatePath, s).then (function () {
 				defer.resolve(s);
-			}, function (err) {
-				console.log("Failed to write default template.");
-				defer.resolve(s);
 			});
+		}, function (err) {
+			console.log("Failed to write default template.");
+			defer.resolve(s);
 		});
 	});
 	return defer.promise;
