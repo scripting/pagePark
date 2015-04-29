@@ -9,7 +9,9 @@
   "dependencies" : {
     "request": "*",
     "mime": "*",
-    "marked": "*"
+    "marked": "*",
+    "q": "*",
+    "mkdirp": "*"
     }, 
   "license": "MIT",
   "engines": {
