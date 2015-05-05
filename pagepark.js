@@ -1,4 +1,4 @@
-var myVersion = "0.55", myProductName = "PagePark"; 
+var myVersion = "0.56", myProductName = "PagePark"; 
 
 	//The MIT License (MIT)
 	
@@ -35,7 +35,9 @@ var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
-	indexFilename: "index"
+	indexFilename: "index",
+	flProcessScriptFiles: true, extScriptFiles: "js", //5/5/15 by DW
+	flProcessMarkdownFiles: true, extMarkdownFiles: "md" //5/5/15 by DW
 	};
 var fnamePrefs = "prefs/prefs.json";
 
@@ -152,31 +154,39 @@ function checkPathForIllegalChars (path) {
 		}
 	return (true);
 	}
-
 function everySecond () {
 	if (flStatsDirty) {
 		writeStats (fnameStats, pageparkStats);
 		flStatsDirty = false;
 		}
 	}
-
-
-
 function handleHttpRequest (httpRequest, httpResponse) {
 	function getConfigFile (host, callback) {
+		var config = {
+			urlSiteRedirect: undefined,
+			urlSiteContents: undefined,
+			flProcessScriptFiles: true, 
+			flProcessMarkdownFiles: true,
+			extScriptFiles: pageparkPrefs.extScriptFiles,
+			extMarkdownFiles: pageparkPrefs.extMarkdownFiles
+			};
 		var f = getFullFilePath (domainsPath) + host + configFname;
 		fs.readFile (f, function (err, data) {
 			if (err) {
-				callback (undefined);
+				callback (config);
 				}
 			else {
 				try {
-					var config = JSON.parse (data.toString ());
+					var storedConfig = JSON.parse (data.toString ());
+					for (var x in storedConfig) {
+						config [x] = storedConfig [x];
+						}
 					callback (config);
+					
 					}
 				catch (err) {
 					console.log ("getConfigFile: error reading " + configFname + " file for host " + host + ". " + err.message);
-					callback (undefined);
+					callback (config);
 					}
 				}
 			});
@@ -199,11 +209,17 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			return404 ();
 			});
 		}
-	function serveFile (f) {
+	function serveFile (f, config) {
 		function httpReturn (val, type) { //2/17/15 by DW
 			httpResponse.writeHead (200, {"Content-Type": type});
 			httpResponse.end (val.toString ());    
 			}
+		
+		function defaultReturn (type, data) {
+			httpResponse.writeHead (200, {"Content-Type": type});
+			httpResponse.end (data);    
+			}
+		
 		fs.readFile (f, function (err, data) {
 			if (err) {
 				return404 ();
@@ -211,32 +227,41 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			else {
 				var ext = utils.stringLastField (f, ".").toLowerCase (), type = httpExt2MIME (ext);
 				switch (ext) {
-					case "js":
-						try {
-							var val = eval (data.toString ());
-							if (val !== undefined) { //2/17/15 by DW
-								httpResponse.writeHead (200, {"Content-Type": "text/html"});
-								httpResponse.end (val.toString ());    
+					case config.extScriptFiles:
+						if (pageparkPrefs.flProcessScriptFiles && config.flProcessScriptFiles) {
+							try {
+								var val = eval (data.toString ());
+								if (val !== undefined) { //2/17/15 by DW
+									httpResponse.writeHead (200, {"Content-Type": "text/html"});
+									httpResponse.end (val.toString ());    
+									}
+								}
+							catch (err) {
+								httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+								httpResponse.end ("Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
 								}
 							}
-						catch (err) {
-							httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-							httpResponse.end ("Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
+						else {
+							defaultReturn (type, data);
 							}
 						break;
-					case "md":
-						getMarkdownTemplate (function (theTemplate) {
-							var mdtext = data.toString (), pagetable = new Object ();
-							pagetable.bodytext = marked (mdtext);
-							pagetable.title = utils.stringLastField (f, "/");
-							var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-							httpResponse.writeHead (200, {"Content-Type": "text/html"});
-							httpResponse.end (s);    
-							});
+					case config.extMarkdownFiles:
+						if (pageparkPrefs.flProcessMarkdownFiles && config.flProcessMarkdownFiles) {
+							getMarkdownTemplate (function (theTemplate) {
+								var mdtext = data.toString (), pagetable = new Object ();
+								pagetable.bodytext = marked (mdtext);
+								pagetable.title = utils.stringLastField (f, "/");
+								var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+								httpResponse.writeHead (200, {"Content-Type": "text/html"});
+								httpResponse.end (s);    
+								});
+							}
+						else {
+							defaultReturn (type, data);
+							}
 						break;
 					default:
-						httpResponse.writeHead (200, {"Content-Type": type});
-						httpResponse.end (data);    
+						defaultReturn (type, data);
 						break;
 					}
 				}
@@ -343,11 +368,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 											f += "/";
 											}
 										findIndexFile (f, function (findex) {
-											serveFile (findex);
+											serveFile (findex, config);
 											});
 										}
 									else {
-										serveFile (f);
+										serveFile (f, config);
 										}
 									}
 								});
@@ -366,8 +391,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		httpResponse.end (tryError.message);    
 		}
 	}
-
-
 function writeStats (fname, stats, callback) {
 	var f = getFullFilePath (fname);
 	fsSureFilePath (f, function () {
@@ -416,8 +439,6 @@ function readStats (fname, stats, callback) {
 			});
 		});
 	}
-
-
 function startup () {
 	readStats (fnamePrefs, pageparkPrefs, function () {
 		readStats (fnameStats, pageparkStats, function () {

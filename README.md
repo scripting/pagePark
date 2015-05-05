@@ -84,6 +84,10 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.56 5/5/15 by DW
+
+New prefs and config values that allow you to disable processing of scripts and Markdown files. By setting the values in prefs.json, you control all domains on the server. And by adding the values to config.json, in the folder the site is served from, you can turn them off selectively by site. I needed to turn off script processing for .js files served from <a href="https://github.com/scripting/river4">River4</a>, to make it possible to serve a full river from PagePark. 
+
 ##### v0.55 4/26/15 by DW
 
 With this release you can serve domains whose content is stored elsewhere on the web. 
