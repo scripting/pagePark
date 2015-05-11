@@ -1,4 +1,4 @@
-var myVersion = "0.56", myProductName = "PagePark"; 
+var myVersion = "0.57", myProductName = "PagePark"; 
 
 	//The MIT License (MIT)
 	
@@ -139,7 +139,7 @@ function checkPathForIllegalChars (path) {
 			return (false);
 			}
 		switch (ch) {
-			case "/": case "_": case "-": case ".":  case " ":
+			case "/": case "_": case "-": case ".":  case " ": case "*":
 				return (false);
 			}
 		return (true);
@@ -161,6 +161,26 @@ function everySecond () {
 		}
 	}
 function handleHttpRequest (httpRequest, httpResponse) {
+	function getDomainFolder (host, callback) { //5/11/15 by DW
+		var folder = getFullFilePath (domainsPath);
+		var domainfolder = folder + host;
+		fs.exists (domainfolder, function (flExists) {
+			if (flExists) {
+				callback (domainfolder, host);
+				}
+			else {
+				if (utils.stringCountFields (host, ".") == 3) {
+					var firstpart = utils.stringNthField (host, ".", 1);
+					var wildcardhost = "*" + utils.stringDelete (host, 1, firstpart.length);
+					domainfolder = folder + wildcardhost;
+					callback (domainfolder, wildcardhost);
+					}
+				else {
+					callback (domainfolder, host);
+					}
+				}
+			});
+		}
 	function getConfigFile (host, callback) {
 		var config = {
 			urlSiteRedirect: undefined,
@@ -317,30 +337,12 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					}
 				console.log (now.toLocaleTimeString () + " " + httpRequest.method + " " + host + ":" + port + " " + lowerpath + " " + referrer + " " + client);
 				});
-		
-		switch (lowerpath) {
-			case "/version":
-				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-				httpResponse.end (myVersion);    
-				break;
-			case "/now": 
-				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-				httpResponse.end (now.toString ());    
-				break;
-			case "/status": 
-				var status = {
-					prefs: pageparkPrefs,
-					status: pageparkStats
-					}
-				httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-				httpResponse.end (utils.jsonStringify (status));    
-				break;
-			default: //see if it's a path in the domains folder, if not 404
-				var domainfolder = getFullFilePath (domainsPath) + host;
+		//handle the request
+			getDomainFolder (host, function (domainfolder, actualhost) { //might be a wildcard folder
 				var f = domainfolder + parsedUrl.pathname;
 				if (checkPathForIllegalChars (f)) {
 					fsSureFilePath (domainsPath, function () { //make sure domains folder exists
-						getConfigFile (host, function (config) { //get config.json, if it exists -- 1/18/15 by DW
+						getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
 							if (config != undefined) {
 								if (config.urlSiteRedirect != undefined) {
 									var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
@@ -349,18 +351,47 @@ function handleHttpRequest (httpRequest, httpResponse) {
 									return; 
 									}
 								if (config.urlSiteContents != undefined) { //4/26/15 by DW -- v0.55
-									var path = parsedUrl.pathname;
-									if (path == "/") {
-										path += pageparkPrefs.indexFilename + ".html";
+									var theRequest = {
+										url: config.urlSiteContents + httpRequest.url,
+										headers: {
+											"X-Forwarded-Host": host,
+											"X-Forwarded-For": httpRequest.connection.remoteAddress
+											}
+										};
+									try {
+										httpRequest.pipe (request (theRequest)).pipe (httpResponse); 
 										}
-									var url = config.urlSiteContents + path;
-									httpRequest.pipe (request (url)).pipe (httpResponse);
+									catch (tryError) {
+										httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+										httpResponse.end (tryError.message);    
+										}
+									
 									return; 
 									}
 								}
 							fs.stat (f, function (err, stats) {
 								if (err) {
-									return404 ();
+									switch (lowerpath) {
+										case "/version":
+											httpResponse.writeHead (200, {"Content-Type": "text/plain"});
+											httpResponse.end (myVersion);    
+											break;
+										case "/now": 
+											httpResponse.writeHead (200, {"Content-Type": "text/plain"});
+											httpResponse.end (now.toString ());    
+											break;
+										case "/status": 
+											var status = {
+												prefs: pageparkPrefs,
+												status: pageparkStats
+												}
+											httpResponse.writeHead (200, {"Content-Type": "text/plain"});
+											httpResponse.end (utils.jsonStringify (status));    
+											break;
+										default:
+											return404 ();
+											break;
+										}
 									}
 								else {
 									if (stats.isDirectory ()) {
@@ -383,8 +414,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					httpResponse.writeHead (500, {"Content-Type": "text/plain"});
 					httpResponse.end ("The file name contains illegal characters.");    
 					}
-				break;
-			}
+				});
 		}
 	catch (tryError) {
 		httpResponse.writeHead (500, {"Content-Type": "text/plain"});

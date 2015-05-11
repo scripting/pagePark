@@ -84,6 +84,16 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.57 5/11/15 by DW
+
+PagePark has pre-defined pages, /now, /version and /status, whose values are returned by PagePark itself. It used to be that they took precedence, so if a site defines pages with those names, the internal ones would be served instead. Now we only serve them if the site didn't define it. 
+
+The <i>urlSiteContents</i> feature now transmits search params. It still will only forward GET calls. This needs to be updated in a future version. 
+
+PagePark now supports wildcards. Suppose you want to serve all the names from mydomain.org with a wildcard. Create a sub-folder of the domains folder with the name *.mydomain.org. If a request comes in for a sub-domain of mydomain.org that doesn't have its own folder, we'll route it through that folder. You can combine this feature with the urlSiteContents feature, or script-implemented pages. 
+
+We also set the <a href="http://stackoverflow.com/questions/19084340/real-life-usage-of-the-x-forwarded-host-header">X-Forwarded-Host</a> and <a href="https://en.wikipedia.org/wiki/X-Forwarded-For">X-Forwarded-For</a> headers on urlSiteContents requests. 
+
 ##### v0.56 5/5/15 by DW
 
 New prefs and config values that allow you to disable processing of scripts and Markdown files. By setting the values in prefs.json, you control all domains on the server. And by adding the values to config.json, in the folder the site is served from, you can turn them off selectively by site. I needed to turn off script processing for .js files served from <a href="https://github.com/scripting/river4">River4</a>, to make it possible to serve a full river from PagePark. 
