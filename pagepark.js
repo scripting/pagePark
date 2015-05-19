@@ -1,4 +1,4 @@
-var myVersion = "0.57", myProductName = "PagePark"; 
+var myVersion = "0.58h", myProductName = "PagePark"; 
 
 	//The MIT License (MIT)
 	
@@ -365,8 +365,22 @@ function handleHttpRequest (httpRequest, httpResponse) {
 										httpResponse.writeHead (500, {"Content-Type": "text/plain"});
 										httpResponse.end (tryError.message);    
 										}
-									
 									return; 
+									}
+								if (config.s3Path != undefined) { //5/11/15 PM by DW v0.58
+									var firstPartOfHost = utils.stringNthField (host, ".", 1); //if it's dave.smallpict.com, this value is "dave"
+									var s3url = "http:/" + config.s3Path + firstPartOfHost + parsedUrl.pathname; //xxx
+									request (s3url, function (error, response, body) {
+										if (error) {
+											httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+											httpResponse.end ("Error accessing S3 data: " + error.message);    
+											}
+										else {
+											httpResponse.writeHead (response.statusCode, {"Content-Type": response.headers ["content-type"]});
+											httpResponse.end (body);    
+											}
+										});
+									return;
 									}
 								}
 							fs.stat (f, function (err, stats) {
