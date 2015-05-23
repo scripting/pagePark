@@ -84,6 +84,10 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.59 5/23/15 by DW
+
+You can now delegate requests to apps running on other ports on your server machine. There's a new optional section of the prefs. json file where you specify these mappings. It's called domainMap. It's a set of name-values, where the name is the domain, and the value is the port the requests are mapped to. Here's an <a href="https://gist.github.com/scripting/af9df0198db5daa3c982">example</a> of a prefs.json that has a domainMap specified. It maps twitter.radio3.io to the process running on port 5342, twitter.happyfriends.camp to 5338, and any request on judgment.club to the process on port 5351. The name matches the end of the HOST header for the request, so a request for judy.judgment.club will map, as will renee.judgment.club and judgment.club.
+
 ##### v0.57 5/11/15 by DW
 
 PagePark has pre-defined pages, /now, /version and /status, whose values are returned by PagePark itself. It used to be that they took precedence, so if a site defines pages with those names, the internal ones would be served instead. Now we only serve them if the site didn't define it. 

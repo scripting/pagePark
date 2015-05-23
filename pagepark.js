@@ -1,4 +1,4 @@
-var myVersion = "0.58h", myProductName = "PagePark"; 
+var myVersion = "0.59f", myProductName = "PagePark"; 
 
 	//The MIT License (MIT)
 	
@@ -287,6 +287,31 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			});
 		}
+	function delegateRequest (urlToDelegateTo) {
+		var theRequest = {
+			url: urlToDelegateTo,
+			headers: {
+				"X-Forwarded-Host": host,
+				"X-Forwarded-For": httpRequest.connection.remoteAddress
+				}
+			};
+		try {
+			httpRequest.pipe (request (theRequest)).pipe (httpResponse); 
+			}
+		catch (tryError) {
+			httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+			httpResponse.end (tryError.message);    
+			}
+		}
+	function findMappedDomain (domain, callback) { //5/23/15 by DW
+		for (var x in pageparkPrefs.domainMap) {
+			if (utils.endsWith (domain, x)) {
+				callback (pageparkPrefs.domainMap [x]); //a mapped domain, delegate to this port
+				return;
+				}
+			}
+		callback (undefined); //it's one of our domains, handle it here
+		}
 	
 	try {
 		var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
@@ -338,95 +363,95 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				console.log (now.toLocaleTimeString () + " " + httpRequest.method + " " + host + ":" + port + " " + lowerpath + " " + referrer + " " + client);
 				});
 		//handle the request
-			getDomainFolder (host, function (domainfolder, actualhost) { //might be a wildcard folder
-				var f = domainfolder + parsedUrl.pathname;
-				if (checkPathForIllegalChars (f)) {
-					fsSureFilePath (domainsPath, function () { //make sure domains folder exists
-						getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
-							if (config != undefined) {
-								if (config.urlSiteRedirect != undefined) {
-									var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
-									httpResponse.writeHead (302, {"Location": urlRedirect, "Content-Type": "text/plain"});
-									httpResponse.end ("Temporary redirect to " + urlRedirect + ".");    
-									return; 
-									}
-								if (config.urlSiteContents != undefined) { //4/26/15 by DW -- v0.55
-									var theRequest = {
-										url: config.urlSiteContents + httpRequest.url,
-										headers: {
-											"X-Forwarded-Host": host,
-											"X-Forwarded-For": httpRequest.connection.remoteAddress
+			findMappedDomain (host, function (thePort) {
+				if (thePort !== undefined) {
+					var urlRemote;
+					parsedUrl.protocol = "http:";
+					parsedUrl.host = host + ":" + thePort;
+					parsedUrl.hostname = host;
+					parsedUrl.port = thePort;
+					urlRemote = urlpack.format (parsedUrl);
+					delegateRequest (urlRemote);
+					}
+				else { //no mapping, we handle the request
+					getDomainFolder (host, function (domainfolder, actualhost) { //might be a wildcard folder
+						var f = domainfolder + parsedUrl.pathname;
+						if (checkPathForIllegalChars (f)) {
+							fsSureFilePath (domainsPath, function () { //make sure domains folder exists
+								getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
+									if (config != undefined) {
+										if (config.urlSiteRedirect != undefined) {
+											var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
+											httpResponse.writeHead (302, {"Location": urlRedirect, "Content-Type": "text/plain"});
+											httpResponse.end ("Temporary redirect to " + urlRedirect + ".");    
+											return; 
 											}
-										};
-									try {
-										httpRequest.pipe (request (theRequest)).pipe (httpResponse); 
+										if (config.urlSiteContents != undefined) { //4/26/15 by DW -- v0.55
+											delegateRequest (config.urlSiteContents + httpRequest.url);
+											return; 
+											}
+										if (config.s3Path != undefined) { //5/11/15 PM by DW v0.58
+											var firstPartOfHost = utils.stringNthField (host, ".", 1); //if it's dave.smallpict.com, this value is "dave"
+											var s3url = "http:/" + config.s3Path + firstPartOfHost + parsedUrl.pathname; //xxx
+											request (s3url, function (error, response, body) {
+												if (error) {
+													httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+													httpResponse.end ("Error accessing S3 data: " + error.message);    
+													}
+												else {
+													httpResponse.writeHead (response.statusCode, {"Content-Type": response.headers ["content-type"]});
+													httpResponse.end (body);    
+													}
+												});
+											return;
+											}
 										}
-									catch (tryError) {
-										httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-										httpResponse.end (tryError.message);    
-										}
-									return; 
-									}
-								if (config.s3Path != undefined) { //5/11/15 PM by DW v0.58
-									var firstPartOfHost = utils.stringNthField (host, ".", 1); //if it's dave.smallpict.com, this value is "dave"
-									var s3url = "http:/" + config.s3Path + firstPartOfHost + parsedUrl.pathname; //xxx
-									request (s3url, function (error, response, body) {
-										if (error) {
-											httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-											httpResponse.end ("Error accessing S3 data: " + error.message);    
+									fs.stat (f, function (err, stats) {
+										if (err) {
+											switch (lowerpath) {
+												case "/version":
+													httpResponse.writeHead (200, {"Content-Type": "text/plain"});
+													httpResponse.end (myVersion);    
+													break;
+												case "/now": 
+													httpResponse.writeHead (200, {"Content-Type": "text/plain"});
+													httpResponse.end (now.toString ());    
+													break;
+												case "/status": 
+													var status = {
+														prefs: pageparkPrefs,
+														status: pageparkStats
+														}
+													httpResponse.writeHead (200, {"Content-Type": "text/plain"});
+													httpResponse.end (utils.jsonStringify (status));    
+													break;
+												default:
+													return404 ();
+													break;
+												}
 											}
 										else {
-											httpResponse.writeHead (response.statusCode, {"Content-Type": response.headers ["content-type"]});
-											httpResponse.end (body);    
+											if (stats.isDirectory ()) {
+												if (!utils.endsWith (f, "/")) {
+													f += "/";
+													}
+												findIndexFile (f, function (findex) {
+													serveFile (findex, config);
+													});
+												}
+											else {
+												serveFile (f, config);
+												}
 											}
 										});
-									return;
-									}
-								}
-							fs.stat (f, function (err, stats) {
-								if (err) {
-									switch (lowerpath) {
-										case "/version":
-											httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-											httpResponse.end (myVersion);    
-											break;
-										case "/now": 
-											httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-											httpResponse.end (now.toString ());    
-											break;
-										case "/status": 
-											var status = {
-												prefs: pageparkPrefs,
-												status: pageparkStats
-												}
-											httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-											httpResponse.end (utils.jsonStringify (status));    
-											break;
-										default:
-											return404 ();
-											break;
-										}
-									}
-								else {
-									if (stats.isDirectory ()) {
-										if (!utils.endsWith (f, "/")) {
-											f += "/";
-											}
-										findIndexFile (f, function (findex) {
-											serveFile (findex, config);
-											});
-										}
-									else {
-										serveFile (f, config);
-										}
-									}
+									});
 								});
-							});
+							}
+						else {
+							httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+							httpResponse.end ("The file name contains illegal characters.");    
+							}
 						});
-					}
-				else {
-					httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-					httpResponse.end ("The file name contains illegal characters.");    
 					}
 				});
 		}
