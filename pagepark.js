@@ -1,4 +1,4 @@
-var myVersion = "0.59f", myProductName = "PagePark"; 
+var myVersion = "0.60a", myProductName = "PagePark"; 
 
 	//The MIT License (MIT)
 	
@@ -290,6 +290,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 	function delegateRequest (urlToDelegateTo) {
 		var theRequest = {
 			url: urlToDelegateTo,
+			followRedirect: false, //5/26/15  by DW
 			headers: {
 				"X-Forwarded-Host": host,
 				"X-Forwarded-For": httpRequest.connection.remoteAddress

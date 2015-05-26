@@ -84,6 +84,10 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.60 5/26/15 by DW
+
+When delegating requests, pass redirects back to the client, don't follow them. This was necessary so that that OAuth dance with Twitter in nodeStorage would work. 
+
 ##### v0.59 5/23/15 by DW
 
 You can now delegate requests to apps running on other ports on your server machine. 
