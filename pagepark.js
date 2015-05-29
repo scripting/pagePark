@@ -22,10 +22,7 @@ var myVersion = "0.60c", myProductName = "PagePark";
 	//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	//SOFTWARE.
 	
-	//the structured version of this listing:
-	//    http://scripting.com/listings/pagepark.html 
-	
-	
+	//structured listing: http://scripting.com/listings/pagepark.html
 	
 var fs = require ("fs");
 var request = require ("request");
