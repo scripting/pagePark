@@ -14,7 +14,11 @@ It's 90 percent of what all web servers do, so if you learn how to run <a href="
 
 1. Create a folder to host your website. 
 
-2. Copy pagepark.js into that folder, and run it: node pagepark.js
+2. Copy all the files from the downloaded folder into that folder.
+
+3. npm install
+
+4. node pagepark.js
 
 #### Screen shot
 
