@@ -14,7 +14,7 @@ It's 90 percent of what all web servers do, so if you learn how to run <a href="
 
 1. Create a folder to host your website. 
 
-2. Copy all the files from the downloaded folder into that folder.
+2. Copy all the files from the downloaded <a href="https://github.com/scripting/pagepark/archive/master.zip">folder</a> into that folder.
 
 3. npm install
 
