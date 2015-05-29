@@ -88,6 +88,8 @@ There will always be more work to do here. ;-)
 
 When delegating requests, pass redirects back to the client, don't follow them. This was necessary so that that OAuth dance with Twitter in nodeStorage would work. 
 
+There's a new <a href="http://scripting.com/listings/pagepark.html">structured listing</a> of the source code of PagePark, linked to from the <a href="https://github.com/scripting/pagepark/blob/master/pagepark.js">flat listing</a> (above). This makes it easy to see how the code is organized. It gets pretty deeply nested! The outline view makes that manageable. I use the OPML Editor on a Mac to edit PagePark. 
+
 ##### v0.59 5/23/15 by DW
 
 You can now delegate requests to apps running on other ports on your server machine. 
