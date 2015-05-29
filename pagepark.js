@@ -1,4 +1,4 @@
-var myVersion = "0.60a", myProductName = "PagePark"; 
+var myVersion = "0.60c", myProductName = "PagePark";
 
 	//The MIT License (MIT)
 	
@@ -21,7 +21,7 @@ var myVersion = "0.60a", myProductName = "PagePark";
 	//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	//SOFTWARE.
-
+	
 var fs = require ("fs");
 var request = require ("request");
 var urlpack = require ("url");
@@ -56,40 +56,38 @@ var configFname = "/config.json";
 var mdTemplatePath = "prefs/mdTemplate.txt";
 var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
 
-//routines from utils.js, fs.js
-	function fsSureFilePath (path, callback) { 
-		var splits = path.split ("/");
-		path = ""; //1/8/15 by DW
-		if (splits.length > 0) {
-			function doLevel (levelnum) {
-				if (levelnum < (splits.length - 1)) {
-					path += splits [levelnum] + "/";
-					fs.exists (path, function (flExists) {
-						if (flExists) {
-							doLevel (levelnum + 1);
-							}
-						else {
-							fs.mkdir (path, undefined, function () {
-								doLevel (levelnum + 1);
-								});
-							}
-						});
-					}
-				else {
-					if (callback != undefined) {
-						callback ();
+function fsSureFilePath (path, callback) { 
+	var splits = path.split ("/");
+	path = ""; //1/8/15 by DW
+	if (splits.length > 0) {
+		function doLevel (levelnum) {
+			if (levelnum < (splits.length - 1)) {
+				path += splits [levelnum] + "/";
+				fs.exists (path, function (flExists) {
+					if (flExists) {
+						doLevel (levelnum + 1);
 						}
+					else {
+						fs.mkdir (path, undefined, function () {
+							doLevel (levelnum + 1);
+							});
+						}
+					});
+				}
+			else {
+				if (callback != undefined) {
+					callback ();
 					}
 				}
-			doLevel (0);
 			}
-		else {
-			if (callback != undefined) {
-				callback ();
-				}
+		doLevel (0);
+		}
+	else {
+		if (callback != undefined) {
+			callback ();
 			}
 		}
-
+	}
 function httpExt2MIME (ext) { //12/24/14 by DW
 	mime.default_type = "text/plain";
 	return (mime.lookup (ext));
