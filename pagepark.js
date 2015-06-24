@@ -1,4 +1,4 @@
-var myVersion = "0.61t", myProductName = "PagePark"; 
+var myVersion = "0.61v", myProductName = "PagePark"; 
  
 	//The MIT License (MIT)
 	
@@ -257,7 +257,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			});
 		}
 	function serveFile (f, config) {
-		var formatParam = parsedUrl.query.format.toLowerCase (); //url ends with ?format=abc -- 6/24/15 by DW
+		var formatParam; //url ends with ?format=abc -- 6/24/15 by DW
+		if (parsedUrl.query.format !== undefined) {
+			formatParam = parsedUrl.query.format.toLowerCase ()
+			}
 		function httpReturn (val, type) { //2/17/15 by DW
 			httpResponse.writeHead (200, {"Content-Type": type});
 			httpResponse.end (val.toString ());    
@@ -321,7 +324,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 								});
 							}
 						else {
-							defaultReturn (type, data);
+							defaultReturn ("text/xml", data);
 							}
 						break;
 					default:
