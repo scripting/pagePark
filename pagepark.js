@@ -1,4 +1,4 @@
-var myVersion = "0.61s", myProductName = "PagePark"; 
+var myVersion = "0.61t", myProductName = "PagePark"; 
  
 	//The MIT License (MIT)
 	
@@ -257,6 +257,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			});
 		}
 	function serveFile (f, config) {
+		var formatParam = parsedUrl.query.format.toLowerCase (); //url ends with ?format=abc -- 6/24/15 by DW
 		function httpReturn (val, type) { //2/17/15 by DW
 			httpResponse.writeHead (200, {"Content-Type": type});
 			httpResponse.end (val.toString ());    
@@ -306,8 +307,8 @@ function handleHttpRequest (httpRequest, httpResponse) {
 							}
 						break;
 					case config.extOpmlFiles: //6/23/15 by DW
-						var flReturnHtml = !hasAcceptHeader ("text/x-opml");
-						if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //xxx
+						var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
+						if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
 							getOpmlTemplate (function (theTemplate) {
 								var opmltext = data.toString (), pagetable = new Object ();
 								opmlLib.readOpmlString (opmltext, function (theOutline) {

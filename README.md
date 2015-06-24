@@ -90,7 +90,17 @@ There will always be more work to do here. ;-)
 
 ##### v0.61 6/24/15 by DW
 
-Files with the extension .opml are now be rendered as outlines. There's a template for outlines, it uses the new outlineBrowser toolkit. If you want the raw OPML text from the server, add an Accept header with the value: text/x-opml, following a convention established by the OPML Editor. Here's an <a href="http://montauk.scripting.com/test.opml">example</a> of an OPML file rendered through the new template. 
+Files with the extension .opml are now  rendered as outlines. 
+
+There's a <a href="http://fargo.io/code/pagepark/defaultopmltemplate.txt">template</a> for outlines, it uses the new <a href="https://github.com/scripting/outlineBrowser">outlineBrowser</a> toolkit. Here's an <a href="http://montauk.scripting.com/test.opml">example</a> of an OPML file rendered through the new template. 
+
+If you want the raw OPML text from the server, you can do it one of two ways:
+
+1. Add ?format=opml at the end of the url. <a href="http://montauk.scripting.com/test.opml?format=opml">Example</a>.
+
+2. If you're making the request in a program, you can add an Accept header with the value: text/x-opml, following a convention established by the OPML Editor. 
+
+As with scripts and markdown files, you can turn the feature off in config.json. 
 
 ##### v0.60 5/26/15 by DW
 
