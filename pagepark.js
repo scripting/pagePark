@@ -1,5 +1,5 @@
-var myVersion = "0.60c", myProductName = "PagePark";
-
+var myVersion = "0.61s", myProductName = "PagePark"; 
+ 
 	//The MIT License (MIT)
 	
 	//Copyright (c) 2014 Dave Winer
@@ -32,6 +32,7 @@ var marked = require ("marked");
 var dns = require ("dns");
 var mime = require ("mime"); //1/8/15 by DW
 var utils = require ("./lib/utils.js"); //1/18/15 by DW
+var opmlLib = require ("./lib/opml.js"); //6/23/15 by DW
 
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
@@ -39,7 +40,8 @@ var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
 	indexFilename: "index",
 	flProcessScriptFiles: true, extScriptFiles: "js", //5/5/15 by DW
-	flProcessMarkdownFiles: true, extMarkdownFiles: "md" //5/5/15 by DW
+	flProcessMarkdownFiles: true, extMarkdownFiles: "md", //5/5/15 by DW
+	flProcessOpmlFiles: true, extOpmlFiles: "opml" //6/23/15 by DW
 	};
 var fnamePrefs = "prefs/prefs.json";
 
@@ -56,7 +58,10 @@ var domainsPath = "domains/";
 var configFname = "/config.json";
 
 var mdTemplatePath = "prefs/mdTemplate.txt";
-var urlDefaultTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
+var urlDefaultMarkdownTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
+
+var opmlTemplatePath = "prefs/opmlTemplate.txt";
+var urlDefaultOpmlTemplate = "http://fargo.io/code/pagepark/defaultopmltemplate.txt";
 
 function fsSureFilePath (path, callback) { 
 	var splits = path.split ("/");
@@ -114,12 +119,12 @@ function getFullFilePath (relpath) { //1/3/15 by DW
 		}
 	return (folderpath + relpath);
 	}
-function getMarkdownTemplate (callback) {
-	var f = getFullFilePath (mdTemplatePath);
+function getTemplate (myTemplatePath, urlDefaultTemplate, callback) {
+	var f = getFullFilePath (myTemplatePath);
 	fs.readFile (f, function (err, data) {
 		if (err) {
 			httpReadUrl (urlDefaultTemplate, function (s) {
-				fs.writeFile (mdTemplatePath, s, function (err) {
+				fs.writeFile (myTemplatePath, s, function (err) {
 					if (callback != undefined) {
 						callback (s);
 						}
@@ -132,6 +137,12 @@ function getMarkdownTemplate (callback) {
 				}
 			}
 		});
+	}
+function getMarkdownTemplate (callback) {
+	getTemplate (mdTemplatePath, urlDefaultMarkdownTemplate, callback);
+	}
+function getOpmlTemplate (callback) { //6/23/15 by DW
+	getTemplate (opmlTemplatePath, urlDefaultOpmlTemplate, callback);
 	}
 function checkPathForIllegalChars (path) {
 	function isIllegal (ch) {
@@ -161,6 +172,20 @@ function everySecond () {
 		}
 	}
 function handleHttpRequest (httpRequest, httpResponse) {
+	function hasAcceptHeader (theHeader) {
+		if (httpRequest.headers.accept === undefined) {
+			return (false);
+			}
+		else {
+			var split = httpRequest.headers.accept.split (", ");
+			for (var i = 0; i < split.length; i++) {
+				if (split [i] == theHeader) {
+					return (true);
+					}
+				}
+			return (false);
+			}
+		}
 	function getDomainFolder (host, callback) { //5/11/15 by DW
 		var folder = getFullFilePath (domainsPath);
 		var domainfolder = folder + host;
@@ -187,8 +212,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			urlSiteContents: undefined,
 			flProcessScriptFiles: true, 
 			flProcessMarkdownFiles: true,
+			flProcessOpmlFiles: true,
 			extScriptFiles: pageparkPrefs.extScriptFiles,
-			extMarkdownFiles: pageparkPrefs.extMarkdownFiles
+			extMarkdownFiles: pageparkPrefs.extMarkdownFiles,
+			extOpmlFiles: pageparkPrefs.extOpmlFiles
 			};
 		var f = getFullFilePath (domainsPath) + host + configFname;
 		fs.readFile (f, function (err, data) {
@@ -234,12 +261,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			httpResponse.writeHead (200, {"Content-Type": type});
 			httpResponse.end (val.toString ());    
 			}
-		
 		function defaultReturn (type, data) {
 			httpResponse.writeHead (200, {"Content-Type": type});
 			httpResponse.end (data);    
 			}
-		
 		fs.readFile (f, function (err, data) {
 			if (err) {
 				return404 ();
@@ -274,6 +299,24 @@ function handleHttpRequest (httpRequest, httpResponse) {
 								var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
 								httpResponse.writeHead (200, {"Content-Type": "text/html"});
 								httpResponse.end (s);    
+								});
+							}
+						else {
+							defaultReturn (type, data);
+							}
+						break;
+					case config.extOpmlFiles: //6/23/15 by DW
+						var flReturnHtml = !hasAcceptHeader ("text/x-opml");
+						if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //xxx
+							getOpmlTemplate (function (theTemplate) {
+								var opmltext = data.toString (), pagetable = new Object ();
+								opmlLib.readOpmlString (opmltext, function (theOutline) {
+									pagetable.bodytext = utils.jsonStringify (theOutline);
+									pagetable.title = utils.stringLastField (f, "/");
+									var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+									httpResponse.writeHead (200, {"Content-Type": "text/html"});
+									httpResponse.end (s);    
+									});
 								});
 							}
 						else {
