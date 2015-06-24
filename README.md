@@ -88,6 +88,10 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.61 6/24/15 by DW
+
+Files with the extension .opml are now be rendered as outlines. There's a template for outlines, it uses the new outlineBrowser toolkit. If you want the raw OPML text from the server, add an Accept header with the value: text/x-opml, following a convention established by the OPML Editor. Here's an <a href="http://montauk.scripting.com/test.opml">example</a> of an OPML file rendered through the new template. 
+
 ##### v0.60 5/26/15 by DW
 
 When delegating requests, pass redirects back to the client, don't follow them. This was necessary so that that OAuth dance with Twitter in nodeStorage would work. 
