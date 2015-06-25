@@ -88,7 +88,7 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
-##### v0.62 6/24/15 by DW
+##### v0.62 6/25/15 by DW
 
 Code cleanup and factoring in <a href="https://github.com/scripting/pagepark/blob/master/lib/opml.js">opml.js</a>.
 
