@@ -1,4 +1,4 @@
-var myVersion = "0.62d", myProductName = "PagePark"; 
+var myVersion = "0.63a", myProductName = "PagePark"; 
  
 	//The MIT License (MIT)
 	
@@ -310,21 +310,30 @@ function handleHttpRequest (httpRequest, httpResponse) {
 							}
 						break;
 					case config.extOpmlFiles: //6/23/15 by DW
-						var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
-						if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
-							getOpmlTemplate (function (theTemplate) {
-								var opmltext = data.toString (), pagetable = new Object ();
-								opmlLib.readOpmlString (opmltext, function (theOutline) {
-									pagetable.bodytext = utils.jsonStringify (theOutline);
-									pagetable.title = utils.stringLastField (f, "/");
-									var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-									httpResponse.writeHead (200, {"Content-Type": "text/html"});
-									httpResponse.end (s);    
-									});
+						var opmltext = data.toString ();
+						if (formatParam == "json") {
+							opmlLib.readOpmlString (opmltext, function (theOutline) {
+								httpResponse.writeHead (200, {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"});
+								httpResponse.end (utils.jsonStringify (theOutline));
 								});
 							}
 						else {
-							defaultReturn ("text/xml", data);
+							var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
+							if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
+								getOpmlTemplate (function (theTemplate) {
+									var pagetable = new Object ();
+									opmlLib.readOpmlString (opmltext, function (theOutline) {
+										pagetable.bodytext = utils.jsonStringify (theOutline);
+										pagetable.title = utils.stringLastField (f, "/");
+										var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+										httpResponse.writeHead (200, {"Content-Type": "text/html"});
+										httpResponse.end (s);    
+										});
+									});
+								}
+							else {
+								defaultReturn ("text/xml", data);
+								}
 							}
 						break;
 					default:

@@ -88,6 +88,14 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.63 6/27/15 by DW
+
+If you add ?format=json to a request for an OPML file, you'll get a JSON representation of the outline. This is useful for single-page JavaScript apps that want to use the outlineBrowser toolkit to diplay the contents. An example of this is <a href="http://davewiner.com/">davewiner.com</a>. 
+
+I figured out how to write a JS page that's served by PagePark that returns the JSON representation of any OPML file. Here's a <a href="https://gist.github.com/scripting/7b95bfea614245a47f38">gist</a> containing the code. And a <a href="http://pagepark.io/getjsonopml.js?url=http://hosting.opml.org/dave/states.opml">call</a> to that page. 
+
+In both cases, the CORS header allows access from anywhere. 
+
 ##### v0.62 6/25/15 by DW
 
 Code cleanup and factoring in <a href="https://github.com/scripting/pagepark/blob/master/lib/opml.js">opml.js</a>.
