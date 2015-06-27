@@ -96,6 +96,8 @@ I also figured out how to write a JS page that's served by PagePark that returns
 
 In both cases, the CORS header allows access from anywhere. 
 
+And in both cases <a href="http://fargo.io/docs/fargo/includes.html">include</a> nodes are resolved.
+
 ##### v0.62 6/25/15 by DW
 
 Code cleanup and factoring in <a href="https://github.com/scripting/pagepark/blob/master/lib/opml.js">opml.js</a>.
