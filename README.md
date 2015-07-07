@@ -88,15 +88,19 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
-##### v0.63 6/27/15 by DW
+##### v0.64 7/7/15 by DW
 
-If you add ?format=json to a request for an OPML file, you'll get a JSON representation of the outline. This is useful for single-page JavaScript apps that want to use the outlineBrowser toolkit to diplay the contents. An example of this is <a href="http://davewiner.com/">davewiner.com</a>. 
+I wanted to do a site redirect that was more than just a domain name change. 
 
-To do this I needed to write a JS page that's served by PagePark that returns the JSON representation of a specific OPML file. Here's a <a href="https://gist.github.com/scripting/02dfd9dd5d9d3053c510">gist</a> containing the code. And a <a href="http://pagepark.io/getdavewineropml.js">call</a> to that page. It's extra-nice that this feature could be added without modifying PagePark. It's starting to become a real platform! :-)
+If a request came in for: <a href="http://archive.scripting.com/2007/12">http://archive.scripting.com/2007/12</a>.
 
-In both cases, the CORS header allows access from anywhere. 
+I wanted it to redirect to: http://scripting.com/2007/12.html
 
-And in both cases <a href="http://fargo.io/docs/fargo/includes.html">include</a> nodes are resolved.
+That was accomplished with a new element in config.json: jsSiteRedirect. Its value is a JavaScript expression. You can access the path in the variable parsedUrl.pathname.
+
+This is what config.json in the folder archive.scripting.com looks like. 
+
+<code>{"jsSiteRedirect": "'http://scripting.com' + parsedUrl.pathname + '.html'"}</code>
 
 ##### v0.62 6/25/15 by DW
 

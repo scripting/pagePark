@@ -1,4 +1,4 @@
-var myVersion = "0.64a", myProductName = "PagePark"; 
+var myVersion = "0.63a", myProductName = "PagePark"; 
  
 	//The MIT License (MIT)
 	
@@ -310,30 +310,21 @@ function handleHttpRequest (httpRequest, httpResponse) {
 							}
 						break;
 					case config.extOpmlFiles: //6/23/15 by DW
-						var opmltext = data.toString ();
-						if (formatParam == "json") {
-							opmlLib.readOpmlString (opmltext, function (theOutline) {
-								httpResponse.writeHead (200, {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"});
-								httpResponse.end (utils.jsonStringify (theOutline));
+						var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
+						if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
+							getOpmlTemplate (function (theTemplate) {
+								var opmltext = data.toString (), pagetable = new Object ();
+								opmlLib.readOpmlString (opmltext, function (theOutline) {
+									pagetable.bodytext = utils.jsonStringify (theOutline);
+									pagetable.title = utils.stringLastField (f, "/");
+									var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+									httpResponse.writeHead (200, {"Content-Type": "text/html"});
+									httpResponse.end (s);    
+									});
 								});
 							}
 						else {
-							var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
-							if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
-								getOpmlTemplate (function (theTemplate) {
-									var pagetable = new Object ();
-									opmlLib.readOpmlString (opmltext, function (theOutline) {
-										pagetable.bodytext = utils.jsonStringify (theOutline);
-										pagetable.title = utils.stringLastField (f, "/");
-										var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-										httpResponse.writeHead (200, {"Content-Type": "text/html"});
-										httpResponse.end (s);    
-										});
-									});
-								}
-							else {
-								defaultReturn ("text/xml", data);
-								}
+							defaultReturn ("text/xml", data);
 							}
 						break;
 					default:
@@ -437,6 +428,20 @@ function handleHttpRequest (httpRequest, httpResponse) {
 							fsSureFilePath (domainsPath, function () { //make sure domains folder exists
 								getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
 									if (config != undefined) {
+										if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
+											console.log ("config.jsSiteRedirect == " + config.jsSiteRedirect);
+											try {
+												var urlRedirect = eval (config.jsSiteRedirect.toString ());
+												console.log ("urlRedirect == " + urlRedirect);
+												httpResponse.writeHead (302, {"Location": urlRedirect.toString (), "Content-Type": "text/plain"});
+												httpResponse.end ("Temporary redirect to " + urlRedirect + ".");    
+												}
+											catch (err) {
+												httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+												httpResponse.end ("Error running " + config.jsSiteRedirect + ": \"" + err.message + "\"");
+												}
+											return; 
+											}
 										if (config.urlSiteRedirect != undefined) {
 											var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
 											httpResponse.writeHead (302, {"Location": urlRedirect, "Content-Type": "text/plain"});
