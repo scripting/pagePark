@@ -150,7 +150,7 @@ function checkPathForIllegalChars (path) {
 			return (false);
 			}
 		switch (ch) {
-			case "/": case "_": case "-": case ".":  case " ": case "*":
+			case "/": case "_": case "-": case ".":  case " ": case "*": case "(": case ")":
 				return (false);
 			}
 		return (true);
