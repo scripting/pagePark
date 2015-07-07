@@ -92,7 +92,7 @@ There will always be more work to do here. ;-)
 
 I wanted to do a site redirect that was more than just a domain name change. 
 
-If a request came in for: <a href="http://archive.scripting.com/2007/12">http://archive.scripting.com/2007/12</a>.
+If a request came in for: http://archive.scripting.com/2007/12
 
 I wanted it to redirect to: http://scripting.com/2007/12.html
 
