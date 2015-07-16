@@ -1,29 +1,29 @@
-var myVersion = "0.63a", myProductName = "PagePark"; 
- 
-	//The MIT License (MIT)
+var myVersion = "0.65a", myProductName = "PagePark"; 
+
+/*  The MIT License (MIT)
+	Copyright (c) 2014-2015 Dave Winer
 	
-	//Copyright (c) 2014 Dave Winer
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
 	
-	//Permission is hereby granted, free of charge, to any person obtaining a copy
-	//of this software and associated documentation files (the "Software"), to deal
-	//in the Software without restriction, including without limitation the rights
-	//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	//copies of the Software, and to permit persons to whom the Software is
-	//furnished to do so, subject to the following conditions:
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
 	
-	//The above copyright notice and this permission notice shall be included in all
-	//copies or substantial portions of the Software.
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
 	
-	//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	//SOFTWARE.
-	
-	//structured listing: http://scripting.com/listings/pagepark.html
-	
+	structured listing: http://scripting.com/listings/pagepark.html
+	*/
+
 var fs = require ("fs");
 var request = require ("request");
 var urlpack = require ("url");
@@ -41,7 +41,8 @@ var pageparkPrefs = {
 	indexFilename: "index",
 	flProcessScriptFiles: true, extScriptFiles: "js", //5/5/15 by DW
 	flProcessMarkdownFiles: true, extMarkdownFiles: "md", //5/5/15 by DW
-	flProcessOpmlFiles: true, extOpmlFiles: "opml" //6/23/15 by DW
+	flProcessOpmlFiles: true, extOpmlFiles: "opml", //6/23/15 by DW
+	error404File: "prefs/error.html" //7/16/15 by DW
 	};
 var fnamePrefs = "prefs/prefs.json";
 
@@ -62,6 +63,9 @@ var urlDefaultMarkdownTemplate = "http://fargo.io/code/pagepark/defaultmarkdownt
 
 var opmlTemplatePath = "prefs/opmlTemplate.txt";
 var urlDefaultOpmlTemplate = "http://fargo.io/code/pagepark/defaultopmltemplate.txt";
+
+var urlDefaultErrorPage = "http://fargo.io/code/pagepark/prefs/error.html"; //7/16/15 by DW
+
 
 function fsSureFilePath (path, callback) { 
 	var splits = path.split ("/");
@@ -239,15 +243,18 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			});
 		}
 	function return404 () {
-		httpResponse.writeHead (404, {"Content-Type": "text/plain"});
-		httpResponse.end ("The file was not found.");    
+		getTemplate (pageparkPrefs.error404File, urlDefaultErrorPage, function (htmtext) {
+			httpResponse.writeHead (404, {"Content-Type": "text/html"});
+			httpResponse.end (htmtext); 
+			});
 		}
-	function findIndexFile (folder, callback) {
+	function findSpecificFile (folder, specificFname, callback) {
+		specificFname = specificFname.toLowerCase (); //7/16/15 by DW
 		fs.readdir (folder, function (err, list) {
 			for (var i = 0; i < list.length; i++) {
 				var fname = list [i];
 				if (utils.stringCountFields (fname, ".") == 2) { //something like xxx.yyy
-					if (utils.stringNthField (fname, ".", 1).toLowerCase () == pageparkPrefs.indexFilename) { //something like index.wtf
+					if (utils.stringNthField (fname, ".", 1).toLowerCase () == specificFname) { //something like index.wtf
 						callback (folder + fname);
 						return;
 						}
@@ -497,7 +504,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 												if (!utils.endsWith (f, "/")) {
 													f += "/";
 													}
-												findIndexFile (f, function (findex) {
+												findSpecificFile (f, pageparkPrefs.indexFilename, function (findex) {
 													serveFile (findex, config);
 													});
 												}

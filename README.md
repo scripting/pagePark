@@ -88,6 +88,14 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.65 7/16/15 by DW
+
+In prefs.json a new value, error404File, defaults to prefs/error.html
+
+When there's an error, we read that file and send it back as the text of the 404 response.
+
+The default value is more or less exactly the same text earlier versions of PagePark returned. It's actually in HTML, that's the difference. As opposed to being plain text.
+
 ##### v0.64 7/7/15 by DW
 
 I wanted to do a site redirect that was more than just a domain name change. 
