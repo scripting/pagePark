@@ -88,6 +88,12 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.66 7/19/15 by DW
+
+In prefs.json a new value, legalPathChars, defaults to the empty string. In this string you can specify characters that are legal in paths on your server. We are very conservative in what we will allow in paths, but if you need to use one of the characters that we consider illegal, add it to this string. 
+
+For example, I am redirecting urls from discuss.userland.com to a static archive. It was a Manila site, so it uses a $ in the URLs, a character which PagePark by default considers illegal. Here's an <a href="http://discuss.userland.com/msgReader$18647">example</a>. I set legalPathChars to "$" in prefs.json, and it lets the character through, and it is redirected by the very clever little script that handles redirection for that domain. 
+
 ##### v0.65 7/16/15 by DW
 
 In prefs.json a new value, error404File, defaults to prefs/error.html

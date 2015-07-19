@@ -1,4 +1,4 @@
-var myVersion = "0.65a", myProductName = "PagePark"; 
+var myVersion = "0.66a", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -42,7 +42,8 @@ var pageparkPrefs = {
 	flProcessScriptFiles: true, extScriptFiles: "js", //5/5/15 by DW
 	flProcessMarkdownFiles: true, extMarkdownFiles: "md", //5/5/15 by DW
 	flProcessOpmlFiles: true, extOpmlFiles: "opml", //6/23/15 by DW
-	error404File: "prefs/error.html" //7/16/15 by DW
+	error404File: "prefs/error.html", //7/16/15 by DW
+	legalPathChars: "" //7/19/15 by DW
 	};
 var fnamePrefs = "prefs/prefs.json";
 
@@ -156,6 +157,11 @@ function checkPathForIllegalChars (path) {
 		switch (ch) {
 			case "/": case "_": case "-": case ".":  case " ": case "*":
 				return (false);
+			}
+		for (var i = 0; i <  pageparkPrefs.legalPathChars.length; i++) { //7/19/15 by DW -- check if they are legal on this server
+			if (ch == pageparkPrefs.legalPathChars [i]) {
+				return (false);
+				}
 			}
 		return (true);
 		}
