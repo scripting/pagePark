@@ -1,4 +1,4 @@
-var myVersion = "0.66a", myProductName = "PagePark"; 
+var myVersion = "0.67c", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -254,6 +254,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			httpResponse.end (htmtext); 
 			});
 		}
+	function returnRedirect (urlRedirectTo, flPermanent) { //7/30/15 by DW
+		var code = (flPermanent) ? 301 : 302;
+		httpResponse.writeHead (code, {"Location": urlRedirectTo, "Content-Type": "text/plain"});
+		httpResponse.end ("Redirect to " + urlRedirectTo + ".");    
+		}
 	function findSpecificFile (folder, specificFname, callback) {
 		specificFname = specificFname.toLowerCase (); //7/16/15 by DW
 		fs.readdir (folder, function (err, list) {
@@ -346,6 +351,19 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					}
 				}
 			});
+		}
+	function serveRedirect (lowerpath, config) { //7/30/15 by DW -- return true if we handled the request
+		if (config.redirects !== undefined) {
+			for (x in config.redirects) {
+				if (x.toLowerCase () == lowerpath) {
+					var urlRedirectTo = config.redirects [x];
+					console.log ("serveRedirect: urlRedirectTo == " + urlRedirectTo);
+					returnRedirect (urlRedirectTo);
+					return (true);
+					}
+				}
+			}
+		return (false);
 		}
 	function delegateRequest (urlToDelegateTo) {
 		var theRequest = {
@@ -442,10 +460,8 @@ function handleHttpRequest (httpRequest, httpResponse) {
 								getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
 									if (config != undefined) {
 										if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
-											console.log ("config.jsSiteRedirect == " + config.jsSiteRedirect);
 											try {
 												var urlRedirect = eval (config.jsSiteRedirect.toString ());
-												console.log ("urlRedirect == " + urlRedirect);
 												httpResponse.writeHead (302, {"Location": urlRedirect.toString (), "Content-Type": "text/plain"});
 												httpResponse.end ("Temporary redirect to " + urlRedirect + ".");    
 												}
@@ -506,16 +522,18 @@ function handleHttpRequest (httpRequest, httpResponse) {
 												}
 											}
 										else {
-											if (stats.isDirectory ()) {
-												if (!utils.endsWith (f, "/")) {
-													f += "/";
+											if (!serveRedirect (lowerpath, config)) { //7/30/15 by DW -- it wasn't a redirect
+												if (stats.isDirectory ()) {
+													if (!utils.endsWith (f, "/")) {
+														f += "/";
+														}
+													findSpecificFile (f, pageparkPrefs.indexFilename, function (findex) {
+														serveFile (findex, config);
+														});
 													}
-												findSpecificFile (f, pageparkPrefs.indexFilename, function (findex) {
-													serveFile (findex, config);
-													});
-												}
-											else {
-												serveFile (f, config);
+												else {
+													serveFile (f, config);
+													}
 												}
 											}
 										});

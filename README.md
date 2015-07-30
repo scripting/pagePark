@@ -88,6 +88,10 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.67 7/30/15 by DW
+
+New redirect feature for individual pages. In config.json, create a struct called redirects. The name of each element is the path to a file in the folder, and the value of each is the URL we will redirect to. On each request for that domain, we look in the redirects table to see if the request should be redirected. Here's an <a href="https://gist.github.com/scripting/8295f373c61dd9f5ce97">example</a> of the config.json for smallpicture.com. It redirects from an <a href="http://smallpicture.com/outlinerHowto.html">old version</a> of the outliner howto to the newer version. 
+
 ##### v0.66 7/19/15 by DW
 
 In prefs.json a new value, legalPathChars, defaults to the empty string. In this string you can specify characters that are legal in paths on your server. We are very conservative in what we will allow in paths, but if you need to use one of the characters that we consider illegal, add it to this string. 
