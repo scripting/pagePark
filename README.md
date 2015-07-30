@@ -90,7 +90,11 @@ There will always be more work to do here. ;-)
 
 ##### v0.67 7/30/15 by DW
 
-New redirect feature for individual pages. In config.json, create a struct called redirects. The name of each element is the path to a file in the folder, and the value of each is the URL we will redirect to. On each request for that domain, we look in the redirects table to see if the request should be redirected. Here's an <a href="https://gist.github.com/scripting/8295f373c61dd9f5ce97">example</a> of the config.json for smallpicture.com. It redirects from an <a href="http://smallpicture.com/outlinerHowto.html">old version</a> of the outliner howto to the newer version. 
+New redirect feature for individual pages. 
+
+In config.json for the domain containing the file you want to redirect, create a struct called <i>redirects.</i> The name of each element is the path to a file in the folder, and the value of each is the URL we will redirect to. On each request for that domain, we look in the redirects table to see if the request should be redirected. 
+
+Here's an <a href="https://gist.github.com/scripting/8295f373c61dd9f5ce97">example</a> of the config.json for smallpicture.com. It redirects from an <a href="http://smallpicture.com/outlinerHowto.html">old version</a> of the outliner howto to the newer version. 
 
 ##### v0.66 7/19/15 by DW
 
