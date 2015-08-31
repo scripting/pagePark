@@ -88,6 +88,10 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.68 8/31/15 by DW
+
+Small change in error handling when we delegate a request. The previous method would cause PagePark to crash if the app we're trying to delegate to isn't running. Thanks to Dan MacTough for the help fixing this. ;-)
+
 ##### v0.67 7/30/15 by DW
 
 New redirect feature for individual pages. 

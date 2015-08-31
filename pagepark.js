@@ -1,4 +1,4 @@
-var myVersion = "0.67c", myProductName = "PagePark"; 
+var myVersion = "0.68a", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -374,13 +374,17 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				"X-Forwarded-For": httpRequest.connection.remoteAddress
 				}
 			};
-		try {
-			httpRequest.pipe (request (theRequest)).pipe (httpResponse); 
+		function handleError (err) {
+			if (err) {
+				console.log ("delegateRequest: error == " + err.message); 
+				httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+				httpResponse.end (tryError.message);    
+				}
 			}
-		catch (tryError) {
-			httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-			httpResponse.end (tryError.message);    
-			}
+		var req = httpRequest.pipe (request (theRequest));
+		req.on ("error", handleError);
+		req.pipe (httpResponse).on ("error", handleError);
+		
 		}
 	function findMappedDomain (domain, callback) { //5/23/15 by DW
 		for (var x in pageparkPrefs.domainMap) {
