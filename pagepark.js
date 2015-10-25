@@ -1,4 +1,4 @@
-var myVersion = "0.68a", myProductName = "PagePark"; 
+var myVersion = "0.68b", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -378,7 +378,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			if (err) {
 				console.log ("delegateRequest: error == " + err.message); 
 				httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-				httpResponse.end (tryError.message);    
+				httpResponse.end (err.message);    
 				}
 			}
 		var req = httpRequest.pipe (request (theRequest));
@@ -552,9 +552,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					}
 				});
 		}
-	catch (tryError) {
+	catch (err) {
 		httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-		httpResponse.end (tryError.message);    
+		httpResponse.end (err.message);    
 		}
 	}
 function writeStats (fname, stats, callback) {
