@@ -88,6 +88,10 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.70 12/8/15 by DW
+
+It used to be that a file had to exist in order for you to redirect from it in <a href="https://github.com/scripting/pagepark#v067-73015-by-dw">config.redirects</a>. Now it doesn't have to exist. 
+
 ##### v0.68 8/31/15 by DW
 
 Small change in error handling when we delegate a request. The previous method would cause PagePark to crash if the app we're trying to delegate to isn't running. Thanks to Dan MacTough for the help fixing this. ;-)

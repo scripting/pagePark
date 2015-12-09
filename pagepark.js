@@ -1,4 +1,4 @@
-var myVersion = "0.68b", myProductName = "PagePark"; 
+var myVersion = "0.70a", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -521,7 +521,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 													httpResponse.end (utils.jsonStringify (status));    
 													break;
 												default:
-													return404 ();
+													if (!serveRedirect (lowerpath, config)) { //12/8/15 by DW -- it wasn't a redirect
+														return404 (); 
+														}
 													break;
 												}
 											}
