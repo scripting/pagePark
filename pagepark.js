@@ -1,4 +1,4 @@
-var myVersion = "0.70a", myProductName = "PagePark"; 
+var myVersion = "0.70b", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -585,15 +585,21 @@ function readStats (fname, stats, callback) {
 							}
 						}
 					else {
-						var storedStats = JSON.parse (data.toString ());
-						for (var x in storedStats) {
-							stats [x] = storedStats [x];
-							}
-						writeStats (fname, stats, function () {
-							if (callback != undefined) {
-								callback ();
+						var storedStats;
+						try {
+							storedStats = JSON.parse (data.toString ());
+							for (var x in storedStats) {
+								stats [x] = storedStats [x];
 								}
-							});
+							writeStats (fname, stats, function () {
+								if (callback != undefined) {
+									callback ();
+									}
+								});
+							}
+						catch (err) {
+							console.log ("readStats: error parsing file " + f + " == " + err.message)
+							}
 						}
 					});
 				}
