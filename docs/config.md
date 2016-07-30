@@ -14,7 +14,9 @@ This can be useful if you want to serve script code to be used in browser-based 
 
 Example: 
 
-<pre>{
+<pre>
+
+{
 
 "flProcessScriptFiles": false
 
