@@ -10,8 +10,6 @@ All the values described here are added to a config.json file that's stored at t
 
 The extension of a file determines how PagePark serves it.
 
-
-
 <table>
 
 <tr>
@@ -74,7 +72,29 @@ The text in the file is returned, the type is application/json.
 
 <td>
 
-<a href="http://lucky.wtf/demo.json">demo.json</a>
+<a href="http://lucky.wtf/wodemo.json">wodemo.json</a>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+.png
+
+</td>
+
+<td>
+
+The contents of the file is returned with type image/png.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/tree.png">tree.png</a>
 
 </td>
 
@@ -102,13 +122,51 @@ The outline is rendered as an expandable outline, the type returned is text/html
 
 </tr>
 
+<tr>
+
+<td>
+
+.md
+
+</td>
+
+<td>
+
+The text in the file is passed through a Markdown processor and that text is returned. The type returned is text/html.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/test.md">test.md</a>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+.js
+
+</td>
+
+<td>
+
+We run the script, and the return value is returned to the caller, with type of text/html. Here's the <a href="https://gist.github.com/scripting/fd9e6720834958130f0a3d53b9f8dd15">source code</a> for the script in the demo below.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/badass/butt.js">butt.js</a>
+
+</td>
+
+</tr>
+
 </table>
-
-
-
-Any page can be written in JavaScript.
-
-PagePark runs the script, and then returns the value it returns, which usually is HTML text.
 
 #### flProcessScriptFiles
 
