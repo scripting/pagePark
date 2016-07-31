@@ -1,4 +1,4 @@
-var myVersion = "0.70b", myProductName = "PagePark"; 
+var myVersion = "0.71a", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
