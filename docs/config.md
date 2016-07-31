@@ -188,5 +188,5 @@ Example:
 
 There's a special template used for rendering Markdown files. It defines the shell in which the Markdown text is included in to create the HTML file. You can position the text, or add CSS styles or script code in the template. 
 
-Here's the template we use on our demo site. 
+The <a href="https://github.com/scripting/pagePark/blob/master/prefs/mdTemplate.txt">default template</a> is in the prefs folder. You can edit it to customize it. 
 

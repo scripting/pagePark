@@ -90,7 +90,7 @@ There will always be more work to do here. ;-)
 
 ##### v0.71 7/31/16 by DW
 
-The repository now includes mdTemplate.txt in the prefs folder. Previously it would download this file from one of my sites the first time it was used. This is a more modern way to distribute it. 
+The repository now includes <a href="https://github.com/scripting/pagePark/blob/master/prefs/mdTemplate.txt">mdTemplate.txt</a> in the prefs folder. Previously it would download this file from one of my sites the first time it was used. This is a more modern way to distribute it. 
 
 ##### v0.70 12/8/15 by DW
 
