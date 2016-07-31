@@ -2,7 +2,7 @@
 
 Websites evolve over time, and PagePark has features that help you adjust things so links keep working after the change. Some of the features described on this page are here to help you prevent linkrot! That's how prevalent it is.
 
-Another thing you want to do is pass the content through various processors. The file extensions control that. So if a file name ends with .md, it is passed through the Markdown processor. If it's .js, it's assumed to contain JavaScript code, and that code is run, and the value it returns is what we return. You can also control whether or not the scripts run. 
+Another thing you'll want to do is pass the content through various processors. The file extensions control that. So if a file name ends with .md, it is passed through the Markdown processor. If it's .js, it's assumed to contain JavaScript code, and that code is run, and the value it returns is what we return. You can also control whether or not the scripts run. 
 
 #### config.json
 
@@ -183,4 +183,10 @@ Example:
    "flProcessScriptFiles": false
 
    }</pre>
+
+#### The template for Markdown files
+
+There's a special template used for rendering Markdown files. It defines the shell in which the Markdown text is included in to create the HTML file. You can position the text, or add CSS styles or script code in the template. 
+
+Here's the template we use on our demo site. 
 

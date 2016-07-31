@@ -88,6 +88,10 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.71 7/31/16 by DW
+
+The repository now includes mdTemplate.txt in the prefs folder. Previously it would download this file from one of my sites the first time it was used. This is a more modern way to distribute it. 
+
 ##### v0.70 12/8/15 by DW
 
 It used to be that a file had to exist in order for you to redirect from it in <a href="https://github.com/scripting/pagepark#v067-73015-by-dw">config.redirects</a>. Now it doesn't have to exist. 
