@@ -2,31 +2,9 @@
 
 Websites evolve over time, and PagePark has features that help you adjust things so links keep working after the change. Some of the features described on this page are here to help you keep your links working.
 
-Another thing you'll want to do is pass the content through various processors. The file extensions control that. So if a file name ends with .md, it is passed through the Markdown processor. If it's .js, it's assumed to contain JavaScript code, and that code is run, and the value it returns is what we return. You can also control whether or not the scripts run. 
-
 #### config.json
 
 All the values described here are added to a config.json file that's stored at the top level of a domain folder. Any time a request comes in for that domain, we read the config.json file in its folder, if there is one, and the values are applied to the request.
-
-#### flProcessScriptFiles
-
-If you set this value false, none of the JavaScript files in the domain folder will be processed. They will be served as text, with the source code in the file. 
-
-This can be useful if you want to serve script code to be used in browser-based apps. 
-
-Example: 
-
-<pre>{"flProcessScriptFiles": false} </pre>
-
-#### The template for Markdown files
-
-There's a special template used for rendering Markdown files.  
-
-It defines the shell the Markdown text is included in to create the HTML file. 
-
-You can position the text, or add CSS styles or script code in the template. 
-
-The <a href="https://github.com/scripting/pagePark/blob/master/prefs/mdTemplate.txt">default template</a> is in the prefs folder. You can edit it to customize it. 
 
 #### urlSiteContents in config.json
 
@@ -75,4 +53,14 @@ Add a <i>redirects</i> object to config.json. The name of each object is the url
 Here's the <a href="https://gist.github.com/scripting/491c2d676dd7ad6e41f47a116d6b5016">config.json file</a> that's at the top level of the xmlrpc.scripting.com folder on my server.
 
 In the old CMS, files didn't have extensions, but in the new environment, they must have them. So this redirects table just maps the old URLs onto the new ones.
+
+#### flProcessScriptFiles
+
+If you set this value false, none of the JavaScript files in the domain folder will be processed. They will be served as text, with the source code in the file. 
+
+This can be useful if you want to serve script code to be used in browser-based apps. 
+
+Example: 
+
+<pre>{"flProcessScriptFiles": false} </pre>
 
