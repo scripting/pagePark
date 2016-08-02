@@ -178,15 +178,15 @@ This can be useful if you want to serve script code to be used in browser-based 
 
 Example: 
 
-<pre>{
-
-   "flProcessScriptFiles": false
-
-   }</pre>
+<pre>{\r\t"flProcessScriptFiles": false\r\t}</pre>
 
 #### The template for Markdown files
 
-There's a special template used for rendering Markdown files. It defines the shell in which the Markdown text is included in to create the HTML file. You can position the text, or add CSS styles or script code in the template. 
+There's a special template used for rendering Markdown files. 
+
+It defines the shell in which the Markdown text is included in to create the HTML file. 
+
+You can position the text, or add CSS styles or script code in the template. 
 
 The <a href="https://github.com/scripting/pagePark/blob/master/prefs/mdTemplate.txt">default template</a> is in the prefs folder. You can edit it to customize it. 
 
