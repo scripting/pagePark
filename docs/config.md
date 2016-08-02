@@ -190,3 +190,51 @@ You can position the text, or add CSS styles or script code in the template.
 
 The <a href="https://github.com/scripting/pagePark/blob/master/prefs/mdTemplate.txt">default template</a> is in the prefs folder. You can edit it to customize it. 
 
+#### urlSiteContents in config.json
+
+This value says where the content can be found, but it does not redirect.
+
+PagePark grabs the content and serves it without redirecting. 
+
+It's a way for a site to act as an alias for content stored elsewhere. 
+
+It's a good way to shorten a URL. 
+
+Example --  doc.liveblog.co
+
+<pre>{"urlSiteContents": "http://liveblog.co/users/dsearls"}</pre>
+
+#### urlSiteRedirect in config.json
+
+If config.json has a value named urlSiteRedirect, we redirect from this folder to the value specified, which should be a string constant that's interpreted as a URL.
+
+It's a way to redirect from one location to another for a whole domain.
+
+Example -- bloggercon.org
+
+{"urlSiteRedirect": "http://bloggercon.scripting.com"}
+
+#### jsSiteRedirect in config.json
+
+If config.json in a sub-folder of the domains folder has value named jsSiteRedirect, then its value is evaluated as a JavaScript expression, and PagePark redirects to that expression. It should obviously resolve to a URL.
+
+Example -- archive.scripting.com 
+
+<pre>{"jsSiteRedirect": "'http://scripting.com' + parsedUrl.pathname + '.html'"}</pre>
+
+Example --  discuss.userland.com
+
+<pre>{"jsSiteRedirect": "'http://static.userland.com/userLandDiscussArchive/msg' + utils.padWithZeros (parsedUrl.pathname.split ('$') [1], 6) + '.html'"}</pre>
+
+#### You can put an IP address in the name of a sub-folder of the domains folder
+
+Any request that comes in that has that IP address in the HOST header will be  routed to that folder.
+
+#### You can redirect individual URLs
+
+Add a <i>redirects</i> object to config.json. The name of each object is the url that is to be redirected. The value is the url that we redirect to.
+
+Here's the <a href="https://gist.github.com/scripting/491c2d676dd7ad6e41f47a116d6b5016">config.json file</a> that's at the top level of the xmlrpc.scripting.com folder on my server.
+
+In the old CMS, files didn't have extensions, but in the new environment, they must have them. So this redirects table just maps the old URLs onto the new ones.
+
