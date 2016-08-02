@@ -1,6 +1,6 @@
 #### PagePark
 
-I wrote  this simple HTTP server to park domains I've bought but not yet used.
+I wrote  this simple HTTP server to park domains I've bought but not yet used. But I kept going and added all the features I want to help me manage my own websites, far beyond just parking them. But I liked the name so I kept it. Think of it as a nice park where you keep your pages. ;-)
 
 It's written in JavaScript and runs in Node.js.
 
@@ -44,6 +44,168 @@ Here's a <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">
 
 9. There are three special endpoints on all domains: /version, /now and /status that return the version of PagePark that's running, the time on the server and the stats and prefs. 
 
+#### File extensions
+
+The extension of a file determines how PagePark serves it.
+
+<table>
+
+<tr>
+
+<td>
+
+.txt
+
+</td>
+
+<td>
+
+The text in the file is returned, the type is text/plain.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/applejoke.txt">applejoke.txt</a>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+.xml
+
+</td>
+
+<td>
+
+The text in the file is returned, the type is text/xml.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/davetwitterfeed.xml">davetwitterfeed.xml</a>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+.json
+
+</td>
+
+<td>
+
+The text in the file is returned, the type is application/json.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/wodemo.json">wodemo.json</a>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+.png
+
+</td>
+
+<td>
+
+The contents of the file is returned with type image/png.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/tree.png">tree.png</a>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+.opml
+
+</td>
+
+<td>
+
+The outline is rendered as an expandable outline, the type returned is text/html.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/states.opml">states.opml</a>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+.md
+
+</td>
+
+<td>
+
+The text in the file is passed through a Markdown processor and that text is returned. The type returned is text/html.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/test.md">test.md</a>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+.js
+
+</td>
+
+<td>
+
+We run the script, and the return value is returned to the caller, with type of text/html. Here's the <a href="https://gist.github.com/scripting/fd9e6720834958130f0a3d53b9f8dd15">source code</a> for the script in the demo below.
+
+</td>
+
+<td>
+
+<a href="http://lucky.wtf/badass/butt.js">butt.js</a>
+
+</td>
+
+</tr>
+
+</table>
+
 #### Port 1339
 
 The first time you run PagePark it will open on port 1339. You can change this by editing prefs.json in the prefs folder. 
@@ -57,6 +219,12 @@ The normal port for HTTP is 80. That would have been the natural default, howeve
 sudo node pagepark.js
 
 I made the default 1339 because I wanted it to work "out of the box" for first-time users.
+
+#### Mapping port 80 to 1339
+
+Here's a magic incantation that works on Ubuntu that maps requests for port 80 to port 1339.
+
+<pre>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 1339</pre>
 
 #### Example pages
 
@@ -77,6 +245,12 @@ http://karass.co/nosuchfile.html -- file not found
 http://pagepark.io/version -- the version of PagePark that's running on the server
 
 http://pagepark.io/now -- the time on the server
+
+#### config.json files in domains folders
+
+On every request, PagePark looks at the top level of the domain folder for a file named config.json. If it finds it, it reads it and the values in the file control how the request is handled. 
+
+Here's a <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md">docs page</a> that lists the values and what they control.
 
 #### JavaScript sample code
 
