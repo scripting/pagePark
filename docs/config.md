@@ -212,7 +212,7 @@ It's a way to redirect from one location to another for a whole domain.
 
 Example -- bloggercon.org
 
-{"urlSiteRedirect": "http://bloggercon.scripting.com"}
+<pre>{"urlSiteRedirect": "http://bloggercon.scripting.com"}</pre>
 
 #### jsSiteRedirect in config.json
 
