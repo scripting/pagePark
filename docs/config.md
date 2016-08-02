@@ -182,9 +182,9 @@ Example:
 
 #### The template for Markdown files
 
-There's a special template used for rendering Markdown files. 
+There's a special template used for rendering Markdown files.  
 
-It defines the shell in which the Markdown text is included in to create the HTML file. 
+It defines the shell the Markdown text is included in to create the HTML file. 
 
 You can position the text, or add CSS styles or script code in the template. 
 
