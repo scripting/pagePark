@@ -178,7 +178,7 @@ This can be useful if you want to serve script code to be used in browser-based 
 
 Example: 
 
-<pre>{\r\t"flProcessScriptFiles": false\r\t}</pre>
+<pre>{"flProcessScriptFiles": false} </pre>
 
 #### The template for Markdown files
 
