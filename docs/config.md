@@ -1,6 +1,6 @@
 ### Programming your website
 
-Websites evolve over time, and PagePark has features that help you adjust things so links keep working after the change. Some of the features described on this page are here to help you keep your links working.
+Websites evolve over time, and PagePark has features that help you adjust things so links keep working after the change. 
 
 #### config.json
 
