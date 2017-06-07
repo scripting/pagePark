@@ -9,7 +9,8 @@
 	"dependencies" : {
 		"request": "*",
 		"mime": "*",
-		"opmlparser": "*",
+		"daveopml": "*",
+		"daveutils": "*",
 		"marked": "*"
 		}, 
 	"license": "MIT",

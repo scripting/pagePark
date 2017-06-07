@@ -262,6 +262,10 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.72 6/7/17 by DW
+
+Factored the local <i>utils</i> and <i>opml</i> modules, instead using the new <a href="https://github.com/scripting/utils">daveutils</a> and <a href="https://github.com/scripting/opml">daveopml</a> NPM packages. 
+
 ##### v0.71 7/31/16 by DW
 
 The repository now includes <a href="https://github.com/scripting/pagePark/blob/master/prefs/mdTemplate.txt">mdTemplate.txt</a> in the prefs folder. Previously it would download this file from one of my sites the first time it was used. This is a more modern way to distribute it. 

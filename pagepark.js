@@ -1,4 +1,4 @@
-var myVersion = "0.71a", myProductName = "PagePark"; 
+var myVersion = "0.72a", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -31,8 +31,8 @@ var http = require ("http");
 var marked = require ("marked");
 var dns = require ("dns");
 var mime = require ("mime"); //1/8/15 by DW
-var utils = require ("./lib/utils.js"); //1/18/15 by DW
-var opmlLib = require ("./lib/opml.js"); //6/23/15 by DW
+var utils = require ("daveutils"); //6/7/17 by DW
+var opmlLib = require ("daveopml"); //6/7/17 by DW
 
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
