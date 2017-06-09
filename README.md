@@ -1,4 +1,4 @@
-#### PagePark
+### PagePark
 
 I wrote  this simple HTTP server to park domains I've bought but not yet used. But I kept going and added all the features I want to help me manage my own websites, far beyond just parking them. But I liked the name so I kept it. Think of it as a nice park where you keep your pages. ;-)
 
@@ -265,6 +265,10 @@ There will always be more work to do here. ;-)
 ##### v0.72 6/7/17 by DW
 
 Factored the local <i>utils</i> and <i>opml</i> modules, instead using the new <a href="https://github.com/scripting/utils">daveutils</a> and <a href="https://github.com/scripting/opml">daveopml</a> NPM packages. 
+
+We now look for prefs in config.json in in the same folder as pagepark.js, if it's not present, we look for prefs.json in the prefs folder. All my other server software uses config.json, so PagePark fits in better.
+
+Improved rendering outlines, so that you can put an OPML file anywhere, and refer to it and it will render as an outline. If you add ?format=opml to the URL it will return the XML 
 
 ##### v0.71 7/31/16 by DW
 
