@@ -63,43 +63,12 @@ var mdTemplatePath = "prefs/mdTemplate.txt";
 var urlDefaultMarkdownTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
 
 var opmlTemplatePath = "prefs/opmlTemplate.txt";
-var urlDefaultOpmlTemplate = "http://fargo.io/code/pagepark/defaultopmltemplate.txt";
+var urlDefaultOpmlTemplate = "http://fargo.io/code/pagepark/templates/opml/template.txt";
+
 
 var urlDefaultErrorPage = "http://fargo.io/code/pagepark/prefs/error.html"; //7/16/15 by DW
 
 
-function fsSureFilePath (path, callback) { 
-	var splits = path.split ("/");
-	path = ""; //1/8/15 by DW
-	if (splits.length > 0) {
-		function doLevel (levelnum) {
-			if (levelnum < (splits.length - 1)) {
-				path += splits [levelnum] + "/";
-				fs.exists (path, function (flExists) {
-					if (flExists) {
-						doLevel (levelnum + 1);
-						}
-					else {
-						fs.mkdir (path, undefined, function () {
-							doLevel (levelnum + 1);
-							});
-						}
-					});
-				}
-			else {
-				if (callback != undefined) {
-					callback ();
-					}
-				}
-			}
-		doLevel (0);
-		}
-	else {
-		if (callback != undefined) {
-			callback ();
-			}
-		}
-	}
 function httpExt2MIME (ext) { //12/24/14 by DW
 	mime.default_type = "text/plain";
 	return (mime.lookup (ext));
@@ -460,7 +429,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					getDomainFolder (host, function (domainfolder, actualhost) { //might be a wildcard folder
 						var f = domainfolder + parsedUrl.pathname;
 						if (checkPathForIllegalChars (f)) {
-							fsSureFilePath (domainsPath, function () { //make sure domains folder exists
+							utils.sureFilePath (domainsPath, function () { //make sure domains folder exists
 								getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
 									if (config != undefined) {
 										if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
@@ -561,7 +530,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 	}
 function writeStats (fname, stats, callback) {
 	var f = getFullFilePath (fname);
-	fsSureFilePath (f, function () {
+	utils.sureFilePath (f, function () {
 		fs.writeFile (f, utils.jsonStringify (stats), function (err) {
 			if (err) {
 				console.log ("writeStats: error == " + err.message);
@@ -574,7 +543,7 @@ function writeStats (fname, stats, callback) {
 	}
 function readStats (fname, stats, callback) {
 	var f = getFullFilePath (fname);
-	fsSureFilePath (f, function () {
+	utils.sureFilePath (f, function () {
 		fs.exists (f, function (flExists) {
 			if (flExists) {
 				fs.readFile (f, function (err, data) {
@@ -613,16 +582,41 @@ function readStats (fname, stats, callback) {
 			});
 		});
 	}
+
+function getTopLevelPrefs (callback) { //6/7/17 by DW -- first look for config.json, then prefs/prefs.json
+	const newFnameConfig = "config.json", oldFnameConfig = "prefs/prefs.json";
+	fs.exists (newFnameConfig, function (flExists) {
+		function readFrom (fname) {
+			console.log ("\ngetTopLevelPrefs: fname == " + fname);
+			readStats (fname, pageparkPrefs, callback);
+			}
+		if (flExists) {
+			readFrom (newFnameConfig);
+			}
+		else {
+			fs.exists (oldFnameConfig, function (flExists) {
+				if (flExists) {
+					readFrom (oldFnameConfig);
+					}
+				else {
+					readFrom (newFnameConfig);
+					}
+				});
+			}
+		});
+	}
+
 function startup () {
-	readStats (fnamePrefs, pageparkPrefs, function () {
+	getTopLevelPrefs (function () {
+		console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
+		console.log ("startup: pageparkPrefs == " + utils.jsonStringify (pageparkPrefs));
 		readStats (fnameStats, pageparkStats, function () {
-			fsSureFilePath (getFullFilePath (domainsPath) + "x", function () { //make sure domains folder exists
+			utils.sureFilePath (getFullFilePath (domainsPath) + "x", function () { //make sure domains folder exists
 				var now = new Date ();
 				pageparkStats.ctStarts++;
 				pageparkStats.whenLastStart = now;
 				flStatsDirty = true;
 				http.createServer (handleHttpRequest).listen (pageparkPrefs.myPort);
-				console.log (""); console.log (myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + "."); console.log ("");
 				setInterval (everySecond, 1000); 
 				});
 			});
