@@ -34,8 +34,6 @@ var mime = require ("mime"); //1/8/15 by DW
 var utils = require ("daveutils"); //6/7/17 by DW
 var opmlToJs = require ("opmltojs"); //6/16/17 by DW
 
-var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
-
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
 	indexFilename: "index",
@@ -49,8 +47,6 @@ var pageparkPrefs = {
 	urlDefaultOpmlTemplate: "http://fargo.io/code/pagepark/templates/opml/template.txt", //6/17/17 by DW
 	urlDefaultErrorPage: "http://fargo.io/code/pagepark/prefs/error.html" //6/17/17 by DW
 	};
-var fnamePrefs = "prefs/prefs.json";
-
 var pageparkStats = {
 	ctStarts: 0, 
 	whenLastStart: new Date (0),
@@ -58,16 +54,14 @@ var pageparkStats = {
 	whenLastHit: new Date (0),
 	hitsByDomain: {}
 	};
-var fnameStats = "prefs/stats.json", flStatsDirty = false;
 
+var fnamePrefs = "prefs/prefs.json";
+var fnameStats = "prefs/stats.json", flStatsDirty = false;
 var domainsPath = "domains/";
 var configFname = "/config.json";
-
 var mdTemplatePath = "prefs/mdTemplate.txt";
-
 var opmlTemplatePath = "prefs/opmlTemplate.txt";
-
-
+var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
 
 function httpExt2MIME (ext) { //12/24/14 by DW
