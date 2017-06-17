@@ -262,6 +262,16 @@ There will always be more work to do here. ;-)
 
 #### Updates
 
+##### v0.73 6/17/17 by DW
+
+Replaced daveopml with opmlToJs, a new package that builds on the xml2js package.
+
+Rebuilt the OPML rendering code to use opmlToJs. This allows the &lt;head> info to be transmitted to the rendered page. And the full OPML structure is embedded in the page, meaning the page can render itself without calling back to the server to get missing bits from the OPML.
+
+Added a new pref, flCacheTemplatesLocally, that allows you to say you don't want the OPML and Markdown templates cached. Add it to your config.json file at the top level. It's a good idea to turn it off, but it defaults true, because that was the previous behavior (no breakage).
+
+Made the URLs of the OPML and Markdown templates configurable through config.json. So if you want to do something nicer than I have, you can, without having to modify pagepark.js.
+
 ##### v0.72 6/7/17 by DW
 
 Factored the local <i>utils</i> and <i>opml</i> modules, instead using the new <a href="https://github.com/scripting/utils">daveutils</a> and <a href="https://github.com/scripting/opml">daveopml</a> NPM packages. 

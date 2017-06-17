@@ -9,7 +9,7 @@
 	"dependencies" : {
 		"request": "*",
 		"mime": "*",
-		"daveopml": "*",
+		"opmltojs": "*",
 		"daveutils": "*",
 		"marked": "*"
 		}, 

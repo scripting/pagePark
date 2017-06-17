@@ -1,4 +1,4 @@
-var myVersion = "0.72a", myProductName = "PagePark"; 
+var myVersion = "0.73a", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -32,7 +32,7 @@ var marked = require ("marked");
 var dns = require ("dns");
 var mime = require ("mime"); //1/8/15 by DW
 var utils = require ("daveutils"); //6/7/17 by DW
-var opmlLib = require ("daveopml"); //6/7/17 by DW
+var opmlToJs = require ("opmltojs"); //6/16/17 by DW
 
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 
@@ -43,7 +43,11 @@ var pageparkPrefs = {
 	flProcessMarkdownFiles: true, extMarkdownFiles: "md", //5/5/15 by DW
 	flProcessOpmlFiles: true, extOpmlFiles: "opml", //6/23/15 by DW
 	error404File: "prefs/error.html", //7/16/15 by DW
-	legalPathChars: "" //7/19/15 by DW
+	legalPathChars: "", //7/19/15 by DW,
+	flCacheTemplatesLocally: true, //6/17/17 by DW -- preserve the original behavior
+	urlDefaultMarkdownTemplate: "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt", //6/17/17 by DW
+	urlDefaultOpmlTemplate: "http://fargo.io/code/pagepark/templates/opml/template.txt", //6/17/17 by DW
+	urlDefaultErrorPage: "http://fargo.io/code/pagepark/prefs/error.html" //6/17/17 by DW
 	};
 var fnamePrefs = "prefs/prefs.json";
 
@@ -60,13 +64,10 @@ var domainsPath = "domains/";
 var configFname = "/config.json";
 
 var mdTemplatePath = "prefs/mdTemplate.txt";
-var urlDefaultMarkdownTemplate = "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt";
 
 var opmlTemplatePath = "prefs/opmlTemplate.txt";
-var urlDefaultOpmlTemplate = "http://fargo.io/code/pagepark/templates/opml/template.txt";
 
 
-var urlDefaultErrorPage = "http://fargo.io/code/pagepark/prefs/error.html"; //7/16/15 by DW
 
 
 function httpExt2MIME (ext) { //12/24/14 by DW
@@ -94,29 +95,38 @@ function getFullFilePath (relpath) { //1/3/15 by DW
 	return (folderpath + relpath);
 	}
 function getTemplate (myTemplatePath, urlDefaultTemplate, callback) {
-	var f = getFullFilePath (myTemplatePath);
-	fs.readFile (f, function (err, data) {
-		if (err) {
-			httpReadUrl (urlDefaultTemplate, function (s) {
-				fs.writeFile (myTemplatePath, s, function (err) {
-					if (callback != undefined) {
-						callback (s);
-						}
+	if (pageparkPrefs.flCacheTemplatesLocally) {
+		var f = getFullFilePath (myTemplatePath);
+		fs.readFile (f, function (err, data) {
+			if (err) {
+				httpReadUrl (urlDefaultTemplate, function (s) {
+					fs.writeFile (myTemplatePath, s, function (err) {
+						if (callback != undefined) {
+							callback (s);
+							}
+						});
 					});
-				});
-			}
-		else {
-			if (callback != undefined) {
-				callback (data.toString ());
 				}
-			}
-		});
+			else {
+				if (callback != undefined) {
+					callback (data.toString ());
+					}
+				}
+			});
+		}
+	else {
+		httpReadUrl (urlDefaultTemplate, function (s) {
+			if (callback != undefined) {
+				callback (s);
+				}
+			});
+		}
 	}
 function getMarkdownTemplate (callback) {
-	getTemplate (mdTemplatePath, urlDefaultMarkdownTemplate, callback);
+	getTemplate (mdTemplatePath, pageparkPrefs.urlDefaultMarkdownTemplate, callback);
 	}
 function getOpmlTemplate (callback) { //6/23/15 by DW
-	getTemplate (opmlTemplatePath, urlDefaultOpmlTemplate, callback);
+	getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
 	}
 function checkPathForIllegalChars (path) {
 	function isIllegal (ch) {
@@ -218,7 +228,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			});
 		}
 	function return404 () {
-		getTemplate (pageparkPrefs.error404File, urlDefaultErrorPage, function (htmtext) {
+		getTemplate (pageparkPrefs.error404File, pageparkPrefs.urlDefaultErrorPage, function (htmtext) {
 			httpResponse.writeHead (404, {"Content-Type": "text/html"});
 			httpResponse.end (htmtext); 
 			});
@@ -301,12 +311,13 @@ function handleHttpRequest (httpRequest, httpResponse) {
 						if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
 							getOpmlTemplate (function (theTemplate) {
 								var opmltext = data.toString (), pagetable = new Object ();
-								opmlLib.readOpmlString (opmltext, function (theOutline) {
-									pagetable.bodytext = utils.jsonStringify (theOutline);
-									pagetable.title = utils.stringLastField (f, "/");
-									var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-									httpResponse.writeHead (200, {"Content-Type": "text/html"});
-									httpResponse.end (s);    
+								opmlToJs.parse (opmltext, function (theOutline) {
+									var pagetable = {
+										bodytext: utils.jsonStringify (theOutline),
+										title: theOutline.opml.head.title
+										};
+									var htmltext = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+									httpReturn (htmltext, "text/html");
 									});
 								});
 							}
