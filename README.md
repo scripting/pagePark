@@ -1,4 +1,4 @@
-### PagePark
+## PagePark
 
 I wrote  this simple HTTP server to park domains I've bought but not yet used. But I kept going and added all the features I want to help me manage my own websites, far beyond just parking them. But I liked the name so I kept it. Think of it as a nice park where you keep your pages. ;-)
 
@@ -10,7 +10,7 @@ Yet it's still very simple. Which is the point. ;-)
 
 It's 90 percent of what all web servers do, so if you learn how to run <a href="http://pagepark.io/">PagePark</a>, you're learning how to run a web server. A real one you can use to host your sites. And it's easy to hack the code if you want to.
 
-#### How to
+### How to
 
 1. Create a folder to host your website. 
 
@@ -20,11 +20,11 @@ It's 90 percent of what all web servers do, so if you learn how to run <a href="
 
 4. node pagepark.js
 
-#### Screen shot
+### Screen shot
 
 Here's a <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">screen shot</a> of my PagePark server folder. 
 
-#### How it works
+### How it works
 
 1. PagePark will automatically create a *prefs* sub-folder and a *domains* sub-folder. 
 
@@ -44,7 +44,7 @@ Here's a <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">
 
 9. There are three special endpoints on all domains: /version, /now and /status that return the version of PagePark that's running, the time on the server and the stats and prefs. 
 
-#### File extensions
+### File extensions
 
 The extension of a file determines how PagePark serves it.
 
@@ -206,7 +206,7 @@ We run the script, and the return value is returned to the caller, with type of 
 
 </table>
 
-#### Port 1339
+### Port 1339
 
 The first time you run PagePark it will open on port 1339. You can change this by editing prefs.json in the prefs folder. 
 
@@ -220,13 +220,13 @@ sudo node pagepark.js
 
 I made the default 1339 because I wanted it to work "out of the box" for first-time users.
 
-#### Mapping port 80 to 1339
+### Mapping port 80 to 1339
 
 Here's a magic incantation that works on Ubuntu that maps requests for port 80 to port 1339.
 
 <pre>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 1339</pre>
 
-#### Example pages
+### Example pages
 
 http://noderunner.org/ -- simple home page
 
@@ -246,13 +246,17 @@ http://pagepark.io/version -- the version of PagePark that's running on the serv
 
 http://pagepark.io/now -- the time on the server
 
-#### config.json files in domains folders
+http://lucky.wtf/transcend.opml -- a page written in OPML
+
+http://lucky.wtf/transcend.opml?format=opml -- the OPML source of the page
+
+### config.json files in domains folders
 
 On every request, PagePark looks at the top level of the domain folder for a file named config.json. If it finds it, it reads it and the values in the file control how the request is handled. 
 
 Here's a <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md">docs page</a> that lists the values and what they control.
 
-#### JavaScript sample code
+### JavaScript sample code
 
 I've iterated over the code to try to make it good sample code for JavaScript projects. 
 
@@ -260,19 +264,19 @@ I wanted to make code that could be used for people who are just getting started
 
 There will always be more work to do here. ;-)
 
-#### Updates
+### Updates
 
-##### v0.73 6/17/17 by DW
+#### v0.73 6/17/17 by DW
 
-Replaced daveopml with opmlToJs, a new package that builds on the xml2js package.
+Replaced <a href="https://www.npmjs.com/package/daveopml">daveopml</a> with <a href="https://www.npmjs.com/package/opmltojs">opmltojs</a>, a new package that builds on the <a href="https://github.com/Leonidas-from-XIV/node-xml2js">xml2js</a> package.
 
-Rebuilt the OPML rendering code to use opmlToJs. This allows the &lt;head> info to be transmitted to the rendered page. And the full OPML structure is embedded in the page, meaning the page can render itself without calling back to the server to get missing bits from the OPML.
+Rebuilt the OPML rendering code to use opmltojs. This allows the &lt;head> info to be transmitted to the rendered page. And the full OPML structure is embedded in the page, meaning the page can render itself without calling back to the server to get missing bits from the OPML.
 
-Added a new pref, flCacheTemplatesLocally, that allows you to say you don't want the OPML and Markdown templates cached. Add it to your config.json file at the top level. It's a good idea to turn it off, but it defaults true, because that was the previous behavior (no breakage).
+Added a new pref, <i>flCacheTemplatesLocally,</i> that allows you to say you don't want the OPML and Markdown templates cached. Add it to your prefs.json file. It defaults true, because that was the previous behavior (no breakage). This probably won't matter to people who aren't iterating over template development.
 
-Made the URLs of the OPML and Markdown templates configurable through config.json. So if you want to do something nicer than I have, you can, without having to modify pagepark.js.
+Made the URLs of the OPML and Markdown templates configurable through prefs.json. So if you want to do something nicer than I have, you can, without having to modify pagepark.js.
 
-##### v0.72 6/7/17 by DW
+#### v0.72 6/7/17 by DW
 
 Factored the local <i>utils</i> and <i>opml</i> modules, instead using the new <a href="https://github.com/scripting/utils">daveutils</a> and <a href="https://github.com/scripting/opml">daveopml</a> NPM packages. 
 
@@ -280,19 +284,19 @@ We now look for prefs in config.json in in the same folder as pagepark.js, if it
 
 Improved rendering outlines, so that you can put an OPML file anywhere, and refer to it and it will render as an outline. If you add ?format=opml to the URL it will return the XML 
 
-##### v0.71 7/31/16 by DW
+#### v0.71 7/31/16 by DW
 
 The repository now includes <a href="https://github.com/scripting/pagePark/blob/master/prefs/mdTemplate.txt">mdTemplate.txt</a> in the prefs folder. Previously it would download this file from one of my sites the first time it was used. This is a more modern way to distribute it. 
 
-##### v0.70 12/8/15 by DW
+#### v0.70 12/8/15 by DW
 
 It used to be that a file had to exist in order for you to redirect from it in <a href="https://github.com/scripting/pagepark#v067-73015-by-dw">config.redirects</a>. Now it doesn't have to exist. 
 
-##### v0.68 8/31/15 by DW
+#### v0.68 8/31/15 by DW
 
 Small change in error handling when we delegate a request. The previous method would cause PagePark to crash if the app we're trying to delegate to isn't running. Thanks to Dan MacTough for the help fixing this. ;-)
 
-##### v0.67 7/30/15 by DW
+#### v0.67 7/30/15 by DW
 
 New redirect feature for individual pages. 
 
@@ -300,13 +304,13 @@ In config.json for the domain containing the file you want to redirect, create a
 
 Here's an <a href="https://gist.github.com/scripting/8295f373c61dd9f5ce97">example</a> of the config.json for smallpicture.com. It redirects from an <a href="http://smallpicture.com/outlinerHowto.html">old version</a> of the outliner howto to the newer version. 
 
-##### v0.66 7/19/15 by DW
+#### v0.66 7/19/15 by DW
 
 In prefs.json a new value, legalPathChars, defaults to the empty string. In this string you can specify characters that are legal in paths on your server. We are very conservative in what we will allow in paths, but if you need to use one of the characters that we consider illegal, add it to this string. 
 
 For example, I am redirecting urls from discuss.userland.com to a static archive. It was a Manila site, so it uses a $ in the URLs, a character which PagePark by default considers illegal. Here's an <a href="http://discuss.userland.com/msgReader$18647">example</a>. I set legalPathChars to "$" in prefs.json, and it lets the character through, and it is redirected by the very clever little script that handles redirection for that domain. 
 
-##### v0.65 7/16/15 by DW
+#### v0.65 7/16/15 by DW
 
 In prefs.json a new value, error404File, defaults to prefs/error.html
 
@@ -314,7 +318,7 @@ When there's an error, we read that file and send it back as the text of the 404
 
 The default value is more or less exactly the same text earlier versions of PagePark returned. It's actually in HTML, that's the difference. As opposed to being plain text.
 
-##### v0.64 7/7/15 by DW
+#### v0.64 7/7/15 by DW
 
 I wanted to do a site redirect that was more than just a domain name change. 
 
@@ -328,11 +332,11 @@ This is what config.json in the folder archive.scripting.com looks like.
 
 <code>{"jsSiteRedirect": "'http://scripting.com' + parsedUrl.pathname + '.html'"}</code>
 
-##### v0.62 6/25/15 by DW
+#### v0.62 6/25/15 by DW
 
 Code cleanup and factoring in <a href="https://github.com/scripting/pagepark/blob/master/lib/opml.js">opml.js</a>.
 
-##### v0.61 6/24/15 by DW
+#### v0.61 6/24/15 by DW
 
 Files with the extension .opml are now  rendered as outlines. 
 
@@ -346,13 +350,13 @@ If you want the raw OPML text from the server, you can do it one of two ways:
 
 As with scripts and markdown files, you can turn the feature off in config.json. 
 
-##### v0.60 5/26/15 by DW
+#### v0.60 5/26/15 by DW
 
 When delegating requests, pass redirects back to the client, don't follow them. This was necessary so that that OAuth dance with Twitter in nodeStorage would work. 
 
 There's a new <a href="http://scripting.com/listings/pagepark.html">structured listing</a> of the source code of PagePark, linked to from the <a href="https://github.com/scripting/pagepark/blob/master/pagepark.js">flat listing</a> (above). This makes it easy to see how the code is organized. It gets pretty deeply nested! The outline view makes that manageable. I use the OPML Editor on a Mac to edit PagePark. 
 
-##### v0.59 5/23/15 by DW
+#### v0.59 5/23/15 by DW
 
 You can now delegate requests to apps running on other ports on your server machine. 
 
@@ -362,7 +366,7 @@ Here's an <a href="https://gist.github.com/scripting/af9df0198db5daa3c982">examp
 
 The name matches the end of the HOST header for the request, so a request for judy.judgment.club will map, as will renee.judgment.club and judgment.club.
 
-##### v0.57 5/11/15 by DW
+#### v0.57 5/11/15 by DW
 
 PagePark has pre-defined pages, /now, /version and /status, whose values are returned by PagePark itself. It used to be that they took precedence, so if a site defines pages with those names, the internal ones would be served instead. Now we only serve them if the site didn't define it. 
 
@@ -372,11 +376,11 @@ PagePark now supports wildcards. Suppose you want to serve all the names from my
 
 We also set the <a href="http://stackoverflow.com/questions/19084340/real-life-usage-of-the-x-forwarded-host-header">X-Forwarded-Host</a> and <a href="https://en.wikipedia.org/wiki/X-Forwarded-For">X-Forwarded-For</a> headers on urlSiteContents requests. 
 
-##### v0.56 5/5/15 by DW
+#### v0.56 5/5/15 by DW
 
 New prefs and config values that allow you to disable processing of scripts and Markdown files. By setting the values in prefs.json, you control all domains on the server. And by adding the values to config.json, in the folder the site is served from, you can turn them off selectively by site. I needed to turn off script processing for .js files served from <a href="https://github.com/scripting/river4">River4</a>, to make it possible to serve a full river from PagePark. 
 
-##### v0.55 4/26/15 by DW
+#### v0.55 4/26/15 by DW
 
 With this release you can serve domains whose content is stored elsewhere on the web. 
 
@@ -398,7 +402,7 @@ Just for fun I put a <a href="http://my.this.how/saul.png">picture</a> in that f
 
 Obviously it can get a lot more elaborate, and you can store the content anywhere, not just in a Dropbox folder. The key is that the content be accessible over the web. 
 
-##### v0.54 2/18/15 by DW
+#### v0.54 2/18/15 by DW
 
 A new feature for pages implemented as scripts. If the script returns the value <i>undefined</i> PagePark will not return a value to the HTTP client, it assumes that the script will do this. 
 
@@ -406,13 +410,13 @@ To make it possible for a script page to return a value to the client, there's a
 
 Here's an <a href="https://gist.github.com/scripting/a3a8232d193ea88e04ba">example script</a> that illustrates.
 
-##### v0.51 1/18/15 by DW
+#### v0.51 1/18/15 by DW
 
 Created utils.js in the lib folder, and require it in pagepark.js.
 
 New feature: If there's a file called config.json in a domain folder, we read it on every request, and values in that file can change the behavior of the server. The first feature allows you to do a whole-site redirect. Useful if you want to have several names map to the same content. Here's an <a href="https://gist.github.com/scripting/27be2d8be40577ad0fdf">example</a> of the config.json file that maps a domain to <a href="http://nodestorage.io/">nodestorage.io</a>.
 
-##### v0.48 1/8/15 by DW
+#### v0.48 1/8/15 by DW
 
 The default port the server boots up on is now 1339. Previously it was 80, which is the standard port for HTTP, but on many OSes this requires PagePark to be running in supervisor mode. I added docs above to explain this. 
 
@@ -420,7 +424,7 @@ Changed package.json so that only *request* and *marked* were listed as dependen
 
 Instead of keeping our own MIME type table, we use the Node *mime* package, which is also included as a dependency in the package.json file.
 
-##### v0.47 1/7/15 by DW
+#### v0.47 1/7/15 by DW
 
 Added a package.json file to the repository.
 
@@ -430,7 +434,7 @@ Also, we now make sure the *domains* folder exists at startup.
 
 Fixed a problem in handling requests if you specified a different folder for PagePark to serve from. 
 
-#### Questions, comments?
+### Questions, comments?
 
 Please post a note on the <a href="https://groups.google.com/forum/#!forum/server-snacks">Server Snacks</a> mail list. 
 

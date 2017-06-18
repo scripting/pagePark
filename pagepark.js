@@ -1,4 +1,4 @@
-var myVersion = "0.73a", myProductName = "PagePark"; 
+var myVersion = "0.73c", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -308,8 +308,13 @@ function handleHttpRequest (httpRequest, httpResponse) {
 								opmlToJs.parse (opmltext, function (theOutline) {
 									var pagetable = {
 										bodytext: utils.jsonStringify (theOutline),
-										title: theOutline.opml.head.title
+										title: utils.stringLastField (f, "/"),
+										description: "",
+										image: "",
+										sitename: "",
+										url: "http://" + httpRequest.headers.host + httpRequest.url
 										};
+									utils.copyScalars (theOutline.opml.head, pagetable);
 									var htmltext = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
 									httpReturn (htmltext, "text/html");
 									});
