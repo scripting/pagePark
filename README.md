@@ -436,5 +436,5 @@ Fixed a problem in handling requests if you specified a different folder for Pag
 
 ### Questions, comments?
 
-Please post a note on the <a href="https://groups.google.com/forum/#!forum/server-snacks">Server Snacks</a> mail list. 
+Please post a note on the <a href="https://groups.google.com/forum/#!forum/server-snacks">Server Snacks</a> mail list or post an issue <a href="https://github.com/scripting/pagePark/issues">here</a>. 
 
