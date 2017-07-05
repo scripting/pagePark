@@ -1,4 +1,4 @@
-var myVersion = "0.73c", myProductName = "PagePark"; 
+var myVersion = "0.74a", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2015 Dave Winer
@@ -510,11 +510,13 @@ function handleHttpRequest (httpRequest, httpResponse) {
 											if (!serveRedirect (lowerpath, config)) { //7/30/15 by DW -- it wasn't a redirect
 												if (stats.isDirectory ()) {
 													if (!utils.endsWith (f, "/")) {
-														f += "/";
+														returnRedirect (httpRequest.url + "/", false); //7/5/17 by DW
 														}
-													findSpecificFile (f, pageparkPrefs.indexFilename, function (findex) {
-														serveFile (findex, config);
-														});
+													else {
+														findSpecificFile (f, pageparkPrefs.indexFilename, function (findex) {
+															serveFile (findex, config);
+															});
+														}
 													}
 												else {
 													serveFile (f, config);

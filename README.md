@@ -266,6 +266,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.74 7/5/17 by DW
+
+If a request comes in for domain.com/hello and it's a directory, redirect to domain.com/hello/.
+
 #### v0.73 6/17/17 by DW
 
 Replaced <a href="https://www.npmjs.com/package/daveopml">daveopml</a> with <a href="https://www.npmjs.com/package/opmltojs">opmltojs</a>, a new package that builds on the <a href="https://github.com/Leonidas-from-XIV/node-xml2js">xml2js</a> package.
