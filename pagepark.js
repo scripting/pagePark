@@ -1,7 +1,7 @@
-var myVersion = "0.74a", myProductName = "PagePark"; 
+var myVersion = "0.75a", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
-	Copyright (c) 2014-2015 Dave Winer
+	Copyright (c) 2014-2017 Dave Winer
 	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -62,6 +62,7 @@ var configFname = "/config.json";
 var mdTemplatePath = "prefs/mdTemplate.txt";
 var opmlTemplatePath = "prefs/opmlTemplate.txt";
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
+var flEveryMinuteScheduled = false; //7/17/17 by DW
 
 
 function httpExt2MIME (ext) { //12/24/14 by DW
@@ -148,10 +149,22 @@ function checkPathForIllegalChars (path) {
 		}
 	return (true);
 	}
-function everySecond () {
+function everyMinute () { //7/17/17 by DW
+	var now = new Date ();
+	console.log ("\n" + myProductName + " v" + myVersion + ": " + now.toLocaleTimeString () + ", port == " + pageparkPrefs.myPort + ".\n");
 	if (flStatsDirty) {
 		writeStats (fnameStats, pageparkStats);
 		flStatsDirty = false;
+		}
+	}
+function everySecond () {
+	var now = new Date ();
+	if (!flEveryMinuteScheduled) {
+		if (now.getSeconds () == 0) {
+			flEveryMinuteScheduled = true;
+			setInterval (everyMinute, 60000); 
+			everyMinute (); //do one right now
+			}
 		}
 	}
 function handleHttpRequest (httpRequest, httpResponse) {
@@ -599,7 +612,6 @@ function getTopLevelPrefs (callback) { //6/7/17 by DW -- first look for config.j
 	const newFnameConfig = "config.json", oldFnameConfig = "prefs/prefs.json";
 	fs.exists (newFnameConfig, function (flExists) {
 		function readFrom (fname) {
-			console.log ("\ngetTopLevelPrefs: fname == " + fname);
 			readStats (fname, pageparkPrefs, callback);
 			}
 		if (flExists) {

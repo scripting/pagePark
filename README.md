@@ -266,6 +266,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.75 7/17/17 by DW
+
+Check stats every minute instead of every second. This means that servers that take a lot of hits won't be writing the stats file so often. If you run PagePark out of a shared folder this can mean a lot of updating, it's not really protecting against anything critical. 
+
 #### v0.74 7/5/17 by DW
 
 If a request comes in for domain.com/hello and it's a directory, redirect to domain.com/hello/.
