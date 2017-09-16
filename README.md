@@ -266,6 +266,14 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.7.6 9/16/17 by DW
+
+Two changes:
+
+1. The <a href="https://www.npmjs.com/package/mime">mime package</a> had a breaking change. I fixed it so it no longer breaks PagePark. Thanks to Davis Shaver for the <a href="https://github.com/scripting/pagePark/issues/7">report</a>. 
+
+2. Changed the version number system to use the same x.y.z system used by other Node apps. This is v0.7.6.
+
 #### v0.75 7/17/17 by DW
 
 Check stats every minute instead of every second. This means that servers that take a lot of hits won't be writing the stats file so often. If you run PagePark out of a shared folder this can mean a lot of updating, it's not really protecting against anything critical. 

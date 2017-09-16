@@ -1,4 +1,4 @@
-var myVersion = "0.75a", myProductName = "PagePark"; 
+var myVersion = "0.7.6", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -67,7 +67,7 @@ var flEveryMinuteScheduled = false; //7/17/17 by DW
 
 function httpExt2MIME (ext) { //12/24/14 by DW
 	mime.default_type = "text/plain";
-	return (mime.lookup (ext));
+	return (mime.getType (ext));
 	}
 function httpReadUrl (url, callback) {
 	request (url, function (error, response, body) {
