@@ -266,6 +266,18 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.7.7 9/26/17 by DW
+
+Added two config.json options and changed the name of another. 
+
+1. Changed the name of <i>s3Path</i> to <i>fargoS3Path.</i> It was only used in serving Fargo websites, on one of my servers. It's a very specific bit of functionality. Far more specific than the name implies.
+
+2. New meaning for <i>s3Path</i> option. If specified it points to an S3 location that PagePark will serve the site from. It should begin with a slash but not end with one. All requests for the domain are mapped to requests at the S3 location. Additionally, it processes the request through the same filters it uses for local files, so files ending with .md are passed through the Markdown processor and files that end with .opml are processed as outlines. It follows all the rules outlined on <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md">this page</a>.
+
+3. New option: <i>localPath,</i> points to a directory on the local system where files are served from exactly as in #2 above. 
+
+A caveat on this release, I had trouble upgrading one of my servers with this version because of changes to a couple of packages we use. I was able to fix all the problems by installing the latest stable version of Node, as described on <a href="https://nodesource.com/blog/installing-node-js-tutorial-ubuntu/">this page</a>. If you have trouble, re-open <a href="https://github.com/scripting/pagePark/issues/8">this issue</a>, and we can look into it. 
+
 #### v0.7.6 9/16/17 by DW
 
 Two changes:

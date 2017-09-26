@@ -1,4 +1,4 @@
-var myVersion = "0.7.6", myProductName = "PagePark"; 
+var myVersion = "0.7.7", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -63,7 +63,6 @@ var mdTemplatePath = "prefs/mdTemplate.txt";
 var opmlTemplatePath = "prefs/opmlTemplate.txt";
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 var flEveryMinuteScheduled = false; //7/17/17 by DW
-
 
 function httpExt2MIME (ext) { //12/24/14 by DW
 	mime.default_type = "text/plain";
@@ -260,87 +259,88 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			return404 ();
 			});
 		}
-	function serveFile (f, config) {
+	function processResponse (path, data, config, callback) { //9/26/17 by DW
 		var formatParam; //url ends with ?format=abc -- 6/24/15 by DW
 		if (parsedUrl.query.format !== undefined) {
 			formatParam = parsedUrl.query.format.toLowerCase ()
 			}
 		function httpReturn (val, type) { //2/17/15 by DW
-			httpResponse.writeHead (200, {"Content-Type": type});
-			httpResponse.end (val.toString ());    
+			callback (200, type, val.toString ());
 			}
 		function defaultReturn (type, data) {
-			httpResponse.writeHead (200, {"Content-Type": type});
-			httpResponse.end (data);    
+			callback (200, type, data);
 			}
+		var ext = utils.stringLastField (path, ".").toLowerCase (), type = httpExt2MIME (ext);
+		switch (ext) {
+			case config.extScriptFiles:
+				if (pageparkPrefs.flProcessScriptFiles && config.flProcessScriptFiles) {
+					try {
+						var val = eval (data.toString ());
+						if (val !== undefined) { //2/17/15 by DW
+							httpReturn (val.toString (), "text/html");
+							}
+						}
+					catch (err) {
+						callback (500, "text/plain", "Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
+						}
+					}
+				else {
+					defaultReturn (type, data);
+					}
+				break;
+			case config.extMarkdownFiles:
+				if (pageparkPrefs.flProcessMarkdownFiles && config.flProcessMarkdownFiles) {
+					getMarkdownTemplate (function (theTemplate) {
+						var mdtext = data.toString (), pagetable = new Object ();
+						pagetable.bodytext = marked (mdtext);
+						pagetable.title = utils.stringLastField (path, "/");
+						var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+						callback (200, "text/html", s);
+						});
+					}
+				else {
+					defaultReturn (type, data);
+					}
+				break;
+			case config.extOpmlFiles: //6/23/15 by DW
+				var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
+				if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
+					getOpmlTemplate (function (theTemplate) {
+						var opmltext = data.toString (), pagetable = new Object ();
+						opmlToJs.parse (opmltext, function (theOutline) {
+							var pagetable = {
+								bodytext: utils.jsonStringify (theOutline),
+								title: utils.stringLastField (path, "/"),
+								description: "",
+								image: "",
+								sitename: "",
+								url: "http://" + httpRequest.headers.host + httpRequest.url
+								};
+							utils.copyScalars (theOutline.opml.head, pagetable);
+							var htmltext = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+							httpReturn (htmltext, "text/html");
+							});
+						});
+					}
+				else {
+					defaultReturn ("text/xml", data);
+					}
+				break;
+			default:
+				defaultReturn (type, data);
+				break;
+			}
+		}
+	function serveFile (f, config) {
 		fs.readFile (f, function (err, data) {
 			if (err) {
 				return404 ();
 				}
 			else {
-				var ext = utils.stringLastField (f, ".").toLowerCase (), type = httpExt2MIME (ext);
-				switch (ext) {
-					case config.extScriptFiles:
-						if (pageparkPrefs.flProcessScriptFiles && config.flProcessScriptFiles) {
-							try {
-								var val = eval (data.toString ());
-								if (val !== undefined) { //2/17/15 by DW
-									httpResponse.writeHead (200, {"Content-Type": "text/html"});
-									httpResponse.end (val.toString ());    
-									}
-								}
-							catch (err) {
-								httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-								httpResponse.end ("Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
-								}
-							}
-						else {
-							defaultReturn (type, data);
-							}
-						break;
-					case config.extMarkdownFiles:
-						if (pageparkPrefs.flProcessMarkdownFiles && config.flProcessMarkdownFiles) {
-							getMarkdownTemplate (function (theTemplate) {
-								var mdtext = data.toString (), pagetable = new Object ();
-								pagetable.bodytext = marked (mdtext);
-								pagetable.title = utils.stringLastField (f, "/");
-								var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-								httpResponse.writeHead (200, {"Content-Type": "text/html"});
-								httpResponse.end (s);    
-								});
-							}
-						else {
-							defaultReturn (type, data);
-							}
-						break;
-					case config.extOpmlFiles: //6/23/15 by DW
-						var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
-						if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
-							getOpmlTemplate (function (theTemplate) {
-								var opmltext = data.toString (), pagetable = new Object ();
-								opmlToJs.parse (opmltext, function (theOutline) {
-									var pagetable = {
-										bodytext: utils.jsonStringify (theOutline),
-										title: utils.stringLastField (f, "/"),
-										description: "",
-										image: "",
-										sitename: "",
-										url: "http://" + httpRequest.headers.host + httpRequest.url
-										};
-									utils.copyScalars (theOutline.opml.head, pagetable);
-									var htmltext = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-									httpReturn (htmltext, "text/html");
-									});
-								});
-							}
-						else {
-							defaultReturn ("text/xml", data);
-							}
-						break;
-					default:
-						defaultReturn (type, data);
-						break;
-					}
+				processResponse (f, data, config, function (code, type, text) {
+					httpResponse.writeHead (code, {"Content-Type": type});
+					httpResponse.end (text);    
+					});
 				}
 			});
 		}
@@ -477,9 +477,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 											delegateRequest (config.urlSiteContents + httpRequest.url);
 											return; 
 											}
-										if (config.s3Path != undefined) { //5/11/15 PM by DW v0.58
+										if (config.fargoS3Path != undefined) { //5/11/15 PM by DW v0.58
 											var firstPartOfHost = utils.stringNthField (host, ".", 1); //if it's dave.smallpict.com, this value is "dave"
-											var s3url = "http:/" + config.s3Path + firstPartOfHost + parsedUrl.pathname; //xxx
+											var s3url = "http:/" + config.fargoS3Path + firstPartOfHost + parsedUrl.pathname; //xxx
 											request (s3url, function (error, response, body) {
 												if (error) {
 													httpResponse.writeHead (500, {"Content-Type": "text/plain"});
@@ -490,6 +490,34 @@ function handleHttpRequest (httpRequest, httpResponse) {
 													httpResponse.end (body);    
 													}
 												});
+											return;
+											}
+										if (config.s3Path != undefined) { //9/26/17 by DW
+											var s3url = "http:/" + config.s3Path + parsedUrl.pathname; 
+											request (s3url, function (error, response, body) {
+												if (error) {
+													httpResponse.writeHead (500, {"Content-Type": "text/plain"});
+													httpResponse.end ("Error accessing S3 data: " + error.message);    
+													}
+												else {
+													if (response.statusCode == 200) {
+														processResponse (parsedUrl.pathname, body, config, function (code, type, text) {
+															httpResponse.writeHead (code, {"Content-Type": type});
+															httpResponse.end (text);    
+															});
+														}
+													else {
+														httpResponse.writeHead (response.statusCode, {"Content-Type": response.headers ["content-type"]});
+														httpResponse.end (body);    
+														}
+													}
+												});
+											return;
+											}
+										if (config.localPath != undefined) { //9/26/17 by DW
+											var localFile = config.localPath + parsedUrl.pathname;
+											console.log ("localFile == " + localFile);
+											serveFile (localFile, config);
 											return;
 											}
 										}
