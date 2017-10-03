@@ -266,6 +266,12 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.7.8 10/3/17 by DW
+
+New features supports logging over WebSockets. To enable, in config.json set <i>flWebsocketEnabled</i> true, and assign a port to the WS server in <i>websocketPort.</i> On every hit, PagePark will send back a JSON structure containing information about the request. 
+
+Note: There's a new dependency, <a href="https://github.com/websockets/ws">nodejs-websocket</a>, so when installing this update you have to do an `npm install` before running pagepark.js.
+
 #### v0.7.7 9/26/17 by DW
 
 Added two config.json options and changed the name of another. 

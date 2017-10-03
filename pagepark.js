@@ -1,4 +1,4 @@
-var myVersion = "0.7.7", myProductName = "PagePark"; 
+var myVersion = "0.7.8", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -33,9 +33,11 @@ var dns = require ("dns");
 var mime = require ("mime"); //1/8/15 by DW
 var utils = require ("daveutils"); //6/7/17 by DW
 var opmlToJs = require ("opmltojs"); //6/16/17 by DW
+const websocket = require ("nodejs-websocket"); //9/29/17 by DW
 
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
+	flWebsocketEnabled: false, websocketPort: 1340, //9/29/17 by DW
 	indexFilename: "index",
 	flProcessScriptFiles: true, extScriptFiles: "js", //5/5/15 by DW
 	flProcessMarkdownFiles: true, extMarkdownFiles: "md", //5/5/15 by DW
@@ -50,7 +52,7 @@ var pageparkPrefs = {
 var pageparkStats = {
 	ctStarts: 0, 
 	whenLastStart: new Date (0),
-	ctHits: 0, ctHitsToday: 0,
+	ctHits: 0, ctHitsToday: 0, ctHitsSinceStart: 0,
 	whenLastHit: new Date (0),
 	hitsByDomain: {}
 	};
@@ -63,6 +65,47 @@ var mdTemplatePath = "prefs/mdTemplate.txt";
 var opmlTemplatePath = "prefs/opmlTemplate.txt";
 var folderPathFromEnv = process.env.pageparkFolderPath; //1/3/15 by DW
 var flEveryMinuteScheduled = false; //7/17/17 by DW
+
+//websockets -- 9/29/17 by DW
+	var theWsServer = undefined;
+	function notifySocketSubscribers (verb, jstruct) {
+		if (theWsServer !== undefined) {
+			var ctUpdates = 0, now = new Date (), jsontext = "";
+			if (jstruct !== undefined) { //10/7/16 by DW
+				jsontext = utils.jsonStringify (jstruct);
+				}
+			for (var i = 0; i < theWsServer.connections.length; i++) {
+				var conn = theWsServer.connections [i];
+				if (conn.pageParkData !== undefined) { //it's one of ours
+					try {
+						conn.sendText (verb + "\r" + jsontext);
+						conn.pageParkData.whenLastUpdate = now;
+						conn.pageParkData.ctUpdates++;
+						ctUpdates++;
+						}
+					catch (err) {
+						console.log ("notifySocketSubscribers: socket #" + i + ": error updating");
+						}
+					}
+				}
+			}
+		}
+	function webSocketStartup () {
+		if (pageparkPrefs.flWebsocketEnabled) {
+			try {
+				theWsServer = websocket.createServer (function (conn) {
+					conn.pageParkData = {
+						whenLastUpdate: new Date (0),
+						ctUpdates: 0
+						};
+					});
+				theWsServer.listen (pageparkPrefs.websocketPort);
+				}
+			catch (err) {
+				console.log ("webSocketStartup: err.message == " + err.message);
+				}
+			}
+		}
 
 function httpExt2MIME (ext) { //12/24/14 by DW
 	mime.default_type = "text/plain";
@@ -167,6 +210,8 @@ function everySecond () {
 		}
 	}
 function handleHttpRequest (httpRequest, httpResponse) {
+	var logInfo; //9/30/17 by DW
+	
 	function hasAcceptHeader (theHeader) {
 		if (httpRequest.headers.accept === undefined) {
 			return (false);
@@ -233,16 +278,37 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			});
 		}
+	function httpRespond (code, type, val, headers) {
+		if (headers === undefined) {
+			headers = new Object ();
+			}
+		headers ["Content-Type"] = type;
+		httpResponse.writeHead (code, headers);
+		val = val.toString ();
+		httpResponse.end (val);    
+		logInfo.ctSecs = utils.secondsSince (logInfo.when);
+		logInfo.size = val.length;
+		logInfo.code = code;
+		logInfo.type = type;
+		
+		logInfo.serverStats = {
+			pageParkVersion: myVersion,
+			whenStart: pageparkStats.whenLastStart,
+			ctHits: pageparkStats.ctHits,
+			ctHitsToday: pageparkStats.ctHitsToday,
+			ctHitsSinceStart: pageparkStats.ctHitsSinceStart
+			};
+		
+		notifySocketSubscribers ("log", logInfo);
+		}
 	function return404 () {
 		getTemplate (pageparkPrefs.error404File, pageparkPrefs.urlDefaultErrorPage, function (htmtext) {
-			httpResponse.writeHead (404, {"Content-Type": "text/html"});
-			httpResponse.end (htmtext); 
+			httpRespond (404, "text/html", htmtext);
 			});
 		}
 	function returnRedirect (urlRedirectTo, flPermanent) { //7/30/15 by DW
 		var code = (flPermanent) ? 301 : 302;
-		httpResponse.writeHead (code, {"Location": urlRedirectTo, "Content-Type": "text/plain"});
-		httpResponse.end ("Redirect to " + urlRedirectTo + ".");    
+		httpRespond (code, "text/plain", "Redirect to " + urlRedirectTo + ".", {"Location": urlRedirectTo})
 		}
 	function findSpecificFile (folder, specificFname, callback) {
 		specificFname = specificFname.toLowerCase (); //7/16/15 by DW
@@ -338,8 +404,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			else {
 				processResponse (f, data, config, function (code, type, text) {
-					httpResponse.writeHead (code, {"Content-Type": type});
-					httpResponse.end (text);    
+					httpRespond (code, type, text);
 					});
 				}
 			});
@@ -369,8 +434,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		function handleError (err) {
 			if (err) {
 				console.log ("delegateRequest: error == " + err.message); 
-				httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-				httpResponse.end (err.message);    
+				httpRespond (500, "text/plain", err.message);
 				}
 			}
 		var req = httpRequest.pipe (request (theRequest));
@@ -391,6 +455,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 	try {
 		var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
 		var lowerpath = parsedUrl.pathname.toLowerCase (), now = new Date ();
+		var remoteAddress = httpRequest.connection.remoteAddress;
 		//set host, port
 			host = httpRequest.headers.host;
 			if (utils.stringContains (host, ":")) {
@@ -407,6 +472,22 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				referrer = "";
 				}
 			
+		//clean up remoteAddress -- 9/29/17 by DW
+			if (utils.beginsWith (remoteAddress, "::ffff:")) { 
+				remoteAddress = utils.stringDelete (remoteAddress, 1, 7);
+				}
+		//set up logInfo  -- 9/30/17 by DW
+			logInfo = {
+				when: now,
+				method: httpRequest.method,
+				host: host,
+				port: port,
+				path: parsedUrl.pathname,
+				lowerpath: lowerpath,
+				referrer: referrer,
+				params: parsedUrl.query,
+				remoteAddress: remoteAddress
+				};
 		//stats
 			//hits by domain
 				if (pageparkStats.hitsByDomain [lowerhost] == undefined) {
@@ -421,12 +502,13 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					}
 			pageparkStats.ctHits++;
 			pageparkStats.ctHitsToday++;
+			pageparkStats.ctHitsSinceStart++; //9/30/17 by DW
 			pageparkStats.whenLastHit = now;
 			flStatsDirty = true;
 		
 		//log the request
-			dns.reverse (httpRequest.connection.remoteAddress, function (err, domains) {
-				var client = httpRequest.connection.remoteAddress;
+			dns.reverse (remoteAddress, function (err, domains) {
+				var client = remoteAddress;
 				if (!err) {
 					if (domains.length > 0) {
 						client = domains [0];
@@ -436,6 +518,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					client = "";
 					}
 				console.log (now.toLocaleTimeString () + " " + httpRequest.method + " " + host + ":" + port + " " + lowerpath + " " + referrer + " " + client);
+				logInfo.client = client;
 				});
 		//handle the request
 			findMappedDomain (host, function (thePort) {
@@ -458,19 +541,16 @@ function handleHttpRequest (httpRequest, httpResponse) {
 										if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
 											try {
 												var urlRedirect = eval (config.jsSiteRedirect.toString ());
-												httpResponse.writeHead (302, {"Location": urlRedirect.toString (), "Content-Type": "text/plain"});
-												httpResponse.end ("Temporary redirect to " + urlRedirect + ".");    
+												returnRedirect (urlRedirect.toString (), false); //9/30/17 by DW
 												}
 											catch (err) {
-												httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-												httpResponse.end ("Error running " + config.jsSiteRedirect + ": \"" + err.message + "\"");
+												httpRespond (500, "text/plain", "Error running " + config.jsSiteRedirect + ": \"" + err.message + "\"");
 												}
 											return; 
 											}
 										if (config.urlSiteRedirect != undefined) {
 											var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
-											httpResponse.writeHead (302, {"Location": urlRedirect, "Content-Type": "text/plain"});
-											httpResponse.end ("Temporary redirect to " + urlRedirect + ".");    
+											returnRedirect (urlRedirect.toString (), false); //9/30/17 by DW
 											return; 
 											}
 										if (config.urlSiteContents != undefined) { //4/26/15 by DW -- v0.55
@@ -482,12 +562,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 											var s3url = "http:/" + config.fargoS3Path + firstPartOfHost + parsedUrl.pathname; //xxx
 											request (s3url, function (error, response, body) {
 												if (error) {
-													httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-													httpResponse.end ("Error accessing S3 data: " + error.message);    
+													httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
 													}
 												else {
-													httpResponse.writeHead (response.statusCode, {"Content-Type": response.headers ["content-type"]});
-													httpResponse.end (body);    
+													httpRespond (response.statusCode, response.headers ["content-type"], body);
 													}
 												});
 											return;
@@ -496,19 +574,16 @@ function handleHttpRequest (httpRequest, httpResponse) {
 											var s3url = "http:/" + config.s3Path + parsedUrl.pathname; 
 											request (s3url, function (error, response, body) {
 												if (error) {
-													httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-													httpResponse.end ("Error accessing S3 data: " + error.message);    
+													httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
 													}
 												else {
 													if (response.statusCode == 200) {
 														processResponse (parsedUrl.pathname, body, config, function (code, type, text) {
-															httpResponse.writeHead (code, {"Content-Type": type});
-															httpResponse.end (text);    
+															httpRespond (code, type, text);
 															});
 														}
 													else {
-														httpResponse.writeHead (response.statusCode, {"Content-Type": response.headers ["content-type"]});
-														httpResponse.end (body);    
+														httpRespond (response.statusCode, response.headers ["content-type"], body);
 														}
 													}
 												});
@@ -525,20 +600,17 @@ function handleHttpRequest (httpRequest, httpResponse) {
 										if (err) {
 											switch (lowerpath) {
 												case "/version":
-													httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-													httpResponse.end (myVersion);    
+													httpRespond (200, "text/plain", myVersion);
 													break;
 												case "/now": 
-													httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-													httpResponse.end (now.toString ());    
+													httpRespond (200, "text/plain", now.toString ());
 													break;
 												case "/status": 
 													var status = {
 														prefs: pageparkPrefs,
 														status: pageparkStats
 														}
-													httpResponse.writeHead (200, {"Content-Type": "text/plain"});
-													httpResponse.end (utils.jsonStringify (status));    
+													httpRespond (200, "text/plain", utils.jsonStringify (status));
 													break;
 												default:
 													if (!serveRedirect (lowerpath, config)) { //12/8/15 by DW -- it wasn't a redirect
@@ -569,16 +641,14 @@ function handleHttpRequest (httpRequest, httpResponse) {
 								});
 							}
 						else {
-							httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-							httpResponse.end ("The file name contains illegal characters.");    
+							httpRespond (500, "text/plain", "The file name contains illegal characters.");
 							}
 						});
 					}
 				});
 		}
 	catch (err) {
-		httpResponse.writeHead (500, {"Content-Type": "text/plain"});
-		httpResponse.end (err.message);    
+		httpRespond (500, "text/plain", err.message);
 		}
 	}
 function writeStats (fname, stats, callback) {
@@ -635,7 +705,6 @@ function readStats (fname, stats, callback) {
 			});
 		});
 	}
-
 function getTopLevelPrefs (callback) { //6/7/17 by DW -- first look for config.json, then prefs/prefs.json
 	const newFnameConfig = "config.json", oldFnameConfig = "prefs/prefs.json";
 	fs.exists (newFnameConfig, function (flExists) {
@@ -657,7 +726,6 @@ function getTopLevelPrefs (callback) { //6/7/17 by DW -- first look for config.j
 			}
 		});
 	}
-
 function startup () {
 	getTopLevelPrefs (function () {
 		console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
@@ -667,8 +735,10 @@ function startup () {
 				var now = new Date ();
 				pageparkStats.ctStarts++;
 				pageparkStats.whenLastStart = now;
+				pageparkStats.ctHitsSinceStart = 0; //9/30/17 by DW
 				flStatsDirty = true;
 				http.createServer (handleHttpRequest).listen (pageparkPrefs.myPort);
+				webSocketStartup (); //9/29/17 by DW
 				setInterval (everySecond, 1000); 
 				});
 			});
