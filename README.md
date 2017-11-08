@@ -268,7 +268,11 @@ There will always be more work to do here. ;-)
 
 #### v0.7.9 11/8/17 by DW
 
-A new top-level config.json option, `flUnicasePaths`. The feature is <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#case-sensitive-paths">documented</a>. 
+A new top-level config.json option, `flUnicasePaths`. 
+
+The feature is <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#case-sensitive-paths">documented</a>. 
+
+A <a href="http://scripting.com/2017/11/08.html#a102322">blog post</a> about the feature. 
 
 #### v0.7.8 10/3/17 by DW
 
