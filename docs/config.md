@@ -68,5 +68,5 @@ Example:
 
 If the filesystem on the server is case sensitive, as Ubuntu is, and you're porting a site from another system where file names are not case-sensitive, you will need to set `flUnicasePaths` to true. By default it's false. 
 
-This option was added in v0.7.9.
+This option was added in <a href="https://github.com/scripting/pagePark/blob/master/README.md#v079-11817-by-dw">v0.7.9</a>.
 
