@@ -64,3 +64,9 @@ Example:
 
 <pre>{"flProcessScriptFiles": false} </pre>
 
+#### Case-sensitive paths
+
+If the filesystem on the server is case sensitive, as Ubuntu is, and you're porting a site from another system where file names are not case-sensitive, you will need to set `flUnicasePaths` to true. By default it's false. 
+
+This option was added in v0.7.9.
+

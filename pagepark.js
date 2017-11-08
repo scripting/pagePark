@@ -1,4 +1,4 @@
-var myVersion = "0.7.8", myProductName = "PagePark"; 
+var myVersion = "0.7.9", myProductName = "PagePark"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -47,7 +47,8 @@ var pageparkPrefs = {
 	flCacheTemplatesLocally: true, //6/17/17 by DW -- preserve the original behavior
 	urlDefaultMarkdownTemplate: "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt", //6/17/17 by DW
 	urlDefaultOpmlTemplate: "http://fargo.io/code/pagepark/templates/opml/template.txt", //6/17/17 by DW
-	urlDefaultErrorPage: "http://fargo.io/code/pagepark/prefs/error.html" //6/17/17 by DW
+	urlDefaultErrorPage: "http://fargo.io/code/pagepark/prefs/error.html", //6/17/17 by DW
+	flUnicasePaths: false //11/7/17 by DW
 	};
 var pageparkStats = {
 	ctStarts: 0, 
@@ -451,6 +452,60 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			}
 		callback (undefined); //it's one of our domains, handle it here
 		}
+	function pathParse (domainfolder, path, callback) { //11/7/17 by DW
+		if (pageparkPrefs.flUnicasePaths) {
+			var nomad = domainfolder, steps, flSlashAtEnd = false;
+			if (utils.beginsWith (path, "/")) {
+				path = utils.stringDelete (path, 1, 1);
+				}
+			steps = path.split ("/");
+			
+			if (steps [steps.length - 1].length == 0) {
+				steps.pop ();
+				flSlashAtEnd = true;
+				}
+			
+			function doStep (ix) {
+				if (ix < steps.length) {
+					var lowerstep = utils.stringLower (steps [ix]), flfound = false;
+					if (!utils.endsWith (nomad, "/")) {
+						nomad += "/";
+						}
+					fs.readdir (nomad, function (err, list) {
+						if (err) {
+							callback (err);
+							}
+						else {
+							for (var i = 0; i < list.length; i++) {
+								var fname = utils.stringLower (list [i]);
+								if (fname == lowerstep) {
+									nomad += list [i];
+									doStep (ix + 1);
+									flfound = true;
+									break;
+									}
+								}
+							if (!flfound) {
+								var err = {
+									};
+								callback (err);
+								}
+							}
+						});
+					}
+				else {
+					if (flSlashAtEnd) {
+						nomad += "/";
+						}
+					callback (undefined, nomad);
+					}
+				}
+			doStep (0);
+			}
+		else {
+			callback (undefined, domainfolder + path);
+			}
+		}
 	
 	try {
 		var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
@@ -533,116 +588,120 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					}
 				else { //no mapping, we handle the request
 					getDomainFolder (host, function (domainfolder, actualhost) { //might be a wildcard folder
-						var f = domainfolder + parsedUrl.pathname;
-						if (checkPathForIllegalChars (f)) {
-							utils.sureFilePath (domainsPath, function () { //make sure domains folder exists
-								getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
-									if (config != undefined) {
-										if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
-											try {
-												var urlRedirect = eval (config.jsSiteRedirect.toString ());
+						pathParse (domainfolder, parsedUrl.pathname, function (err, f) {
+							if (f === undefined) {
+								f = domainfolder + parsedUrl.pathname;
+								}
+							if (checkPathForIllegalChars (f)) {
+								utils.sureFilePath (domainsPath, function () { //make sure domains folder exists
+									getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
+										if (config != undefined) {
+											if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
+												try {
+													var urlRedirect = eval (config.jsSiteRedirect.toString ());
+													returnRedirect (urlRedirect.toString (), false); //9/30/17 by DW
+													}
+												catch (err) {
+													httpRespond (500, "text/plain", "Error running " + config.jsSiteRedirect + ": \"" + err.message + "\"");
+													}
+												return; 
+												}
+											if (config.urlSiteRedirect != undefined) {
+												var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
 												returnRedirect (urlRedirect.toString (), false); //9/30/17 by DW
+												return; 
 												}
-											catch (err) {
-												httpRespond (500, "text/plain", "Error running " + config.jsSiteRedirect + ": \"" + err.message + "\"");
+											if (config.urlSiteContents != undefined) { //4/26/15 by DW -- v0.55
+												delegateRequest (config.urlSiteContents + httpRequest.url);
+												return; 
 												}
-											return; 
-											}
-										if (config.urlSiteRedirect != undefined) {
-											var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
-											returnRedirect (urlRedirect.toString (), false); //9/30/17 by DW
-											return; 
-											}
-										if (config.urlSiteContents != undefined) { //4/26/15 by DW -- v0.55
-											delegateRequest (config.urlSiteContents + httpRequest.url);
-											return; 
-											}
-										if (config.fargoS3Path != undefined) { //5/11/15 PM by DW v0.58
-											var firstPartOfHost = utils.stringNthField (host, ".", 1); //if it's dave.smallpict.com, this value is "dave"
-											var s3url = "http:/" + config.fargoS3Path + firstPartOfHost + parsedUrl.pathname; //xxx
-											request (s3url, function (error, response, body) {
-												if (error) {
-													httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
-													}
-												else {
-													httpRespond (response.statusCode, response.headers ["content-type"], body);
-													}
-												});
-											return;
-											}
-										if (config.s3Path != undefined) { //9/26/17 by DW
-											var s3url = "http:/" + config.s3Path + parsedUrl.pathname; 
-											request (s3url, function (error, response, body) {
-												if (error) {
-													httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
-													}
-												else {
-													if (response.statusCode == 200) {
-														processResponse (parsedUrl.pathname, body, config, function (code, type, text) {
-															httpRespond (code, type, text);
-															});
+											if (config.fargoS3Path != undefined) { //5/11/15 PM by DW v0.58
+												var firstPartOfHost = utils.stringNthField (host, ".", 1); //if it's dave.smallpict.com, this value is "dave"
+												var s3url = "http:/" + config.fargoS3Path + firstPartOfHost + parsedUrl.pathname; //xxx
+												request (s3url, function (error, response, body) {
+													if (error) {
+														httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
 														}
 													else {
 														httpRespond (response.statusCode, response.headers ["content-type"], body);
 														}
-													}
-												});
-											return;
-											}
-										if (config.localPath != undefined) { //9/26/17 by DW
-											var localFile = config.localPath + parsedUrl.pathname;
-											console.log ("localFile == " + localFile);
-											serveFile (localFile, config);
-											return;
-											}
-										}
-									fs.stat (f, function (err, stats) {
-										if (err) {
-											switch (lowerpath) {
-												case "/version":
-													httpRespond (200, "text/plain", myVersion);
-													break;
-												case "/now": 
-													httpRespond (200, "text/plain", now.toString ());
-													break;
-												case "/status": 
-													var status = {
-														prefs: pageparkPrefs,
-														status: pageparkStats
-														}
-													httpRespond (200, "text/plain", utils.jsonStringify (status));
-													break;
-												default:
-													if (!serveRedirect (lowerpath, config)) { //12/8/15 by DW -- it wasn't a redirect
-														return404 (); 
-														}
-													break;
+													});
+												return;
 												}
-											}
-										else {
-											if (!serveRedirect (lowerpath, config)) { //7/30/15 by DW -- it wasn't a redirect
-												if (stats.isDirectory ()) {
-													if (!utils.endsWith (f, "/")) {
-														returnRedirect (httpRequest.url + "/", false); //7/5/17 by DW
+											if (config.s3Path != undefined) { //9/26/17 by DW
+												var s3url = "http:/" + config.s3Path + parsedUrl.pathname; 
+												request (s3url, function (error, response, body) {
+													if (error) {
+														httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
 														}
 													else {
-														findSpecificFile (f, pageparkPrefs.indexFilename, function (findex) {
-															serveFile (findex, config);
-															});
+														if (response.statusCode == 200) {
+															processResponse (parsedUrl.pathname, body, config, function (code, type, text) {
+																httpRespond (code, type, text);
+																});
+															}
+														else {
+															httpRespond (response.statusCode, response.headers ["content-type"], body);
+															}
 														}
-													}
-												else {
-													serveFile (f, config);
-													}
+													});
+												return;
+												}
+											if (config.localPath != undefined) { //9/26/17 by DW
+												var localFile = config.localPath + parsedUrl.pathname;
+												console.log ("localFile == " + localFile);
+												serveFile (localFile, config);
+												return;
 												}
 											}
+										fs.stat (f, function (err, stats) {
+											if (err) {
+												switch (lowerpath) {
+													case "/version":
+														httpRespond (200, "text/plain", myVersion);
+														break;
+													case "/now": 
+														httpRespond (200, "text/plain", now.toString ());
+														break;
+													case "/status": 
+														var status = {
+															prefs: pageparkPrefs,
+															status: pageparkStats
+															}
+														httpRespond (200, "text/plain", utils.jsonStringify (status));
+														break;
+													default:
+														if (!serveRedirect (lowerpath, config)) { //12/8/15 by DW -- it wasn't a redirect
+															return404 (); 
+															}
+														break;
+													}
+												}
+											else {
+												if (!serveRedirect (lowerpath, config)) { //7/30/15 by DW -- it wasn't a redirect
+													if (stats.isDirectory ()) {
+														if (!utils.endsWith (f, "/")) {
+															returnRedirect (httpRequest.url + "/", false); //7/5/17 by DW
+															}
+														else {
+															findSpecificFile (f, pageparkPrefs.indexFilename, function (findex) {
+																serveFile (findex, config);
+																});
+															}
+														}
+													else {
+														serveFile (f, config);
+														}
+													}
+												}
+											});
 										});
 									});
-								});
-							}
-						else {
-							httpRespond (500, "text/plain", "The file name contains illegal characters.");
-							}
+								}
+							else {
+								httpRespond (400, "text/plain", "The file name contains illegal characters.");
+								}
+							});
 						});
 					}
 				});

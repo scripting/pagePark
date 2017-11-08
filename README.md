@@ -266,6 +266,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.7.9 11/8/17 by DW
+
+A new top-level config.json option, `flUnicasePaths`. The feature is documented. 
+
 #### v0.7.8 10/3/17 by DW
 
 New features supports logging over WebSockets. To enable, in config.json set <i>flWebsocketEnabled</i> true, and assign a port to the WS server in <i>websocketPort.</i> On every hit, PagePark will send back a JSON structure containing information about the request. 
