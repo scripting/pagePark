@@ -8,7 +8,7 @@ Each domain is in its own folder. The content for that domain is in the folder. 
 
 Yet it's still very simple. Which is the point. ;-)
 
-It's 90 percent of what all web servers do, so if you learn how to run <a href="http://pagepark.io/">PagePark</a>, you're learning how to run a web server. A real one you can use to host your sites. And it's easy to hack the code if you want to.
+It's 90 percent of what all web servers do, so if you learn how to run PagePark, you're learning how to run a web server. A real one you can use to host your sites. And it's easy to hack the code if you want to.
 
 ### How to
 
@@ -238,13 +238,11 @@ http://lucky.wtf/badass/ -- index file in a sub-directory
 
 http://lucky.wtf/badass/butt.js -- a page implemented in a script
 
-http://pagepark.io/ -- the home page for this product, served by the product
-
 http://karass.co/nosuchfile.html -- file not found
 
-http://pagepark.io/version -- the version of PagePark that's running on the server
+http://noderunner.org/version -- the version of PagePark that's running on the server
 
-http://pagepark.io/now -- the time on the server
+http://noderunner.org/now -- the time on the server
 
 http://lucky.wtf/transcend.opml -- a page written in OPML
 
