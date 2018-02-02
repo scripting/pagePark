@@ -264,20 +264,20 @@ There will always be more work to do here. ;-)
 
 ### Dockerfile
 
-You can run pagerank inside a docker container with the following procedure
+You can run pagepark inside a docker container with the following procedure
 
 1. Install docker on your server
 2. Clone this repo and `cd` to it's directory
-3. Build the image with the following command `docker build -t pagerank/pagerank`
-4. Run the image like this `docker -p 1339:1339 run pagerank/pagerank`
+3. Build the image with the following command `docker build -t pagepark/pagerank`
+4. Run the image like this `docker -p 1339:1339 run pagepark/pagerank`
 
 You can choose a different port or even the port 80 with the following command:
 
-`docker run -p 80:1339 run pagerank/pagerank`
+`docker run -p 80:1339 run pagepark/pagerank`
 
 You can mount the `domains` and `prefs` folder in a local destination of you choosing with this command:
 
-`docker run -v path_to_domains_folder:/usr/app/src/domains -v path_to_prefs_folder:/usr/app/src/prefs -p 80:1339 pagerank/pagerank`
+`docker run -v path_to_domains_folder:/usr/app/src/domains -v path_to_prefs_folder:/usr/app/src/prefs -p 80:1339 pagepark/pagerank`
 
 ### Updates
 
