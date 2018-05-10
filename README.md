@@ -264,6 +264,14 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.7.17 5/10/18 by DW
+
+At some point serving images broke, not sure when. The fix was to not convert the value returned when reading a file to a string. 
+
+#### v0.7.11 2/17/18 by DW
+
+PagePark was failing in httpRespond when filling out logInfo, saying it's undefined. Not clear how this could happen but I added defensive driving to make sure it can't happen, by initializing logInfo at the very start of the routine. 
+
 #### v0.7.9 11/8/17 by DW
 
 A new top-level config.json option, `flUnicasePaths`. 

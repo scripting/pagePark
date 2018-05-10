@@ -1,4 +1,4 @@
-var myVersion = "0.7.10", myProductName = "PagePark"; 
+var myVersion = "0.7.17", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -211,7 +211,10 @@ function everySecond () {
 		}
 	}
 function handleHttpRequest (httpRequest, httpResponse) {
-	var logInfo; //9/30/17 by DW
+	var now = new Date ();
+	var logInfo = { //2/17/18 by DW
+		when: now
+		};
 	
 	function hasAcceptHeader (theHeader) {
 		if (httpRequest.headers.accept === undefined) {
@@ -285,7 +288,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			}
 		headers ["Content-Type"] = type;
 		httpResponse.writeHead (code, headers);
-		val = val.toString ();
 		httpResponse.end (val);    
 		logInfo.ctSecs = utils.secondsSince (logInfo.when);
 		logInfo.size = val.length;
@@ -509,7 +511,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 	
 	try {
 		var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
-		var lowerpath = parsedUrl.pathname.toLowerCase (), now = new Date ();
+		var lowerpath = parsedUrl.pathname.toLowerCase ();
 		var remoteAddress = httpRequest.connection.remoteAddress;
 		//set host, port
 			host = httpRequest.headers.host;
@@ -533,7 +535,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 		//set up logInfo  -- 9/30/17 by DW
 			logInfo = {
-				when: now,
 				method: httpRequest.method,
 				host: host,
 				port: port,
