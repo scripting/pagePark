@@ -264,6 +264,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.7.18 5/12/18 by DW
+
+Continue to have problems with the mime package. Switch to using the daveutils routine instead, does the same thing. One less dependency.
+
 #### v0.7.17 5/10/18 by DW
 
 At some point serving images broke, not sure when. The fix was to not convert the value returned when reading a file to a string. 

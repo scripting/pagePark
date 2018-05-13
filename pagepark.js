@@ -1,4 +1,4 @@
-var myVersion = "0.7.17", myProductName = "PagePark";   
+var myVersion = "0.7.18", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -30,7 +30,6 @@ var urlpack = require ("url");
 var http = require ("http");
 var marked = require ("marked");
 var dns = require ("dns");
-var mime = require ("mime"); //1/8/15 by DW
 var utils = require ("daveutils"); //6/7/17 by DW
 var opmlToJs = require ("opmltojs"); //6/16/17 by DW
 const websocket = require ("nodejs-websocket"); //9/29/17 by DW
@@ -109,8 +108,7 @@ var flEveryMinuteScheduled = false; //7/17/17 by DW
 		}
 
 function httpExt2MIME (ext) { //12/24/14 by DW
-	mime.default_type = "text/plain";
-	return (mime.getType (ext));
+	return (utils.httpExt2MIME (ext));
 	}
 function httpReadUrl (url, callback) {
 	request (url, function (error, response, body) {
