@@ -78,5 +78,5 @@ These config settings have evolved over a long time, so their names might not be
 
 2. config.s3Path -- References to files in this folder are accessed using Amazon's HTTP server. 
 
-3. config.s3ServeFromPath -- References to files in this folder are accessed through PagePark, following its conventions and processing features. 
+3. config.s3ServeFromPath -- References to files in this folder are accessed through PagePark, following its conventions and processing features. An <a href="https://gist.github.com/scripting/1ef07a199c93f1d8cf60c89f034f18f7">example</a> of a config.json file with s3ServeFromPath specified. 
 

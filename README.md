@@ -266,7 +266,7 @@ There will always be more work to do here. ;-)
 
 #### v0.7.19 6/4/18 by DW
 
-Built a bridge to S3 with config.s3ServeFromPath. Now PagePark can serve from S3 locations exactly as if they were in the local file system. I plan to use this as a bridge to publicfolder.io. 
+Built a bridge to S3 with config.s3ServeFromPath. Now PagePark can serve from S3 locations exactly as if they were in the local file system. I plan to use this as a bridge to publicfolder.io. Updated <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#serving-content-from-s3">docs</a> for the three S3 configuration options. 
 
 #### v0.7.18 5/12/18 by DW
 
