@@ -264,6 +264,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.7.19 6/4/18 by DW
+
+Built a bridge to S3 with config.s3ServeFromPath. Now PagePark can serve from S3 locations exactly as if they were in the local file system. I plan to use this as a bridge to publicfolder.io. 
+
 #### v0.7.18 5/12/18 by DW
 
 Continue to have problems with the mime package. Switch to using the daveutils routine instead, does the same thing. One less dependency.

@@ -1,4 +1,4 @@
-var myVersion = "0.7.18", myProductName = "PagePark";   
+var myVersion = "0.7.19", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -33,6 +33,7 @@ var dns = require ("dns");
 var utils = require ("daveutils"); //6/7/17 by DW
 var opmlToJs = require ("opmltojs"); //6/16/17 by DW
 const websocket = require ("nodejs-websocket"); //9/29/17 by DW
+const s3 = require ("daves3"); //6/4/18 by DW
 
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
@@ -311,16 +312,22 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		var code = (flPermanent) ? 301 : 302;
 		httpRespond (code, "text/plain", "Redirect to " + urlRedirectTo + ".", {"Location": urlRedirectTo})
 		}
+	function isSpecificFile (fname, specificFname) {
+		if (utils.stringCountFields (fname, ".") == 2) { //something like xxx.yyy
+			if (utils.stringNthField (fname, ".", 1).toLowerCase () == specificFname) { //something like index.wtf
+				return (true);
+				}
+			}
+		return (false);
+		}
 	function findSpecificFile (folder, specificFname, callback) {
 		specificFname = specificFname.toLowerCase (); //7/16/15 by DW
 		fs.readdir (folder, function (err, list) {
 			for (var i = 0; i < list.length; i++) {
 				var fname = list [i];
-				if (utils.stringCountFields (fname, ".") == 2) { //something like xxx.yyy
-					if (utils.stringNthField (fname, ".", 1).toLowerCase () == specificFname) { //something like index.wtf
-						callback (folder + fname);
-						return;
-						}
+				if (isSpecificFile (fname, specificFname)) {
+					callback (folder + fname);
+					return;
 					}
 				}
 			return404 ();
@@ -409,6 +416,63 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					});
 				}
 			});
+		}
+	function serveFromS3 (config, parsedUrl) { //serve using S3's HTTP server
+		var s3url = "http:/" + config.s3Path + parsedUrl.pathname; 
+		console.log ("\nServing from S3 == " + s3url + "\n");
+		request (s3url, function (error, response, body) {
+			if (error) {
+				httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
+				}
+			else {
+				if (response.statusCode == 200) {
+					processResponse (parsedUrl.pathname, body, config, function (code, type, text) {
+						httpRespond (code, type, text);
+						});
+					}
+				else {
+					httpRespond (response.statusCode, response.headers ["content-type"], body);
+					}
+				}
+			});
+		}
+	function serveFromS3WithPagePark (config, parsedUrl) { //serve with PagePark as the HTTP server -- 6/4/18 by DW
+		var relpath = parsedUrl.pathname;
+		var s3path = config.s3ServeFromPath + relpath;
+		function serveS3Object (s3path) {
+			s3.getObject (s3path, function (err, data) {
+				if (err) {
+					return404 ();
+					}
+				else {
+					processResponse (s3path, data.Body, config, function (code, type, text) {
+						httpRespond (code, type, text);
+						});
+					}
+				});
+			}
+		if (utils.endsWith (s3path, "/")) {
+			var flfound = false, lookForPrefix = utils.stringDelete (relpath, 1, 1);
+			s3.listObjects (s3path, function (obj) {
+				if (!flfound) {
+					if (obj.flLastObject === undefined) {
+						if (utils.beginsWith (obj.Key, lookForPrefix, false)) {
+							var fname = utils.stringLastField (obj.Key, "/");
+							if (isSpecificFile (fname, pageparkPrefs.indexFilename)) {
+								serveS3Object (config.s3ServeFromPath + "/" + obj.Key);
+								flfound = true;
+								}
+							}
+						}
+					else {
+						return404 ();
+						}
+					}
+				});
+			}
+		else {
+			serveS3Object (s3path);
+			}
 		}
 	function serveRedirect (lowerpath, config) { //7/30/15 by DW -- return true if we handled the request
 		if (config.redirects !== undefined) {
@@ -628,22 +692,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 												return;
 												}
 											if (config.s3Path != undefined) { //9/26/17 by DW
-												var s3url = "http:/" + config.s3Path + parsedUrl.pathname; 
-												request (s3url, function (error, response, body) {
-													if (error) {
-														httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
-														}
-													else {
-														if (response.statusCode == 200) {
-															processResponse (parsedUrl.pathname, body, config, function (code, type, text) {
-																httpRespond (code, type, text);
-																});
-															}
-														else {
-															httpRespond (response.statusCode, response.headers ["content-type"], body);
-															}
-														}
-													});
+												serveFromS3 (config, parsedUrl);
+												return;
+												}
+											if (config.s3ServeFromPath != undefined) { //6/4/18 by DW
+												serveFromS3WithPagePark (config, parsedUrl);
 												return;
 												}
 											if (config.localPath != undefined) { //9/26/17 by DW

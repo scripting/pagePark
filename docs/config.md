@@ -70,3 +70,13 @@ If the filesystem on the server is case sensitive, as Ubuntu is, and you're port
 
 This option was added in <a href="https://github.com/scripting/pagePark/blob/master/README.md#v079-11817-by-dw">v0.7.9</a>.
 
+#### Serving content from S3
+
+These config settings have evolved over a long time, so their names might not be the most intuitive.
+
+1. config.fargoS3Path -- Fargo is no longer shipping. When it was, it could be used to maintain a blog. Users could reserve names for their blog, for example, dave.smallpict.com. This value says where on S3 the folder of Fargo-generated pages are.  
+
+2. config.s3Path -- References to files in this folder are accessed using Amazon's HTTP server. 
+
+3. config.s3ServeFromPath -- References to files in this folder are accessed through PagePark, following its conventions and processing features. 
+
