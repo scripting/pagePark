@@ -1,4 +1,4 @@
-var myVersion = "0.7.19", myProductName = "PagePark";   
+var myVersion = "0.7.20", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -437,8 +437,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			});
 		}
 	function serveFromS3WithPagePark (config, parsedUrl) { //serve with PagePark as the HTTP server -- 6/4/18 by DW
-		var relpath = parsedUrl.pathname;
-		var s3path = config.s3ServeFromPath + relpath;
+		var s3path = config.s3ServeFromPath + parsedUrl.pathname;
 		function serveS3Object (s3path) {
 			s3.getObject (s3path, function (err, data) {
 				if (err) {
@@ -452,14 +451,16 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				});
 			}
 		if (utils.endsWith (s3path, "/")) {
-			var flfound = false, lookForPrefix = utils.stringDelete (relpath, 1, 1);
+			var flfound = false;
+			var splitpath = s3.splitPath (s3path);
+			var lookForPrefix = splitpath.Key;
 			s3.listObjects (s3path, function (obj) {
 				if (!flfound) {
 					if (obj.flLastObject === undefined) {
 						if (utils.beginsWith (obj.Key, lookForPrefix, false)) {
 							var fname = utils.stringLastField (obj.Key, "/");
 							if (isSpecificFile (fname, pageparkPrefs.indexFilename)) {
-								serveS3Object (config.s3ServeFromPath + "/" + obj.Key);
+								serveS3Object (splitpath.Bucket + "/" + obj.Key);
 								flfound = true;
 								}
 							}
