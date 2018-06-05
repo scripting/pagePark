@@ -1,4 +1,4 @@
-var myVersion = "0.7.20", myProductName = "PagePark";   
+var myVersion = "0.7.21", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -441,7 +441,14 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		function serveS3Object (s3path) {
 			s3.getObject (s3path, function (err, data) {
 				if (err) {
-					return404 ();
+					s3.folderExists (s3path, function (flExists) {
+						if (flExists) {
+							returnRedirect (httpRequest.url + "/"); 
+							}
+						else {
+							return404 ();
+							}
+						});
 					}
 				else {
 					processResponse (s3path, data.Body, config, function (code, type, text) {
