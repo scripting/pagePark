@@ -1,4 +1,4 @@
-var myVersion = "0.7.21", myProductName = "PagePark";   
+var myVersion = "0.7.22", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -24,14 +24,14 @@ var myVersion = "0.7.21", myProductName = "PagePark";
 	structured listing: http://scripting.com/listings/pagepark.html
 	*/
 
-var fs = require ("fs");
-var request = require ("request");
-var urlpack = require ("url");
-var http = require ("http");
-var marked = require ("marked");
-var dns = require ("dns");
-var utils = require ("daveutils"); //6/7/17 by DW
-var opmlToJs = require ("opmltojs"); //6/16/17 by DW
+const fs = require ("fs");
+const request = require ("request");
+const urlpack = require ("url");
+const http = require ("http");
+const marked = require ("marked");
+const dns = require ("dns");
+const utils = require ("daveutils"); //6/7/17 by DW
+const opmlToJs = require ("opmltojs"); //6/16/17 by DW
 const websocket = require ("nodejs-websocket"); //9/29/17 by DW
 const s3 = require ("daves3"); //6/4/18 by DW
 
@@ -344,65 +344,89 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		function defaultReturn (type, data) {
 			callback (200, type, data);
 			}
-		var ext = utils.stringLastField (path, ".").toLowerCase (), type = httpExt2MIME (ext);
-		switch (ext) {
-			case config.extScriptFiles:
-				if (pageparkPrefs.flProcessScriptFiles && config.flProcessScriptFiles) {
-					try {
-						var val = eval (data.toString ());
-						if (val !== undefined) { //2/17/15 by DW
-							httpReturn (val.toString (), "text/html");
+		function checkForRedirect () { //6/6/18 by DW
+			if (ext != "json") {
+				var jsontext = data.toString ();
+				if (jsontext.length > 0) {
+					if (jsontext [0] == "{") {
+						try {
+							var jstruct = JSON.parse (jsontext);
+							var pstruct = jstruct ["#pagePark"];
+							if (pstruct !== undefined) {
+								if (pstruct.urlRedirect !== undefined) {
+									returnRedirect (pstruct.urlRedirect);
+									return (false); //we got it, don't continue processing the file
+									}
+								}
+							}
+						catch (err) {
 							}
 						}
-					catch (err) {
-						callback (500, "text/plain", "Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
+					}
+				}
+			return (true); //it wasn't a redirect, continue processing
+			}
+		var ext = utils.stringLastField (path, ".").toLowerCase (), type = httpExt2MIME (ext);
+		if (checkForRedirect ()) { //it wasn't a redirect file
+			switch (ext) {
+				case config.extScriptFiles:
+					if (pageparkPrefs.flProcessScriptFiles && config.flProcessScriptFiles) {
+						try {
+							var val = eval (data.toString ());
+							if (val !== undefined) { //2/17/15 by DW
+								httpReturn (val.toString (), "text/html");
+								}
+							}
+						catch (err) {
+							callback (500, "text/plain", "Error running " + parsedUrl.pathname + ": \"" + err.message + "\"");
+							}
 						}
-					}
-				else {
-					defaultReturn (type, data);
-					}
-				break;
-			case config.extMarkdownFiles:
-				if (pageparkPrefs.flProcessMarkdownFiles && config.flProcessMarkdownFiles) {
-					getMarkdownTemplate (function (theTemplate) {
-						var mdtext = data.toString (), pagetable = new Object ();
-						pagetable.bodytext = marked (mdtext);
-						pagetable.title = utils.stringLastField (path, "/");
-						var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-						callback (200, "text/html", s);
-						});
-					}
-				else {
-					defaultReturn (type, data);
-					}
-				break;
-			case config.extOpmlFiles: //6/23/15 by DW
-				var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
-				if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
-					getOpmlTemplate (function (theTemplate) {
-						var opmltext = data.toString (), pagetable = new Object ();
-						opmlToJs.parse (opmltext, function (theOutline) {
-							var pagetable = {
-								bodytext: utils.jsonStringify (theOutline),
-								title: utils.stringLastField (path, "/"),
-								description: "",
-								image: "",
-								sitename: "",
-								url: "http://" + httpRequest.headers.host + httpRequest.url
-								};
-							utils.copyScalars (theOutline.opml.head, pagetable);
-							var htmltext = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-							httpReturn (htmltext, "text/html");
+					else {
+						defaultReturn (type, data);
+						}
+					break;
+				case config.extMarkdownFiles:
+					if (pageparkPrefs.flProcessMarkdownFiles && config.flProcessMarkdownFiles) {
+						getMarkdownTemplate (function (theTemplate) {
+							var mdtext = data.toString (), pagetable = new Object ();
+							pagetable.bodytext = marked (mdtext);
+							pagetable.title = utils.stringLastField (path, "/");
+							var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+							callback (200, "text/html", s);
 							});
-						});
-					}
-				else {
-					defaultReturn ("text/xml", data);
-					}
-				break;
-			default:
-				defaultReturn (type, data);
-				break;
+						}
+					else {
+						defaultReturn (type, data);
+						}
+					break;
+				case config.extOpmlFiles: //6/23/15 by DW
+					var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
+					if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
+						getOpmlTemplate (function (theTemplate) {
+							var opmltext = data.toString (), pagetable = new Object ();
+							opmlToJs.parse (opmltext, function (theOutline) {
+								var pagetable = {
+									bodytext: utils.jsonStringify (theOutline),
+									title: utils.stringLastField (path, "/"),
+									description: "",
+									image: "",
+									sitename: "",
+									url: "http://" + httpRequest.headers.host + httpRequest.url
+									};
+								utils.copyScalars (theOutline.opml.head, pagetable);
+								var htmltext = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+								httpReturn (htmltext, "text/html");
+								});
+							});
+						}
+					else {
+						defaultReturn ("text/xml", data);
+						}
+					break;
+				default:
+					defaultReturn (type, data);
+					break;
+				}
 			}
 		}
 	function serveFile (f, config) {

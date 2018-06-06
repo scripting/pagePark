@@ -80,3 +80,25 @@ These config settings have evolved over a long time, so their names might not be
 
 3. config.s3ServeFromPath -- References to files in this folder are accessed through PagePark, following its conventions and processing features. An <a href="https://gist.github.com/scripting/1ef07a199c93f1d8cf60c89f034f18f7">example</a> of a config.json file with s3ServeFromPath specified. 
 
+#### Redirect from the file that's being redirected
+
+One thing I've wanted since using MacHTTP in the early days of the web is the ability to alter the content of a file to tell the server where to redirect. No messing with config files, setting up rules, just change the content of the file and you're done. 
+
+To do so in PagePark, create a JSON file in place of the file, with exactly the same name, that tells PagePark where to redirect. 
+
+Here are the rules governing the content of that file, and they are strict. 
+
+1. The file's extension is <i>not</i> .json.
+
+1. The first character in the file is a left curly brace, or {.
+
+1. It is legal JSON, i.e. it is correctly interpreted by JSON.parse. 
+
+1. It has a top level object named #pagePark.
+
+1. Inside #pagePark is a property named urlRedirect. Its value is the URL PagePark redirects to.
+
+Here's an <a href="https://gist.github.com/scripting/b580c6d5eaa13da108364ccc9b713454">example</a> of such a file.
+
+And a file <a href="http://lucky.wtf/redirect.html">on lucky.wtf</a> that redirects to a fun video.
+
