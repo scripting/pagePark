@@ -266,7 +266,7 @@ There will always be more work to do here. ;-)
 
 #### v0.7.21 6/6/18 by DW
 
-Added feature that lets you redirect by modifying the contents of the file.
+Added <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#redirect-from-the-file-thats-being-redirected">feature</a> that lets you redirect by modifying the contents of the file.
 
 #### v0.7.19 6/4/18 by DW
 
