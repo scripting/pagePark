@@ -1,4 +1,4 @@
-var myVersion = "0.7.22", myProductName = "PagePark";   
+var myVersion = "0.7.23", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2017 Dave Winer
@@ -489,7 +489,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				if (!flfound) {
 					if (obj.flLastObject === undefined) {
 						if (utils.beginsWith (obj.Key, lookForPrefix, false)) {
-							var fname = utils.stringLastField (obj.Key, "/");
+							var fname = utils.stringDelete (obj.Key, 1, lookForPrefix.length);
 							if (isSpecificFile (fname, pageparkPrefs.indexFilename)) {
 								serveS3Object (splitpath.Bucket + "/" + obj.Key);
 								flfound = true;
