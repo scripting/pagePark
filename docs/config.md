@@ -102,3 +102,9 @@ Here's an <a href="https://gist.github.com/scripting/b580c6d5eaa13da108364ccc9b7
 
 And a file <a href="http://lucky.wtf/redirect.html">on lucky.wtf</a> that redirects to a fun video.
 
+#### Setting the default content type for a domain
+
+In config.json at the top level of the folder containing the domain's content, add a defaultType element, and set it to the type that's returned for files that don't have an extension, or don't have one of the recognized extensions. 
+
+Here's an <a href="https://gist.github.com/scripting/102c34a6ed3143c037eea1ac5c5473f3">example</a> of a config.json file that sets the default type to "text/html".
+

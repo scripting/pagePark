@@ -1,7 +1,7 @@
-var myVersion = "0.7.23", myProductName = "PagePark";   
+var myVersion = "0.7.24", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
-	Copyright (c) 2014-2017 Dave Winer
+	Copyright (c) 2014-2018 Dave Winer
 	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -338,6 +338,18 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		if (parsedUrl.query.format !== undefined) {
 			formatParam = parsedUrl.query.format.toLowerCase ()
 			}
+		
+		function getReturnType (path) { //7/6/18 by DW
+			var fname = utils.stringLastField (path, "/");
+			var ext = utils.stringLastField (fname, ".");
+			if (ext == fname) { //has no extension
+				return (config.defaultType);
+				}
+			else {
+				return (httpExt2MIME (ext));
+				}
+			}
+		
 		function httpReturn (val, type) { //2/17/15 by DW
 			callback (200, type, val.toString ());
 			}
@@ -366,7 +378,8 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			return (true); //it wasn't a redirect, continue processing
 			}
-		var ext = utils.stringLastField (path, ".").toLowerCase (), type = httpExt2MIME (ext);
+		var ext = utils.stringLastField (path, ".").toLowerCase ();
+		var type = getReturnType (ext);
 		if (checkForRedirect ()) { //it wasn't a redirect file
 			switch (ext) {
 				case config.extScriptFiles:
