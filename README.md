@@ -266,7 +266,7 @@ There will always be more work to do here. ;-)
 
 #### v0.7.24 7/6/18 by DW
 
-Added feature that lets you set the default type for files that don't have extensions. 
+Added <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#setting-the-default-content-type-for-a-domain">feature</a> that lets you set the default type for files that don't have extensions. 
 
 #### v0.7.21 6/6/18 by DW
 
