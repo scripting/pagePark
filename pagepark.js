@@ -1,4 +1,4 @@
-var myVersion = "0.7.24", myProductName = "PagePark";   
+var myVersion = "0.7.25", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2018 Dave Winer
@@ -284,6 +284,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 	function httpRespond (code, type, val, headers) {
 		if (headers === undefined) {
 			headers = new Object ();
+			}
+		if (type === undefined) { //7/20/18 by DW
+			type = "text/plain";
 			}
 		headers ["Content-Type"] = type;
 		httpResponse.writeHead (code, headers);
