@@ -1,4 +1,4 @@
-var myVersion = "0.7.25", myProductName = "PagePark";   
+var myVersion = "0.7.26", myProductName = "PagePark";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2018 Dave Winer
@@ -258,7 +258,8 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			flProcessOpmlFiles: true,
 			extScriptFiles: pageparkPrefs.extScriptFiles,
 			extMarkdownFiles: pageparkPrefs.extMarkdownFiles,
-			extOpmlFiles: pageparkPrefs.extOpmlFiles
+			extOpmlFiles: pageparkPrefs.extOpmlFiles,
+			defaultType: "text/html" //7/21/18 by DW
 			};
 		var f = getFullFilePath (domainsPath) + host + configFname;
 		fs.readFile (f, function (err, data) {
