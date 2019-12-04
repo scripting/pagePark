@@ -1,4 +1,4 @@
-var myVersion = "0.7.26", myProductName = "PagePark";   
+var myProductName = "PagePark", myVersion = "0.7.30";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2018 Dave Winer
@@ -34,6 +34,7 @@ const utils = require ("daveutils"); //6/7/17 by DW
 const opmlToJs = require ("opmltojs"); //6/16/17 by DW
 const websocket = require ("nodejs-websocket"); //9/29/17 by DW
 const s3 = require ("daves3"); //6/4/18 by DW
+const githubpub = require ("githubpub"); //12/3/19 by DW
 
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
@@ -388,6 +389,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			switch (ext) {
 				case config.extScriptFiles:
 					if (pageparkPrefs.flProcessScriptFiles && config.flProcessScriptFiles) {
+						console.log ("processResponse: path == " + path); //8/25/19 by DW
 						try {
 							var val = eval (data.toString ());
 							if (val !== undefined) { //2/17/15 by DW
@@ -523,6 +525,40 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			serveS3Object (s3path);
 			}
 		}
+	function serveFromGithubRepo (config, parsedUrl) { //12/3/19 by DW
+		var path = config.githubServeFrom.path + parsedUrl.pathname;
+		githubpub.getFromGitHub (config.githubServeFrom.username, config.githubServeFrom.repository, path, undefined, function (err, jstruct) {
+			if (err) {
+				return404 ();
+				}
+			else {
+				if (jstruct.content !== undefined) {
+					var content = jstruct.content;
+					if (jstruct.encoding == "base64") {
+						content = Buffer.from (content, "base64"); 
+						}
+					processResponse (path, content, config, function (code, type, text) {
+						httpRespond (code, type, text);
+						});
+					}
+				else { //assume it's an array of file descriptors
+					var flfound = false;
+					jstruct.forEach (function (item) {
+						if (!flfound) {
+							if (utils.beginsWith (item.name.toLowerCase (), "index.")) {
+								parsedUrl.pathname = utils.stringDelete (item.path, 1, config.githubServeFrom.path.length);
+								serveFromGithubRepo (config, parsedUrl);
+								flfound = true;
+								}
+							}
+						});
+					if (!flfound) {
+						return404 ();
+						}
+					}
+				}
+			});
+		}
 	function serveRedirect (lowerpath, config) { //7/30/15 by DW -- return true if we handled the request
 		if (config.redirects !== undefined) {
 			for (x in config.redirects) {
@@ -551,6 +587,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				httpRespond (500, "text/plain", err.message);
 				}
 			}
+		console.log ("delegateRequest: theRequest == " + utils.jsonStringify (theRequest)); //5/27/18 by DW
 		var req = httpRequest.pipe (request (theRequest));
 		req.on ("error", handleError);
 		req.pipe (httpResponse).on ("error", handleError);
@@ -696,6 +733,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					parsedUrl.hostname = host;
 					parsedUrl.port = thePort;
 					urlRemote = urlpack.format (parsedUrl);
+					console.log ("delegating: urlRemote == " + urlRemote);
 					delegateRequest (urlRemote);
 					}
 				else { //no mapping, we handle the request
@@ -746,6 +784,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 												}
 											if (config.s3ServeFromPath != undefined) { //6/4/18 by DW
 												serveFromS3WithPagePark (config, parsedUrl);
+												return;
+												}
+											if (config.githubServeFrom != undefined) { //12/3/19 by DW
+												serveFromGithubRepo (config, parsedUrl);
 												return;
 												}
 											if (config.localPath != undefined) { //9/26/17 by DW
