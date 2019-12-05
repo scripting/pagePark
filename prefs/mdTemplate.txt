@@ -19,14 +19,21 @@
 				font-family: "Ubuntu";
 				font-size: 18px;
 				line-height: 140%;
-				background-color: whitesmoke;
+				background-color: white; 
 				}
 			.divPageBody {
 				width: 60%;
-				margin-top: 90px;
+				margin-top: 50px;
 				margin-left: auto;
 				margin-right: auto;
 				margin-bottom: 400px;
+				}
+			.ulFileList {
+				list-style-type: none;
+				}
+			.ulFileList li {
+				line-height: 150%;
+				margin-left: 0;
 				}
 			</style>
 		</head>

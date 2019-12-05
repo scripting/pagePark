@@ -80,6 +80,12 @@ These config settings have evolved over a long time, so their names might not be
 
 3. config.s3ServeFromPath -- References to files in this folder are accessed through PagePark, following its conventions and processing features. An <a href="https://gist.github.com/scripting/1ef07a199c93f1d8cf60c89f034f18f7">example</a> of a config.json file with s3ServeFromPath specified. 
 
+#### Serving content from GitHub
+
+You can use PagePark to serve content from GitHub using a <i>githubServeFrom</i> object. It has three properties, username, repository and path. Taken together, they define a location on GitHub. 
+
+Here's an exampe of a <a href="https://gist.github.com/scripting/07a38e3e00e8581585dad6b057d504a8">config.json</a> set up to serve from the top level of the pagePark repository.
+
 #### Redirect from the file that's being redirected
 
 One thing I've wanted since using MacHTTP in the early days of the web is the ability to alter the content of a file to tell the server where to redirect. No messing with config files, setting up rules, just change the content of the file and you're done. 

@@ -254,7 +254,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		var config = {
 			urlSiteRedirect: undefined,
 			urlSiteContents: undefined,
-			flProcessScriptFiles: true, 
+			flProcessScriptFiles: false, //12/4/19 by DW -- breaking change
 			flProcessMarkdownFiles: true,
 			flProcessOpmlFiles: true,
 			extScriptFiles: pageparkPrefs.extScriptFiles,
@@ -384,7 +384,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			return (true); //it wasn't a redirect, continue processing
 			}
 		var ext = utils.stringLastField (path, ".").toLowerCase ();
-		var type = getReturnType (ext);
+		var type = getReturnType (path); //12/4/19 by DW -- it was passing ext which was not what the routine calls for
 		if (checkForRedirect ()) { //it wasn't a redirect file
 			switch (ext) {
 				case config.extScriptFiles:
@@ -527,6 +527,20 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		}
 	function serveFromGithubRepo (config, parsedUrl) { //12/3/19 by DW
 		var path = config.githubServeFrom.path + parsedUrl.pathname;
+		function returnIndex (theArray) {
+			var htmltext = "", indentlevel = 0;
+			function add (s) {
+				htmltext +=  utils.filledString ("\t", indentlevel) + s + "\n";
+				}
+			add ("<ul class=\"ulFileList\">"); indentlevel++;
+			theArray.forEach (function (item) {
+				add ("<li><a href=\"" + item.path + "\">" + item.name + "</a></li>");
+				});
+			add ("</ul>"); indentlevel--;
+			processResponse ("index.md", htmltext, config, function (code, type, text) {
+				httpRespond (code, type, text);
+				});
+			}
 		githubpub.getFromGitHub (config.githubServeFrom.username, config.githubServeFrom.repository, path, undefined, function (err, jstruct) {
 			if (err) {
 				return404 ();
@@ -553,7 +567,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 							}
 						});
 					if (!flfound) {
-						return404 ();
+						returnIndex (jstruct);
 						}
 					}
 				}
