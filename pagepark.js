@@ -1,7 +1,7 @@
-var myProductName = "PagePark", myVersion = "0.7.30";   
+var myProductName = "PagePark", myVersion = "0.7.31";   
 
 /*  The MIT License (MIT)
-	Copyright (c) 2014-2018 Dave Winer
+	Copyright (c) 2014-2019 Dave Winer
 	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -49,7 +49,8 @@ var pageparkPrefs = {
 	urlDefaultMarkdownTemplate: "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt", //6/17/17 by DW
 	urlDefaultOpmlTemplate: "http://fargo.io/code/pagepark/templates/opml/template.txt", //6/17/17 by DW
 	urlDefaultErrorPage: "http://fargo.io/code/pagepark/prefs/error.html", //6/17/17 by DW
-	flUnicasePaths: false //11/7/17 by DW
+	flUnicasePaths: false, //11/7/17 by DW
+	flHiddenFilesCheck: true //12/9/19 by DW -- check if file or folder name begins with _
 	};
 var pageparkStats = {
 	ctStarts: 0, 
@@ -165,32 +166,6 @@ function getMarkdownTemplate (callback) {
 	}
 function getOpmlTemplate (callback) { //6/23/15 by DW
 	getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
-	}
-function checkPathForIllegalChars (path) {
-	function isIllegal (ch) {
-		if (utils.isAlpha (ch) || utils.isNumeric (ch)) {
-			return (false);
-			}
-		switch (ch) {
-			case "/": case "_": case "-": case ".":  case " ": case "*":
-				return (false);
-			}
-		for (var i = 0; i <  pageparkPrefs.legalPathChars.length; i++) { //7/19/15 by DW -- check if they are legal on this server
-			if (ch == pageparkPrefs.legalPathChars [i]) {
-				return (false);
-				}
-			}
-		return (true);
-		}
-	for (var i = 0; i < path.length; i++) {
-		if (isIllegal (path [i])) {
-			return (false);
-			}
-		}
-	if (utils.stringContains (path, "./")) {
-		return (false);
-		}
-	return (true);
 	}
 function everyMinute () { //7/17/17 by DW
 	var now = new Date ();
@@ -670,6 +645,52 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			callback (undefined, domainfolder + path);
 			}
 		}
+	function validatePath (path) { //12/9/19 by DW
+		function checkPathForIllegalChars (path) {
+			function isIllegal (ch) {
+				if (utils.isAlpha (ch) || utils.isNumeric (ch)) {
+					return (false);
+					}
+				switch (ch) {
+					case "/": case "_": case "-": case ".":  case " ": case "*":
+						return (false);
+					}
+				for (var i = 0; i <  pageparkPrefs.legalPathChars.length; i++) { //7/19/15 by DW -- check if they are legal on this server
+					if (ch == pageparkPrefs.legalPathChars [i]) {
+						return (false);
+						}
+					}
+				return (true);
+				}
+			for (var i = 0; i < path.length; i++) {
+				if (isIllegal (path [i])) {
+					return (false);
+					}
+				}
+			if (utils.stringContains (path, "./")) {
+				return (false);
+				}
+			return (true);
+			}
+		function checkPathForHiddenFiles (path) { //12/9/19 by DW
+			if (pageparkPrefs.flHiddenFilesCheck) {
+				var splits = path.split ("/"), flhidden = false;
+				splits.forEach (function (item) {
+					if (utils.beginsWith (item, "_")) {
+						flhidden = true;
+						console.log ("checkPathForHiddenFiles: " + path + " is hidden.");
+						}
+					});
+				}
+			return (!flhidden);
+			}
+		if (checkPathForIllegalChars (path)) {
+			return (checkPathForHiddenFiles (path));
+			}
+		else {
+			return (false);
+			}
+		}
 	
 	try {
 		var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
@@ -756,7 +777,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 							if (f === undefined) {
 								f = domainfolder + parsedUrl.pathname;
 								}
-							if (checkPathForIllegalChars (f)) {
+							if (validatePath (f)) {
 								utils.sureFilePath (domainsPath, function () { //make sure domains folder exists
 									getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
 										if (config != undefined) {

@@ -1,3 +1,7 @@
+* ### 12/9/19 by DW
+   * Hidden files and folders
+      * If the file or folder name begins with . do not serve it. 
+      * This feature can be turned off with config.flHiddenFilesCheck.
 * ### 12/4/19 by DW
    * flProcessScriptFiles defaults false. This is a breaking change. If you have pages that are implemented in JS you will have to switch this on for the site in question. 
    * Displaying pages of various types with the proper content-type header. 
