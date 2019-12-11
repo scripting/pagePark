@@ -40,16 +40,17 @@ var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
 	flWebsocketEnabled: false, websocketPort: 1340, //9/29/17 by DW
 	indexFilename: "index",
-	flProcessScriptFiles: true, extScriptFiles: "js", //5/5/15 by DW
+	flProcessScriptFiles: false, extScriptFiles: "js", //12/4/19 by DW -- breaking change
 	flProcessMarkdownFiles: true, extMarkdownFiles: "md", //5/5/15 by DW
 	flProcessOpmlFiles: true, extOpmlFiles: "opml", //6/23/15 by DW
 	error404File: "prefs/error.html", //7/16/15 by DW
 	legalPathChars: "", //7/19/15 by DW,
 	flCacheTemplatesLocally: true, //6/17/17 by DW -- preserve the original behavior
-	urlDefaultMarkdownTemplate: "http://fargo.io/code/pagepark/defaultmarkdowntemplate.txt", //6/17/17 by DW
-	urlDefaultOpmlTemplate: "http://fargo.io/code/pagepark/templates/opml/template.txt", //6/17/17 by DW
-	urlDefaultErrorPage: "http://fargo.io/code/pagepark/prefs/error.html", //6/17/17 by DW
+	urlDefaultMarkdownTemplate: "http://scripting.com/code/pagepark/defaultmarkdowntemplate.txt", //6/17/17 by DW
+	urlDefaultOpmlTemplate: "http://scripting.com/code/pagepark/templates/opml/template.txt", //6/17/17 by DW
+	urlDefaultErrorPage: "http://scripting.com/code/pagepark/prefs/error.html", //6/17/17 by DW
 	flUnicasePaths: false, //11/7/17 by DW
+	defaultType: "text/html", //7/21/18 by DW
 	flHiddenFilesCheck: true //12/9/19 by DW -- check if file or folder name begins with _
 	};
 var pageparkStats = {
@@ -186,6 +187,7 @@ function everySecond () {
 		}
 	}
 function handleHttpRequest (httpRequest, httpResponse) {
+	var config; 
 	var now = new Date ();
 	var logInfo = { //2/17/18 by DW
 		when: now
@@ -225,18 +227,19 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			});
 		}
-	function getConfigFile (host, callback) {
+	function getConfigFile (host, callback) { 
 		var config = {
 			urlSiteRedirect: undefined,
 			urlSiteContents: undefined,
-			flProcessScriptFiles: false, //12/4/19 by DW -- breaking change
-			flProcessMarkdownFiles: true,
-			flProcessOpmlFiles: true,
-			extScriptFiles: pageparkPrefs.extScriptFiles,
-			extMarkdownFiles: pageparkPrefs.extMarkdownFiles,
-			extOpmlFiles: pageparkPrefs.extOpmlFiles,
-			defaultType: "text/html" //7/21/18 by DW
+			fargoS3Path: undefined,
+			s3Path: undefined,
+			s3ServeFromPath: undefined,
+			githubServeFrom: undefined,
+			localPath: undefined
 			};
+		for (var x in pageparkPrefs) { //12/10/19 by DW
+			config [x] = pageparkPrefs [x];
+			}
 		var f = getFullFilePath (domainsPath) + host + configFname;
 		fs.readFile (f, function (err, data) {
 			if (err) {
@@ -244,12 +247,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			else {
 				try {
-					var storedConfig = JSON.parse (data.toString ());
-					for (var x in storedConfig) {
-						config [x] = storedConfig [x];
+					var jstruct = JSON.parse (data.toString ());
+					for (var x in jstruct) {
+						config [x] = jstruct [x];
 						}
 					callback (config);
-					
 					}
 				catch (err) {
 					console.log ("getConfigFile: error reading " + configFname + " file for host " + host + ". " + err.message);
@@ -284,7 +286,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		notifySocketSubscribers ("log", logInfo);
 		}
 	function return404 () {
-		getTemplate (pageparkPrefs.error404File, pageparkPrefs.urlDefaultErrorPage, function (htmtext) {
+		getTemplate (config.error404File, config.urlDefaultErrorPage, function (htmtext) {
 			httpRespond (404, "text/html", htmtext);
 			});
 		}
@@ -363,7 +365,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		if (checkForRedirect ()) { //it wasn't a redirect file
 			switch (ext) {
 				case config.extScriptFiles:
-					if (pageparkPrefs.flProcessScriptFiles && config.flProcessScriptFiles) {
+					if (config.flProcessScriptFiles) {
 						console.log ("processResponse: path == " + path); //8/25/19 by DW
 						try {
 							var val = eval (data.toString ());
@@ -380,7 +382,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 						}
 					break;
 				case config.extMarkdownFiles:
-					if (pageparkPrefs.flProcessMarkdownFiles && config.flProcessMarkdownFiles) {
+					if (config.flProcessMarkdownFiles) {
 						getMarkdownTemplate (function (theTemplate) {
 							var mdtext = data.toString (), pagetable = new Object ();
 							pagetable.bodytext = marked (mdtext);
@@ -395,7 +397,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					break;
 				case config.extOpmlFiles: //6/23/15 by DW
 					var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
-					if (pageparkPrefs.flProcessOpmlFiles && config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
+					if (config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
 						getOpmlTemplate (function (theTemplate) {
 							var opmltext = data.toString (), pagetable = new Object ();
 							opmlToJs.parse (opmltext, function (theOutline) {
@@ -484,7 +486,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					if (obj.flLastObject === undefined) {
 						if (utils.beginsWith (obj.Key, lookForPrefix, false)) {
 							var fname = utils.stringDelete (obj.Key, 1, lookForPrefix.length);
-							if (isSpecificFile (fname, pageparkPrefs.indexFilename)) {
+							if (isSpecificFile (fname, config.indexFilename)) {
 								serveS3Object (splitpath.Bucket + "/" + obj.Key);
 								flfound = true;
 								}
@@ -534,7 +536,13 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					var flfound = false;
 					jstruct.forEach (function (item) {
 						if (!flfound) {
-							if (utils.beginsWith (item.name.toLowerCase (), "index.")) {
+							var beginswith = config.indexFilename + ".";
+							var thisname = item.name;
+							if (config.flUnicasePaths) {
+								thisname = utils.stringLower (thisname);
+								beginswith = utils.stringLower (beginswith);
+								}
+							if (utils.beginsWith (thisname, beginswith)) {
 								parsedUrl.pathname = utils.stringDelete (item.path, 1, config.githubServeFrom.path.length);
 								serveFromGithubRepo (config, parsedUrl);
 								flfound = true;
@@ -576,7 +584,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				httpRespond (500, "text/plain", err.message);
 				}
 			}
-		console.log ("delegateRequest: theRequest == " + utils.jsonStringify (theRequest)); //5/27/18 by DW
 		var req = httpRequest.pipe (request (theRequest));
 		req.on ("error", handleError);
 		req.pipe (httpResponse).on ("error", handleError);
@@ -768,7 +775,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					parsedUrl.hostname = host;
 					parsedUrl.port = thePort;
 					urlRemote = urlpack.format (parsedUrl);
-					console.log ("delegating: urlRemote == " + urlRemote);
 					delegateRequest (urlRemote);
 					}
 				else { //no mapping, we handle the request
@@ -779,7 +785,8 @@ function handleHttpRequest (httpRequest, httpResponse) {
 								}
 							if (validatePath (f)) {
 								utils.sureFilePath (domainsPath, function () { //make sure domains folder exists
-									getConfigFile (actualhost, function (config) { //get config.json, if it exists -- 1/18/15 by DW
+									getConfigFile (actualhost, function (configForThisDomain) { //get config.json, if it exists -- 1/18/15 by DW
+										config = configForThisDomain; //set a global to this request -- 12/10/19 by DW
 										if (config != undefined) {
 											if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
 												try {
@@ -862,7 +869,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 															returnRedirect (httpRequest.url + "/", false); //7/5/17 by DW
 															}
 														else {
-															findSpecificFile (f, pageparkPrefs.indexFilename, function (findex) {
+															findSpecificFile (f, config.indexFilename, function (findex) {
 																serveFile (findex, config);
 																});
 															}
