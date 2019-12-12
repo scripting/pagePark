@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.7.31";   
+var myProductName = "PagePark", myVersion = "0.8.0";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2019 Dave Winer
@@ -973,6 +973,12 @@ function getTopLevelPrefs (callback) { //6/7/17 by DW -- first look for config.j
 		});
 	}
 function startup () {
+	function initGithubpub () { //12/12/19 by DW
+		var gitconfig = {
+			maxCacheSecs: 10
+			};
+		githubpub.init (gitconfig, false);
+		}
 	getTopLevelPrefs (function () {
 		console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
 		console.log ("startup: pageparkPrefs == " + utils.jsonStringify (pageparkPrefs));
@@ -983,6 +989,7 @@ function startup () {
 				pageparkStats.whenLastStart = now;
 				pageparkStats.ctHitsSinceStart = 0; //9/30/17 by DW
 				flStatsDirty = true;
+				initGithubpub (); //12/12/19 by DW
 				http.createServer (handleHttpRequest).listen (pageparkPrefs.myPort);
 				webSocketStartup (); //9/29/17 by DW
 				setInterval (everySecond, 1000); 

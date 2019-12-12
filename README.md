@@ -1,10 +1,12 @@
 # PagePark 
 
-I wrote  this simple HTTP server to park domains I've bought but not yet used. But I kept going and added all the features I want to help me manage my own websites, far beyond just parking them. But I liked the name so I kept it. Think of it as a nice park where you keep your pages. ;-)
+I wrote  this simple HTTP server to park domains I've bought but not yet used. 
+
+Then I kept going and added all the features I want to help me manage my own websites, far beyond just parking them. I liked the name so I kept it. Think of it as a nice park where you keep your pages. ;-)
 
 It's written in JavaScript and runs in Node.js.
 
-Each domain is in its own folder. The content for that domain is in the folder. I went a little wild with content types, it can serve Markdown docs, or run JS code. And of course HTML, text files, images, movies, etc. 
+Each domain is in its own folder. The content for that domain is in the folder. It can serve Markdown docs, or optionally run JavaScript code. And of course HTML, text files, images, movies, etc. 
 
 Yet it's still very simple. Which is the point. ;-)
 
@@ -12,13 +14,15 @@ It's 90 percent of what all web servers do, so if you learn how to run PagePark,
 
 ### How to
 
-1. Create a folder to host your website. 
+How to get started quickly with PagePark.
 
-2. Copy all the files from the downloaded <a href="https://github.com/scripting/pagepark/archive/master.zip">folder</a> into that folder.
+0. Install Node.js if you don't already have it running, including the NPM package manager.
 
-3. npm install
+1. Download the PagePark folder <a href="https://github.com/scripting/pagepark/archive/master.zip">from</a> the GitHub repository.
 
-4. node pagepark.js
+2. At the command line enter <code>npm install</code>.
+
+3. To run the server, enter <code>node pagepark.js</code>.
 
 ### Screen shot
 
