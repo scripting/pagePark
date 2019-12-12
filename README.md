@@ -30,7 +30,7 @@ How to get started quickly with PagePark.
 
 6. In a browser, running on the same machine, enter localhost:1339. You should see the text you entered in the previous step. 
 
-If this worked, congratulations you just installed a web server. :-)
+If this worked, congratulations -- you just installed a web server. :-)
 
 ### Screen shot
 
@@ -42,7 +42,7 @@ Here's a <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">
 
 2. Add your web content under domains. Each folder's name is the name of a domain. The contents within the folder are what we serve. <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">Screen shot</a>.
 
-3. Serves all major media types including audio and video. Files whose names end with .md are passed through the built-in Markdown processor. Files ending with .js are interpreted as scripts. The text they return is what we serve. Here's an <a href="https://gist.github.com/scripting/2b5e237a105b6cb96287">example</a> of a script that I have <a href="http://lucky.wtf/badass/butt.js">running</a> on one of my servers.
+3. Serves all major media types including audio and video. Files whose names end with .md are passed through the built-in Markdown processor. Files ending with .js are interpreted as scripts only if the associated <a href="docs/config.md">config</a> setting is turned on. The text they return is what we serve. Here's an <a href="https://gist.github.com/scripting/2b5e237a105b6cb96287">example</a> of a script that I have <a href="http://lucky.wtf/badass/butt.js">running</a> on one of my servers.
 
 4. The prefs folder contains a file of settings you can change, prefs.json. These include the port that the server runs on and the name of the index file (see below).
 
@@ -73,12 +73,6 @@ The extension of a file determines how PagePark serves it.
 <td>
 
 The text in the file is returned, the type is text/plain.
-
-</td>
-
-<td>
-
-<a href="http://lucky.wtf/applejoke.txt">applejoke.txt</a>
 
 </td>
 
@@ -240,7 +234,7 @@ Here's a magic incantation that works on Ubuntu that maps requests for port 80 t
 
 ### Example pages
 
-http://noderunner.org/ -- simple home page
+http://morningcoffeenotes.com/ -- simple home page
 
 http://lucky.wtf/ -- images
 
@@ -248,13 +242,11 @@ http://lucky.wtf/test.md -- markdown page
 
 http://lucky.wtf/badass/ -- index file in a sub-directory
 
-http://lucky.wtf/badass/butt.js -- a page implemented in a script
+http://lucky.wtf/nosuchfile.html -- file not found
 
-http://karass.co/nosuchfile.html -- file not found
+http://lucky.wtf/version -- the version of PagePark that's running on the server
 
-http://noderunner.org/version -- the version of PagePark that's running on the server
-
-http://noderunner.org/now -- the time on the server
+http://lucky.wtf/now -- the time on the server
 
 http://lucky.wtf/transcend.opml -- a page written in OPML
 
