@@ -162,12 +162,6 @@ function getTemplate (myTemplatePath, urlDefaultTemplate, callback) {
 			});
 		}
 	}
-function getMarkdownTemplate (callback) {
-	getTemplate (mdTemplatePath, pageparkPrefs.urlDefaultMarkdownTemplate, callback);
-	}
-function getOpmlTemplate (callback) { //6/23/15 by DW
-	getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
-	}
 function everyMinute () { //7/17/17 by DW
 	var now = new Date ();
 	console.log ("\n" + myProductName + " v" + myVersion + ": " + now.toLocaleTimeString () + ", port == " + pageparkPrefs.myPort + ".\n");
@@ -193,6 +187,13 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		when: now
 		};
 	
+	function getOpmlTemplate (callback) { //6/23/15 by DW
+		getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
+		}
+	function getMarkdownTemplate (callback) {
+		console.log ("getMarkdownTemplate: config == " + utils.jsonStringify (config));
+		getTemplate (mdTemplatePath, config.urlDefaultMarkdownTemplate, callback);
+		}
 	function hasAcceptHeader (theHeader) {
 		if (httpRequest.headers.accept === undefined) {
 			return (false);
@@ -387,6 +388,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 							var mdtext = data.toString (), pagetable = new Object ();
 							pagetable.bodytext = marked (mdtext);
 							pagetable.title = utils.stringLastField (path, "/");
+							pagetable.config = (config.pageParams === undefined) ? new Object () : utils.jsonStringify (config.pageParams); //12/12/19 by DW
 							var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
 							callback (200, "text/html", s);
 							});
