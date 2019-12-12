@@ -24,9 +24,17 @@ How to get started quickly with PagePark.
 
 3. To run the server, enter <code>node pagepark.js</code>.
 
+4. Create a sub-folder of the domains folder called localhost. 
+
+5. Using a text editor add a file to the localhost folder called index.md. Put whatever you like in the file. Save it.
+
+6. In a browser, running on the same machine, enter localhost:1339. You should see the text you entered in the previous step. 
+
+If this worked, congratulations you just installed a web server. :-)
+
 ### Screen shot
 
-Here's a <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">screen shot</a> of my PagePark server folder. 
+Here's a <a href="http://scripting.com/2015/01/04/pageParkFolderScreenShot.png">screen shot</a> of an example PagePark <i>domains</i> folder. 
 
 ### How it works
 
