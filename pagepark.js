@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.0";   
+var myProductName = "PagePark", myVersion = "0.8.1";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2019 Dave Winer
@@ -51,7 +51,8 @@ var pageparkPrefs = {
 	urlDefaultErrorPage: "http://scripting.com/code/pagepark/prefs/error.html", //6/17/17 by DW
 	flUnicasePaths: false, //11/7/17 by DW
 	defaultType: "text/html", //7/21/18 by DW
-	flHiddenFilesCheck: true //12/9/19 by DW -- check if file or folder name begins with _
+	flHiddenFilesCheck: true, //12/9/19 by DW -- check if file or folder name begins with _
+	ctGithubCacheSecs: 3600 //12/13/19 by DW -- one hour
 	};
 var pageparkStats = {
 	ctStarts: 0, 
@@ -111,9 +112,6 @@ var flEveryMinuteScheduled = false; //7/17/17 by DW
 			}
 		}
 
-function httpExt2MIME (ext) { //12/24/14 by DW
-	return (utils.httpExt2MIME (ext));
-	}
 function httpReadUrl (url, callback) {
 	request (url, function (error, response, body) {
 		if (!error && (response.statusCode == 200)) {
@@ -162,24 +160,6 @@ function getTemplate (myTemplatePath, urlDefaultTemplate, callback) {
 			});
 		}
 	}
-function everyMinute () { //7/17/17 by DW
-	var now = new Date ();
-	console.log ("\n" + myProductName + " v" + myVersion + ": " + now.toLocaleTimeString () + ", port == " + pageparkPrefs.myPort + ".\n");
-	if (flStatsDirty) {
-		writeStats (fnameStats, pageparkStats);
-		flStatsDirty = false;
-		}
-	}
-function everySecond () {
-	var now = new Date ();
-	if (!flEveryMinuteScheduled) {
-		if (now.getSeconds () == 0) {
-			flEveryMinuteScheduled = true;
-			setInterval (everyMinute, 60000); 
-			everyMinute (); //do one right now
-			}
-		}
-	}
 function handleHttpRequest (httpRequest, httpResponse) {
 	var config; 
 	var now = new Date ();
@@ -191,7 +171,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
 		}
 	function getMarkdownTemplate (callback) {
-		console.log ("getMarkdownTemplate: config == " + utils.jsonStringify (config));
 		getTemplate (mdTemplatePath, config.urlDefaultMarkdownTemplate, callback);
 		}
 	function hasAcceptHeader (theHeader) {
@@ -329,7 +308,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				return (config.defaultType);
 				}
 			else {
-				return (httpExt2MIME (ext));
+				return (utils.httpExt2MIME (ext));
 				}
 			}
 		
@@ -520,7 +499,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				httpRespond (code, type, text);
 				});
 			}
-		githubpub.getFromGitHub (config.githubServeFrom.username, config.githubServeFrom.repository, path, undefined, function (err, jstruct) {
+		var options = { 
+			flCanUseCache: !utils.getBoolean (parsedUrl.query.nocache)
+			}
+		console.log ("serveFromGithubRepo: options.flCanUseCache == " + options.flCanUseCache + ", path == " + path);
+		githubpub.getFromGitHub (config.githubServeFrom.username, config.githubServeFrom.repository, path, options, function (err, jstruct) {
 			if (err) {
 				return404 ();
 				}
@@ -951,33 +934,51 @@ function readStats (fname, stats, callback) {
 			});
 		});
 	}
-function getTopLevelPrefs (callback) { //6/7/17 by DW -- first look for config.json, then prefs/prefs.json
-	const newFnameConfig = "config.json", oldFnameConfig = "prefs/prefs.json";
-	fs.exists (newFnameConfig, function (flExists) {
-		function readFrom (fname) {
-			readStats (fname, pageparkPrefs, callback);
+function everyMinute () { //7/17/17 by DW
+	var now = new Date ();
+	console.log ("\n" + myProductName + " v" + myVersion + ": " + now.toLocaleTimeString () + ", port == " + pageparkPrefs.myPort + ".\n");
+	if (flStatsDirty) {
+		writeStats (fnameStats, pageparkStats);
+		flStatsDirty = false;
+		}
+	}
+function everySecond () {
+	var now = new Date ();
+	if (!flEveryMinuteScheduled) {
+		if (now.getSeconds () == 0) {
+			flEveryMinuteScheduled = true;
+			setInterval (everyMinute, 60000); 
+			everyMinute (); //do one right now
 			}
-		if (flExists) {
-			readFrom (newFnameConfig);
-			}
-		else {
-			fs.exists (oldFnameConfig, function (flExists) {
-				if (flExists) {
-					readFrom (oldFnameConfig);
-					}
-				else {
-					readFrom (newFnameConfig);
-					}
-				});
-			}
-		});
+		}
 	}
 function startup () {
 	function initGithubpub () { //12/12/19 by DW
 		var gitconfig = {
-			maxCacheSecs: 10
+			maxCacheSecs: pageparkPrefs.ctGithubCacheSecs
 			};
 		githubpub.init (gitconfig, false);
+		}
+	function getTopLevelPrefs (callback) { //6/7/17 by DW -- first look for config.json, then prefs/prefs.json
+		const newFnameConfig = "config.json", oldFnameConfig = "prefs/prefs.json";
+		fs.exists (newFnameConfig, function (flExists) {
+			function readFrom (fname) {
+				readStats (fname, pageparkPrefs, callback);
+				}
+			if (flExists) {
+				readFrom (newFnameConfig);
+				}
+			else {
+				fs.exists (oldFnameConfig, function (flExists) {
+					if (flExists) {
+						readFrom (oldFnameConfig);
+						}
+					else {
+						readFrom (newFnameConfig);
+						}
+					});
+				}
+			});
 		}
 	getTopLevelPrefs (function () {
 		console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 

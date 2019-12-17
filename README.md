@@ -268,6 +268,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.1 12/13/19 by DW
+
+If you make a request for a GitHub hosted page with a nocache=true parameter it won't use the cache to read the page. This allowed me to make the cache timeout pretty long, so if you're making a change to a page, be sure to call it at least once with this param to force it to be reloaded. 
+
 #### v0.7.31 12/10/19 by DW
 
 You can now override most of the values in the top level config.json file in any of the config.json files in individual domains. It would have worked this way in the beginning if site-level config settings were possible in the beginning. 
