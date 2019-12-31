@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.1";   
+var myProductName = "PagePark", myVersion = "0.8.4";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2019 Dave Winer
@@ -35,6 +35,7 @@ const opmlToJs = require ("opmltojs"); //6/16/17 by DW
 const websocket = require ("nodejs-websocket"); //9/29/17 by DW
 const s3 = require ("daves3"); //6/4/18 by DW
 const githubpub = require ("githubpub"); //12/3/19 by DW
+const freeDiskSpace = require ("davediskspace"); //12/20/19 by DW
 
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
@@ -45,7 +46,7 @@ var pageparkPrefs = {
 	flProcessOpmlFiles: true, extOpmlFiles: "opml", //6/23/15 by DW
 	error404File: "prefs/error.html", //7/16/15 by DW
 	legalPathChars: "", //7/19/15 by DW,
-	flCacheTemplatesLocally: true, //6/17/17 by DW -- preserve the original behavior
+	flCacheTemplatesLocally: false, //12/21/19 by DW -- switched the default from true
 	urlDefaultMarkdownTemplate: "http://scripting.com/code/pagepark/defaultmarkdowntemplate.txt", //6/17/17 by DW
 	urlDefaultOpmlTemplate: "http://scripting.com/code/pagepark/templates/opml/template.txt", //6/17/17 by DW
 	urlDefaultErrorPage: "http://scripting.com/code/pagepark/prefs/error.html", //6/17/17 by DW
@@ -160,6 +161,16 @@ function getTemplate (myTemplatePath, urlDefaultTemplate, callback) {
 			});
 		}
 	}
+function getMarkdownTitle (mdtext) { //12/31/19 by DW
+	var linenum = 1;
+	for (var i = 1; i <= 5; i++) {
+		var s = utils.trimWhitespace (utils.stringNthField (mdtext, "\n", i));
+		if (utils.beginsWith (s, "# ")) {
+			return (utils.stringDelete (s, 1, 2));
+			}
+		}
+	return (undefined);
+	}
 function handleHttpRequest (httpRequest, httpResponse) {
 	var config; 
 	var now = new Date ();
@@ -167,6 +178,14 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		when: now
 		};
 	
+	function getDiskSpace (callback) { //12/20/19 by DW
+		var stats = new Object (); 
+		freeDiskSpace.get (stats, function () {
+			stats.productName = myProductName;
+			stats.version = myVersion;
+			callback (undefined, stats);
+			});
+		}
 	function getOpmlTemplate (callback) { //6/23/15 by DW
 		getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
 		}
@@ -300,7 +319,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		if (parsedUrl.query.format !== undefined) {
 			formatParam = parsedUrl.query.format.toLowerCase ()
 			}
-		
 		function getReturnType (path) { //7/6/18 by DW
 			var fname = utils.stringLastField (path, "/");
 			var ext = utils.stringLastField (fname, ".");
@@ -311,7 +329,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				return (utils.httpExt2MIME (ext));
 				}
 			}
-		
 		function httpReturn (val, type) { //2/17/15 by DW
 			callback (200, type, val.toString ());
 			}
@@ -365,8 +382,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					if (config.flProcessMarkdownFiles) {
 						getMarkdownTemplate (function (theTemplate) {
 							var mdtext = data.toString (), pagetable = new Object ();
+							pagetable.title = getMarkdownTitle (mdtext); //12/31/19 by DW
+							if (pagetable.title === undefined) {
+								pagetable.title = utils.stringLastField (path, "/");
+								}
 							pagetable.bodytext = marked (mdtext);
-							pagetable.title = utils.stringLastField (path, "/");
 							pagetable.config = (config.pageParams === undefined) ? new Object () : utils.jsonStringify (config.pageParams); //12/12/19 by DW
 							var s = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
 							callback (200, "text/html", s);
@@ -839,6 +859,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 															status: pageparkStats
 															}
 														httpRespond (200, "text/plain", utils.jsonStringify (status));
+														break;
+													case "/freediskspace": //12/20/19 by DW
+														getDiskSpace (function (err, stats) {
+															httpRespond (200, "application/json", utils.jsonStringify (stats));
+															});
 														break;
 													default:
 														if (!serveRedirect (lowerpath, config)) { //12/8/15 by DW -- it wasn't a redirect

@@ -268,6 +268,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.4 12/31/19 by DW
+
+When serving a markdown document, look at the first 5 lines in the file for a line that begins with "# ". Assume that's the title of the page. Substitute for [%title%] in the template. A way to set the HTML title of the page served.
+
 #### v0.8.1 12/13/19 by DW
 
 If you make a request for a GitHub hosted page with a nocache=true parameter it won't use the cache to read the page. This allowed me to make the cache timeout pretty long, so if you're making a change to a page, be sure to call it at least once with this param to force it to be reloaded. 
