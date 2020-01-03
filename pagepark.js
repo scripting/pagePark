@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.4";   
+var myProductName = "PagePark", myVersion = "0.8.5";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2019 Dave Winer
@@ -187,10 +187,34 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			});
 		}
 	function getOpmlTemplate (callback) { //6/23/15 by DW
-		getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
+		if (config.opmlTemplatePath !== undefined) {
+			fs.readFile (config.opmlTemplatePath, function (err, data) {
+				if (err) {
+					getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
+					}
+				else {
+					callback (data.toString ());
+					}
+				});
+			}
+		else {
+			getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
+			}
 		}
 	function getMarkdownTemplate (callback) {
-		getTemplate (mdTemplatePath, config.urlDefaultMarkdownTemplate, callback);
+		if (config.mdTemplatePath !== undefined) {
+			fs.readFile (config.mdTemplatePath, function (err, data) {
+				if (err) {
+					getTemplate (mdTemplatePath, config.urlDefaultMarkdownTemplate, callback);
+					}
+				else {
+					callback (data.toString ());
+					}
+				});
+			}
+		else {
+			getTemplate (mdTemplatePath, config.urlDefaultMarkdownTemplate, callback);
+			}
 		}
 	function hasAcceptHeader (theHeader) {
 		if (httpRequest.headers.accept === undefined) {
@@ -657,6 +681,55 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			callback (undefined, domainfolder + path);
 			}
 		}
+	function gatherAttributes (domainfolder, path, callback) { //12/31/19 by DW
+		var nomad = domainfolder, steps, atts = new Object ();
+		if (utils.beginsWith (path, "/")) {
+			path = utils.stringDelete (path, 1, 1);
+			}
+		steps = path.split ("/");
+		if (steps [steps.length - 1].length == 0) {
+			steps.pop ();
+			}
+		function doStep (ix) {
+			if (ix < steps.length) {
+				var lowerstep = utils.stringLower (steps [ix]), flfound = false;
+				if (!utils.endsWith (nomad, "/")) {
+					nomad += "/";
+					}
+				fs.readdir (nomad, function (err, list) {
+					if (err) {
+						callback (err);
+						}
+					else {
+						for (var i = 0; i < list.length; i++) {
+							var fname = utils.stringLower (list [i]);
+							if (utils.beginsWith (fname, "#")) { //it's an attribute
+								var relpath = utils.stringDelete (nomad, 1, domainfolder.length);
+								var attname = utils.stringLower (utils.stringDelete (fname, 1, 1));
+								atts [attname] = domainfolder + relpath + fname;
+								}
+							if (fname == lowerstep) {
+								nomad += list [i];
+								doStep (ix + 1);
+								flfound = true;
+								break;
+								}
+							}
+						if (!flfound) {
+							var err = {
+								message: "Not found."
+								};
+							callback (err);
+							}
+						}
+					});
+				}
+			else {
+				callback (undefined, atts);
+				}
+			}
+		doStep (0);
+		}
 	function validatePath (path) { //12/9/19 by DW
 		function checkPathForIllegalChars (path) {
 			function isIllegal (ch) {
@@ -784,15 +857,19 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					}
 				else { //no mapping, we handle the request
 					getDomainFolder (host, function (domainfolder, actualhost) { //might be a wildcard folder
-						pathParse (domainfolder, parsedUrl.pathname, function (err, f) {
+						pathParse (domainfolder, parsedUrl.pathname, function (err, f) { //handles unicase paths via folder diving
 							if (f === undefined) {
 								f = domainfolder + parsedUrl.pathname;
 								}
 							if (validatePath (f)) {
 								utils.sureFilePath (domainsPath, function () { //make sure domains folder exists
 									getConfigFile (actualhost, function (configForThisDomain) { //get config.json, if it exists -- 1/18/15 by DW
-										config = configForThisDomain; //set a global to this request -- 12/10/19 by DW
-										if (config != undefined) {
+										config = (configForThisDomain === undefined) ? new Object () : configForThisDomain; //set a global to this request -- 12/10/19 by DW
+										gatherAttributes (domainfolder, parsedUrl.pathname, function (err, atts) { //12/31/19 by DW
+											if (atts !== undefined) { //1/2/20 by DW -- this is all we do with atts for now
+												config.mdTemplatePath = atts ["mdtemplate.html"]; 
+												config.opmlTemplatePath = atts ["opmltemplate.html"]; 
+												}
 											if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
 												try {
 													var urlRedirect = eval (config.jsSiteRedirect.toString ());
@@ -843,52 +920,52 @@ function handleHttpRequest (httpRequest, httpResponse) {
 												serveFile (localFile, config);
 												return;
 												}
-											}
-										fs.stat (f, function (err, stats) {
-											if (err) {
-												switch (lowerpath) {
-													case "/version":
-														httpRespond (200, "text/plain", myVersion);
-														break;
-													case "/now": 
-														httpRespond (200, "text/plain", now.toString ());
-														break;
-													case "/status": 
-														var status = {
-															prefs: pageparkPrefs,
-															status: pageparkStats
-															}
-														httpRespond (200, "text/plain", utils.jsonStringify (status));
-														break;
-													case "/freediskspace": //12/20/19 by DW
-														getDiskSpace (function (err, stats) {
-															httpRespond (200, "application/json", utils.jsonStringify (stats));
-															});
-														break;
-													default:
-														if (!serveRedirect (lowerpath, config)) { //12/8/15 by DW -- it wasn't a redirect
-															return404 (); 
-															}
-														break;
+											fs.stat (f, function (err, stats) {
+												if (err) {
+													switch (lowerpath) {
+														case "/version":
+															httpRespond (200, "text/plain", myVersion);
+															break;
+														case "/now": 
+															httpRespond (200, "text/plain", now.toString ());
+															break;
+														case "/status": 
+															var status = {
+																prefs: pageparkPrefs,
+																status: pageparkStats
+																}
+															httpRespond (200, "text/plain", utils.jsonStringify (status));
+															break;
+														case "/freediskspace": //12/20/19 by DW
+															getDiskSpace (function (err, stats) {
+																httpRespond (200, "application/json", utils.jsonStringify (stats));
+																});
+															break;
+														default:
+															if (!serveRedirect (lowerpath, config)) { //12/8/15 by DW -- it wasn't a redirect
+																return404 (); 
+																}
+															break;
+														}
 													}
-												}
-											else {
-												if (!serveRedirect (lowerpath, config)) { //7/30/15 by DW -- it wasn't a redirect
-													if (stats.isDirectory ()) {
-														if (!utils.endsWith (f, "/")) {
-															returnRedirect (httpRequest.url + "/", false); //7/5/17 by DW
+												else {
+													if (!serveRedirect (lowerpath, config)) { //7/30/15 by DW -- it wasn't a redirect
+														if (stats.isDirectory ()) {
+															if (!utils.endsWith (f, "/")) {
+																returnRedirect (httpRequest.url + "/", false); //7/5/17 by DW
+																}
+															else {
+																findSpecificFile (f, config.indexFilename, function (findex) {
+																	serveFile (findex, config);
+																	});
+																}
 															}
 														else {
-															findSpecificFile (f, config.indexFilename, function (findex) {
-																serveFile (findex, config);
-																});
+															serveFile (f, config);
 															}
 														}
-													else {
-														serveFile (f, config);
-														}
 													}
-												}
+												});
 											});
 										});
 									});
