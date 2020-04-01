@@ -270,15 +270,7 @@ There will always be more work to do here. ;-)
 
 #### v0.8.5 3/27/20 by DW
 
-Filter scripts. If the directory for a domain has a file named filter.js, it fully determines what to serve.
-
-The filter must be a Node <a href="https://www.w3schools.com/nodejs/nodejs_modules.asp">module</a>, and must export a function named filter. 
-
-When a request for that domain comes in, the filter is opened via require, and we call the filter function with two params, an options object and a callback script. Options contains various information PagePark wants to make available to filters. Right now it includes the httpRequest we received from Node and a function that serves a file. 
-
-The callback takes one param, an object with three values: code, type and val. We return an HTTP response using those values. However you don't have to call the callback if you're able to completely handle the request. That's why serveFile is provided in options. 
-
-I found you can't require fs in your filter, and it screwed things up pretty badly -- buffers no longer functioned properly. If necessary we can transfer those via the options object, or perhaps via import, which doesn't appear to be supported in Node yet (it's part of the Ecma module spec).
+<a href="docs/plugins.md">Plugins</a>. 
 
 #### v0.8.4 12/31/19 by DW
 
