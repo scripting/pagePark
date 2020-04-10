@@ -34,13 +34,13 @@ Example -- bloggercon.org
 
 If config.json in a sub-folder of the domains folder has value named jsSiteRedirect, then its value is evaluated as a JavaScript expression, and PagePark redirects to that expression. It should obviously resolve to a URL.
 
-Example -- archive.scripting.com 
-
-<pre>{"jsSiteRedirect": "'http://scripting.com' + parsedUrl.pathname + '.html'"}</pre>
-
 Example --  discuss.userland.com
 
 <pre>{"jsSiteRedirect": "'http://static.userland.com/userLandDiscussArchive/msg' + utils.padWithZeros (parsedUrl.pathname.split ('&#x24;') [1], 6) + '.html'"}</pre>
+
+Example -- archive.scripting.com 
+
+<pre>{"jsSiteRedirect": "'http://scripting.com' + parsedUrl.pathname + '.html'"}</pre>
 
 ### You can put an IP address in the name of a sub-folder of the domains folder
 
