@@ -40,7 +40,7 @@ Example -- archive.scripting.com
 
 Example --  discuss.userland.com
 
-<pre>{"jsSiteRedirect": "'http://static.userland.com/userLandDiscussArchive/msg' + utils.padWithZeros (parsedUrl.pathname.split ('$') [1], 6) + '.html'"}</pre>
+<pre>{"jsSiteRedirect": "'http://static.userland.com/userLandDiscussArchive/msg' + utils.padWithZeros (parsedUrl.pathname.split ('&#x24;') [1], 6) + '.html'"}</pre>
 
 ### You can put an IP address in the name of a sub-folder of the domains folder
 
