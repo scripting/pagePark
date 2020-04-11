@@ -270,7 +270,7 @@ There will always be more work to do here. ;-)
 
 #### v0.8.6 4/11/20 by DW
 
-Mirrors. 
+<a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#mirrors-works-like-redirects">Mirrors</a>. 
 
 A plugin can tell PagePark that it did npt handle the request and that it should go ahead and pass it through the rest of PagePark's serving logic by returning with a value in the httpResponse object for <i>flNotHandled</i> of true. 
 
