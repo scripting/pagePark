@@ -54,6 +54,14 @@ Here's the <a href="https://gist.github.com/scripting/491c2d676dd7ad6e41f47a116d
 
 In the old CMS, files didn't have extensions, but in the new environment, they must have them. So this redirects table just maps the old URLs onto the new ones.
 
+### Mirrors works like redirects
+
+<i>New feature 4/11/20.</i>
+
+Mirrors work much like redirects. If there's an object in a domain's config.json file called mirrors, each property's name is a path, and its value is a URL. when a request resolves to the path, we serve the content from the page pointed to by the URL. 
+
+Here's an example of a <a href="https://gist.github.com/scripting/bc94224619c9bbe6c608aec1a41222a1">config.json</a> file that serves the home page of a site with an image from another site. 
+
 ### flProcessScriptFiles
 
 If you set this value false, none of the JavaScript files in the domain folder will be processed. They will be served as text, with the source code in the file. 

@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.6";   
+var myProductName = "PagePark", myVersion = "0.8.7";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2019 Dave Winer
@@ -291,7 +291,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				callback (false); //file doesn't exist -- we didn't run the filter script
 				}
 			else {
-				callback (true); //we did run the filter script
 				try {
 					const options = {
 						httpRequest,
@@ -306,14 +305,22 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					require (filterfile).filter (options, function (err, httpResponse) {
 						if (err) {
 							httpRespond (500, "text/plain", err.message);
+							callback (true); //we handled it
 							}
 						else {
-							httpRespond (httpResponse.code, httpResponse.type, httpResponse.val);
+							if (httpResponse.flNotHandled) { //the plugin doesn't want this, let other functions in pagePark have a try
+								callback (false);
+								}
+							else {
+								httpRespond (httpResponse.code, httpResponse.type, httpResponse.val);
+								callback (true); //we handled it
+								}
 							}
 						});
 					}
 				catch (err) {
 					httpRespond (500, "text/plain", err.message);
+					callback (true); //we handled it
 					}
 				}
 			});
@@ -625,8 +632,15 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			for (x in config.redirects) {
 				if (x.toLowerCase () == lowerpath) {
 					var urlRedirectTo = config.redirects [x];
-					console.log ("serveRedirect: urlRedirectTo == " + urlRedirectTo);
 					returnRedirect (urlRedirectTo);
+					return (true);
+					}
+				}
+			}
+		if (config.mirrors !== undefined) { //4/10/20 by DW
+			for (x in config.mirrors) {
+				if (x.toLowerCase () == lowerpath) {
+					delegateRequest (config.mirrors [x]);
 					return (true);
 					}
 				}
