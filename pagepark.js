@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.7";   
+var myProductName = "PagePark", myVersion = "0.8.8";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2019 Dave Winer
@@ -1091,7 +1091,9 @@ function readStats (fname, stats, callback) {
 	}
 function everyMinute () { //7/17/17 by DW
 	var now = new Date ();
-	console.log ("\n" + myProductName + " v" + myVersion + ": " + now.toLocaleTimeString () + ", port == " + pageparkPrefs.myPort + ".\n");
+	if (now.getMinutes () == 0) { //4/18/20 by DW -- only show status message at top of the hour
+		console.log ("\n" + myProductName + " v" + myVersion + ": " + now.toLocaleTimeString () + ", port == " + pageparkPrefs.myPort + ".\n");
+		}
 	if (flStatsDirty) {
 		writeStats (fnameStats, pageparkStats);
 		flStatsDirty = false;
@@ -1136,6 +1138,9 @@ function startup () {
 			});
 		}
 	getTopLevelPrefs (function () {
+		if (process.env.PORT) { //4/18/20 by DW -- this is how Glitch and Heroku tell us what port to run on
+			pageparkPrefs.myPort = process.env.PORT;
+			}
 		console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
 		console.log ("startup: pageparkPrefs == " + utils.jsonStringify (pageparkPrefs));
 		readStats (fnameStats, pageparkStats, function () {

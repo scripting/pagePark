@@ -268,6 +268,12 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.7 4/18/20 by DW
+
+Allow the port to be set by process.env.PORT. This is how Glitch says what port to run on. 
+
+Only show status message once an hour as opposed to once a minute. Too much noise. Shhhh.
+
 #### v0.8.6 4/11/20 by DW
 
 <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#mirrors-works-like-redirects">Mirrors</a>. 
