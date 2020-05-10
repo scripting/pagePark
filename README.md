@@ -268,12 +268,6 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
-#### v0.8.7 4/18/20 by DW
-
-Allow the port to be set by process.env.PORT. This is how Glitch says what port to run on. 
-
-Only show status message once an hour as opposed to once a minute. Too much noise. Shhhh.
-
 #### v0.8.10 5/10/20 by DW
 
 Moved the script-running code into a <a href="https://www.npmjs.com/package/pagepark">new package</a>, which I'm eventually going to move all the core functionality of PagePark into. The top level will just call into the package. Will allow code to be reused in other projects. Having a full-featured web server as a replacement for <a href="https://github.com/scripting/http">davehttp</a> which is very bare-bones. 
@@ -285,6 +279,12 @@ Added JS code that runs every second, minute, hour and overnight in the prefs/sc
 Changed the way plugins work. You no longer have to define a module and export a function named filter. It's just straight-line code. Same model as is used in the scripts code, above.
 
 All this needs documentation wihich I will do. I want to give everything a chance to settle in and flesh out.
+
+#### v0.8.7 4/18/20 by DW
+
+Allow the port to be set by process.env.PORT. This is how Glitch says what port to run on. 
+
+Only show status message once an hour as opposed to once a minute. Too much noise. Shhhh.
 
 #### v0.8.6 4/11/20 by DW
 
