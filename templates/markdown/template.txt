@@ -1,0 +1,62 @@
+<html>
+	<head>
+		<title>[%title%]</title>
+		<script src="http://fargo.io/code/jquery-1.9.1.min.js"></script>
+		<link href="http://fargo.io/code/bootstrap.css" rel="stylesheet">
+		<script src="http://fargo.io/code/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="http://fargo.io/code/fontAwesome/css/font-awesome.min.css"/>
+		<link href="http://fargo.io/code/ubuntuFont.css" rel="stylesheet" type="text/css">
+		<link href="http://scripting.com/code/pagepark/templates/markdown/styles.css" rel="stylesheet" type="text/css">
+		<script>
+			function startup () {
+				console.log ("startup");
+				}
+			</script>
+		<style>
+			body {
+				font-family: "Ubuntu";
+				font-size: 18px;
+				line-height: 140%;
+				background-color: white; 
+				}
+			.divPageBody {
+				width: 60%;
+				margin-top: 50px;
+				margin-left: auto;
+				margin-right: auto;
+				margin-bottom: 400px;
+				}
+			.ulFileList {
+				list-style-type: none;
+				}
+			.ulFileList li {
+				line-height: 150%;
+				margin-left: 0;
+				}
+			
+			.markdown-body {
+				box-sizing: border-box;
+				min-width: 200px;
+				max-width: 980px;
+				margin: 0 auto;
+				}
+			@media (max-width: 767px) {
+				.markdown-body {
+					padding: 15px;
+					}
+				}
+			</style>
+		</head>
+	<body>
+		<div class="divPageBody">
+			<article class="markdown-body">
+				[%bodytext%]
+				</article>
+			</div>
+		<script>
+			$(document).ready (function () {
+				startup ();
+				});
+			</script>
+		</body>
+	</html>

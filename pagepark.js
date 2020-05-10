@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.8";   
+var myProductName = "PagePark", myVersion = "0.8.10";   
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2019 Dave Winer
@@ -36,6 +36,8 @@ const websocket = require ("nodejs-websocket"); //9/29/17 by DW
 const s3 = require ("daves3"); //6/4/18 by DW
 const githubpub = require ("githubpub"); //12/3/19 by DW
 const freeDiskSpace = require ("davediskspace"); //12/20/19 by DW
+const requireFromString = require ("require-from-string"); //5/9/20 by DW
+const package = require ("pagepark"); //5/6/20 by DW
 
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
@@ -291,37 +293,20 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				callback (false); //file doesn't exist -- we didn't run the filter script
 				}
 			else {
-				try {
-					const options = {
-						httpRequest,
-						serveLocalFile: function (f) {
-							serveFile (f, config);
-							}
-						};
-					const filterfile = __dirname + "/" + f;
-					if (require.cache [filterfile] !== undefined) {
-						delete require.cache [filterfile];
+				const options = {
+					httpRequest,
+					serveLocalFile: function (f) {
+						console.log ("serveLocalFile (" + f + ")");
+						serveFile (f, config);
 						}
-					require (filterfile).filter (options, function (err, httpResponse) {
-						if (err) {
-							httpRespond (500, "text/plain", err.message);
-							callback (true); //we handled it
-							}
-						else {
-							if (httpResponse.flNotHandled) { //the plugin doesn't want this, let other functions in pagePark have a try
-								callback (false);
-								}
-							else {
-								httpRespond (httpResponse.code, httpResponse.type, httpResponse.val);
-								callback (true); //we handled it
-								}
-							}
-						});
+					};
+				try {
+					package.runJavaScriptCode (f, options, callback);
 					}
 				catch (err) {
 					httpRespond (500, "text/plain", err.message);
-					callback (true); //we handled it
 					}
+				callback (true); //we handled it
 				}
 			});
 		}
@@ -465,22 +450,32 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				case config.extOpmlFiles: //6/23/15 by DW
 					var flReturnHtml = (!hasAcceptHeader ("text/x-opml")) && (formatParam != "opml");
 					if (config.flProcessOpmlFiles && flReturnHtml) { //6/24/15 by DW
-						getOpmlTemplate (function (theTemplate) {
-							var opmltext = data.toString (), pagetable = new Object ();
-							opmlToJs.parse (opmltext, function (theOutline) {
-								var pagetable = {
-									bodytext: utils.jsonStringify (theOutline),
-									title: utils.stringLastField (path, "/"),
-									description: "",
-									image: "",
-									sitename: "",
-									url: "http://" + httpRequest.headers.host + httpRequest.url
-									};
-								utils.copyScalars (theOutline.opml.head, pagetable);
-								var htmltext = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
-								httpReturn (htmltext, "text/html");
+						try { //4/18/20 by DW -- XML errors should not crash the server
+							getOpmlTemplate (function (theTemplate) {
+								var opmltext = data.toString (), pagetable = new Object ();
+								opmlToJs.parseWithError (opmltext, function (err, theOutline) {
+									if (err) {
+										callback (500, "text/plain", "There was an error processing the OPML file."); 
+										}
+									else {
+										var pagetable = {
+											bodytext: utils.jsonStringify (theOutline),
+											title: utils.stringLastField (path, "/"),
+											description: "",
+											image: "",
+											sitename: "",
+											url: "http://" + httpRequest.headers.host + httpRequest.url
+											};
+										utils.copyScalars (theOutline.opml.head, pagetable);
+										var htmltext = utils.multipleReplaceAll (theTemplate, pagetable, false, "[%", "%]");
+										httpReturn (htmltext, "text/html");
+										}
+									});
 								});
-							});
+							}
+						catch (err) {
+							callback (500, "text/plain", err.message); 
+							}
 						}
 					else {
 						defaultReturn ("text/xml", data);
@@ -1138,22 +1133,25 @@ function startup () {
 			});
 		}
 	getTopLevelPrefs (function () {
-		if (process.env.PORT) { //4/18/20 by DW -- this is how Glitch and Heroku tell us what port to run on
-			pageparkPrefs.myPort = process.env.PORT;
-			}
-		console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
-		console.log ("startup: pageparkPrefs == " + utils.jsonStringify (pageparkPrefs));
-		readStats (fnameStats, pageparkStats, function () {
-			utils.sureFilePath (getFullFilePath (domainsPath) + "x", function () { //make sure domains folder exists
-				var now = new Date ();
-				pageparkStats.ctStarts++;
-				pageparkStats.whenLastStart = now;
-				pageparkStats.ctHitsSinceStart = 0; //9/30/17 by DW
-				flStatsDirty = true;
-				initGithubpub (); //12/12/19 by DW
-				http.createServer (handleHttpRequest).listen (pageparkPrefs.myPort);
-				webSocketStartup (); //9/29/17 by DW
-				setInterval (everySecond, 1000); 
+		package.start (pageparkPrefs, function () { //5/6/20 by DW
+			if (process.env.PORT) { //4/18/20 by DW -- this is how Glitch and Heroku tell us what port to run on
+				pageparkPrefs.myPort = process.env.PORT;
+				}
+			console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
+			console.log ("startup: __dirname == " + __dirname);
+			console.log ("startup: pageparkPrefs == " + utils.jsonStringify (pageparkPrefs));
+			readStats (fnameStats, pageparkStats, function () {
+				utils.sureFilePath (getFullFilePath (domainsPath) + "x", function () { //make sure domains folder exists
+					var now = new Date ();
+					pageparkStats.ctStarts++;
+					pageparkStats.whenLastStart = now;
+					pageparkStats.ctHitsSinceStart = 0; //9/30/17 by DW
+					flStatsDirty = true;
+					initGithubpub (); //12/12/19 by DW
+					http.createServer (handleHttpRequest).listen (pageparkPrefs.myPort);
+					webSocketStartup (); //9/29/17 by DW
+					setInterval (everySecond, 1000); 
+					});
 				});
 			});
 		});

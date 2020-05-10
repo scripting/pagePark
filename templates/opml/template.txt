@@ -1,0 +1,75 @@
+<html>
+	<head>
+		<title id="idPageTitle">[%title%]</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<script src="//s3.amazonaws.com/scripting.com/code/includes/jquery-1.9.1.min.js"></script>
+<link href="//s3.amazonaws.com/scripting.com/code/includes/bootstrap.css" rel="stylesheet">
+<script src="//s3.amazonaws.com/scripting.com/code/includes/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="//s3.amazonaws.com/scripting.com/code/fontawesome/css/all.css">
+<link href="//fonts.googleapis.com/css?family=Ubuntu:400,500i,700" rel="stylesheet">
+<link href="//fonts.googleapis.com/css?family=Rancho" rel="stylesheet">
+
+<script src="//s3.amazonaws.com/scripting.com/code/includes/basic/code.js"></script>
+<link href="//s3.amazonaws.com/scripting.com/code/includes/basic/styles.css" rel="stylesheet" type="text/css">
+
+		<script src="http://api.nodestorage.io/api.js"></script>
+		<script src="http://fargo.io/code/shared/emojify.js"></script>
+		<link rel="stylesheet" href="http://fargo.io/code/shared/emojify.css"/>
+		<script src="http://fargo.io/code/markdownConverter.js"></script>
+		<script src="http://fargo.io/cms/dateFormat.js"></script>
+		<script src="http://fargo.io/code/browsers/outlinebrowser.js"></script>
+		<link href="http://fargo.io/code/browsers/outlinebrowser.css" rel="stylesheet" type="text/css">
+		
+		<script src="http://fargo.io/code/shared/xml.js"></script>
+		<script src="http://fargo.io/code/shared/reader.js"></script>
+		
+		<script src="http://scripting.com/code/pagepark/templates/opml/code.js"></script>
+		<link href="http://scripting.com/code/pagepark/templates/opml/styles.css" rel="stylesheet" type="text/css">
+		
+		<!-- Facebook metadata -->
+			<meta property="og:url" content="[%url%]" />
+			<meta property="og:type" content="website" />
+			<meta property="og:title" content="[%title%]" />
+			<meta property="og:description" content="[%description%]" />
+			<meta property="og:image" content="[%image%]" />
+			<meta property="og:site_name" content="[%sitename%]" />
+		<!-- Twitter metadata -->
+			<meta name="twitter:card" content="summary_large_image">
+			<meta name="twitter:site" content="@[%ownerTwitterScreenName%]">
+			<meta name="twitter:title" content="[%title%]">
+			<meta name="twitter:description" content="[%description%]">
+			<meta name="twitter:image:src" content="[%image%]">
+		
+		<script>
+			var jstruct = [%bodytext%];
+			</script>
+		</head>
+	<body>
+		<div class="divPageBody">
+			<div class="divOutlineContainer" id="idOutlineContainer" style="display: none;">
+				<div class="divXmlIcon" id="idXmlIcon"></div>
+				<div class="divLastUpdate"><b>Last update</b>: <span id="idWhenLastUpdate"></span>.</div>
+				<div class="divOutlineTitle" id="idOutlineTitle">
+					</div>
+				<div class="divOutlineDescription" id="idOutlineDescription">
+					</div>
+				<div class="divOutlineDisplayer" id="idOutlineDisplayer">
+					</div>
+				<div class="divWhenCreated"><b>Posted</b>: <span id="idWhenCreated"></span>.</div>
+				<div class="divOutlineFooter" id="idOutlineFooter">
+					</div>
+				<div class="divComments" id="idComments">
+					<div id="disqus_thread"></div>
+					</div>
+				</div>
+			</div>
+		<script>
+			$(document).ready (function () {
+				startup ();
+				});
+			</script>
+		</body>
+	</html>

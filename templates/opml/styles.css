@@ -1,0 +1,175 @@
+@import url('https://fonts.googleapis.com/css?family=Oswald:400,700');
+
+body {
+	font-family: "Ubuntu";
+	font-size: 18px;
+	line-height: 140%;
+	background-color: whitesmoke;
+	}
+.divPageBody {
+	width: 65%;
+	margin-top: 45px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 400px;
+	}
+.divTopPageMessage {
+	margin-top: 45px;
+	}
+.divOutlineContainer {
+	margin-left: 50px;
+	margin-right: 25px;
+	margin-top: 10px;
+	margin-bottom: 35px;
+	}
+.divOutlineTitle {
+	font-size: 52px;
+	font-weight: bold;
+	line-height: 110%;
+	
+	/* 9/27/17 DW */
+		font-family: "Oswald";
+		font-weight: 700;
+		font-style: normal;
+		letter-spacing: -0.04em;
+		line-height: 1.1;
+	}
+.divOutlineDisplayer {
+	font-family: "Georgia";
+	font-size: 24px;
+	line-height: 140%;
+	margin-left: -25px;
+	margin-top: 28px;
+	}
+.divOutlineHead {
+	display: none;
+	}
+.divOutlineText {
+	line-height: 145%;
+	}
+.divLastUpdate {
+	margin-top: 30px;
+	margin-bottom: 30px;
+	letter-spacing: -0.01em;
+	}
+.divWhenCreated {
+	margin-top: 50px;
+	border-top: 1px solid silver;
+	padding-top: 5px;
+	margin-bottom: 30px;
+	letter-spacing: -0.01em;
+	}
+.divOutlineDescription {
+	margin-top: 2px;
+	margin-left: 4px;
+	margin-bottom: 5px;
+	color: gray;
+	}
+.divOutlineFooter {
+	}
+
+/* blogpost type */
+	.divtypeblogpost .ulLevel0 {
+		font-weight: bold;
+		font-family: "Ubuntu";
+		margin-bottom: 10px;
+		margin-left: 32px;
+		
+		/* 9/27/17 DW */
+			letter-spacing: -0.01em;
+		
+		
+		
+		}
+	.divtypeblogpost .ulLevel1 {
+		font-family: "Georgia";
+		font-weight: normal;
+		margin-left: 0;
+		margin-bottom: 25px;
+		}
+	.divtypeblogpost .ulLevel2, .divtypeblogpost .ulLevel3, .divtypeblogpost .ulLevel4, .divtypeblogpost .ulLevel5 {
+		font-family: "Georgia";
+		font-weight: normal;
+		margin-bottom: 10px;
+		}
+/* default type  */
+	.divtypedefault .ulLevel0 {
+		margin-left: 30px;
+		}
+	.divtypedefault .ulLevel1 {
+		font-family: "Georgia";
+		font-weight: normal;
+		margin-bottom: 25px;
+		}
+	.divtypedefault .ulLevel2, .divtypedefault .ulLevel3, .divtypedefault .ulLevel4, .divtypedefault .ulLevel5 {
+		font-family: "Georgia";
+		font-weight: normal;
+		margin-bottom: 10px;
+		}
+
+.divComments {
+	display: none;
+	border: 1px solid silver;
+	padding: 8px;
+	background-color: whitesmoke;
+	margin-top: 60px;
+	margin-bottom: 50px;
+	}
+.divXmlIcon {
+	float: right;
+	padding-top: 2px;
+	}
+.spNodePermalink a {
+	font-weight: normal;
+	font-size: 14px;
+	vertical-align: middle;
+	margin-top: 2px;
+	opacity: 0.2;
+	}
+
+/* 9/3/18 by DW */
+	.spIndexFileLink {
+		color: black;
+		cursor: pointer;
+		}
+
+/* styles for tablet */
+	@media only screen 
+	and (min-device-width : 481px) 
+	and (max-device-width : 800px) {
+		.divPageBody {
+			width: 80%;
+			margin-top: 0px;
+			}
+		.divOutlineContainer {
+			margin-left: 0;
+			margin-right: 0;
+			}
+		.divWhenCreated, .divLastUpdate {
+			font-size: .9em;
+			}
+		.divOutlineText {
+			font-size: .8em;
+			}
+		}
+/* styles for phone */
+	@media only screen 
+	and (min-device-width : 320px) 
+	and (max-device-width : 480px) {
+		.divPageBody {
+			width: 85%;
+			margin-top: 10px;
+			}
+		.divOutlineContainer {
+			margin-left: 0;
+			margin-right: 0;
+			}
+		.divWhenCreated, .divLastUpdate {
+			font-size: .7em;
+			margin-top: 0;
+			margin-bottom: 20px;
+			}
+		.divOutlineTitle {
+			font-size: 36px;
+			}
+		}
