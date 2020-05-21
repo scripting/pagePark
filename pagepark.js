@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.10";   
+var myProductName = "PagePark", myVersion = "0.8.11";    
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2019 Dave Winer
@@ -37,7 +37,7 @@ const s3 = require ("daves3"); //6/4/18 by DW
 const githubpub = require ("githubpub"); //12/3/19 by DW
 const freeDiskSpace = require ("davediskspace"); //12/20/19 by DW
 const requireFromString = require ("require-from-string"); //5/9/20 by DW
-const package = require ("pagepark"); //5/6/20 by DW
+const package = require ("./lib/pageparkpackage.js"); //5/14/20 by DW -- for testing
 
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
@@ -55,7 +55,9 @@ var pageparkPrefs = {
 	flUnicasePaths: false, //11/7/17 by DW
 	defaultType: "text/html", //7/21/18 by DW
 	flHiddenFilesCheck: true, //12/9/19 by DW -- check if file or folder name begins with _
-	ctGithubCacheSecs: 3600 //12/13/19 by DW -- one hour
+	ctGithubCacheSecs: 3600, //12/13/19 by DW -- one hour
+	flRunChronologicalScripts: false, //5/13/20 by DW
+	flRunPersistentScripts: false //5/13/20 by DW
 	};
 var pageparkStats = {
 	ctStarts: 0, 
@@ -669,7 +671,8 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				return;
 				}
 			}
-		callback (undefined); //it's one of our domains, handle it here
+		var port = package.findAppWithDomain (domain);
+		callback (port); //if undefined, it's one of our domains, handle it here
 		}
 	function pathParse (domainfolder, path, callback) { //11/7/17 by DW
 		if (pageparkPrefs.flUnicasePaths) {
@@ -1133,11 +1136,15 @@ function startup () {
 			});
 		}
 	getTopLevelPrefs (function () {
-		package.start (pageparkPrefs, function () { //5/6/20 by DW
+		const environment = {
+			serverAppFolder: __dirname, 
+			dataFolder: __dirname + "/data/"
+			};
+		console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
+		package.start (environment, pageparkPrefs, function () { //5/6/20 by DW
 			if (process.env.PORT) { //4/18/20 by DW -- this is how Glitch and Heroku tell us what port to run on
 				pageparkPrefs.myPort = process.env.PORT;
 				}
-			console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
 			console.log ("startup: __dirname == " + __dirname);
 			console.log ("startup: pageparkPrefs == " + utils.jsonStringify (pageparkPrefs));
 			readStats (fnameStats, pageparkStats, function () {
