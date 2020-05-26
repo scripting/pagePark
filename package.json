@@ -2,10 +2,14 @@
 	"name": "PagePark",
 	"description": "A simple Node.js folder-based HTTP server that serves static and dynamic pages for domains.",
 	"author": "Dave Winer <dave@scripting.com>",
-	"version": "0.8.11",
+	"version": "0.8.12",
 	"scripts": {
 		"start": "node pagepark.js"
 			},
+	"repository": {
+		"type" : "git",
+		"url" : "https://github.com/scripting/pagePark.git"
+		},
 	"dependencies" : {
 		"request": "*",
 		"opmltojs": "*",
@@ -16,8 +20,7 @@
 		"pagepark": "*",
 		"nodejs-websocket": "*",
 		"require-from-string": "*",
-		"marked": "*"
-		
+		"marked": "*",
 		"child_process": "*",
 		"forever": "*",
 		"forever-monitor": "*"
