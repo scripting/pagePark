@@ -5,7 +5,11 @@
 	"version": "0.8.11",
 	"scripts": {
 		"start": "node pagepark.js"
-			},
+	},
+	"repository": {
+		"type" : "git",
+		"url" : "https://github.com/scripting/pagePark.git"
+	},
 	"dependencies" : {
 		"request": "*",
 		"opmltojs": "*",
@@ -16,8 +20,7 @@
 		"pagepark": "*",
 		"nodejs-websocket": "*",
 		"require-from-string": "*",
-		"marked": "*"
-		
+		"marked": "*",
 		"child_process": "*",
 		"forever": "*",
 		"forever-monitor": "*"
