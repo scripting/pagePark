@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.12";    
+var myProductName = "PagePark", myVersion = "0.8.14";    
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2020 Dave Winer
@@ -57,7 +57,8 @@ var pageparkPrefs = {
 	flHiddenFilesCheck: true, //12/9/19 by DW -- check if file or folder name begins with _
 	ctGithubCacheSecs: 3600, //12/13/19 by DW -- one hour
 	flRunChronologicalScripts: false, //5/13/20 by DW
-	flRunPersistentScripts: false //5/13/20 by DW
+	flRunPersistentScripts: false, //5/13/20 by DW
+	flCliPortEnabled: false, cliPort: 1349, //5/27/20 by DW
 	};
 var pageparkStats = {
 	ctStarts: 0, 
@@ -1033,6 +1034,70 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		httpRespond (500, "text/plain", err.message);
 		}
 	}
+function handleCliRequest (httpRequest, httpResponse) { //5/27/20 by DW
+	var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
+	var lowerpath = parsedUrl.pathname.toLowerCase ();
+	var remoteAddress = httpRequest.connection.remoteAddress;
+	//set host, port
+		host = httpRequest.headers.host;
+		if (utils.stringContains (host, ":")) {
+			port = utils.stringNthField (host, ":", 2);
+			host = utils.stringNthField (host, ":", 1);
+			}
+		else {
+			port = 80;
+			}
+		lowerhost = host.toLowerCase ();
+	function httpRespond (code, type, val, headers) {
+		if (headers === undefined) {
+			headers = new Object ();
+			}
+		if (type === undefined) { //7/20/18 by DW
+			type = "text/plain";
+			}
+		headers ["Content-Type"] = type;
+		httpResponse.writeHead (code, headers);
+		httpResponse.end (val);    
+		}
+	if (lowerhost != "localhost") {
+		httpRespond (403, "text/plain", "Forbidden");
+		}
+	else {
+		switch (lowerpath) {
+			case "/now":
+				httpRespond (200, "text/plain", new Date ().toString ());
+				return;
+			case "/list":
+				package.getAppInfo (function (err, theInfo) {
+					httpRespond (200, "application/json", utils.jsonStringify (theInfo));
+					});
+				return;
+			case "/stop":
+				package.stopApp (parsedUrl.query.file, function (errrorMessage, msg) {
+					if (errrorMessage) {
+						console.log ("stopapp error");
+						httpRespond (500, "text/plain", errrorMessage);
+						}
+					else {
+						console.log ("stopapp no error");
+						httpRespond (200, "text/plain", msg);
+						}
+					});
+				return;
+			case "/restart":
+				package.restartApp (parsedUrl.query.file, function (errrorMessage, msg) {
+					if (errrorMessage) {
+						httpRespond (500, "text/plain", errrorMessage);
+						}
+					else {
+						httpRespond (200, "text/plain", msg);
+						}
+					});
+				return;
+			}
+		httpRespond (404, "text/plain", "Not found");
+		}
+	}
 function writeStats (fname, stats, callback) {
 	var f = getFullFilePath (fname);
 	utils.sureFilePath (f, function () {
@@ -1138,7 +1203,8 @@ function startup () {
 	getTopLevelPrefs (function () {
 		const environment = {
 			serverAppFolder: __dirname, 
-			dataFolder: __dirname + "/data/"
+			dataFolder: __dirname + "/data/",
+			logsFolder: "/tmp/logs/"
 			};
 		console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
 		package.start (environment, pageparkPrefs, function () { //5/6/20 by DW
@@ -1156,6 +1222,11 @@ function startup () {
 					flStatsDirty = true;
 					initGithubpub (); //12/12/19 by DW
 					http.createServer (handleHttpRequest).listen (pageparkPrefs.myPort);
+					
+					if (pageparkPrefs.flCliPortEnabled) { //5/27/20 by DW
+						http.createServer (handleCliRequest).listen (pageparkPrefs.cliPort);
+						}
+					
 					webSocketStartup (); //9/29/17 by DW
 					setInterval (everySecond, 1000); 
 					});
