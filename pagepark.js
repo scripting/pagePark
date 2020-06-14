@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.14";    
+var myProductName = "PagePark", myVersion = "0.8.15";    
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2020 Dave Winer
@@ -37,7 +37,7 @@ const s3 = require ("daves3"); //6/4/18 by DW
 const githubpub = require ("githubpub"); //12/3/19 by DW
 const freeDiskSpace = require ("davediskspace"); //12/20/19 by DW
 const requireFromString = require ("require-from-string"); //5/9/20 by DW
-const package = require ("./lib/pageparkpackage.js"); //5/14/20 by DW -- for testing
+const package = require ("pagepark"); //5/6/20 by DW
 
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md

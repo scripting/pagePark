@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var myVersion = "0.4.0", myProductName = "pageParkCommandLine";
 
 const fs = require ("fs"); 
@@ -6,12 +8,12 @@ const request = require ("request");
 const childProcess = require ("child_process");
 
 var config = { 
-	domain: "localhost",
-	port: 1349
+	domain: "localhost",  
+	port: 1349   
 	};
 
 function pad (val, withchar, ctplaces) {
-	var s = val.toString ();
+	var s = (val === undefined) ? "" : val.toString ();
 	while (s.length < ctplaces) {
 		s = withchar + s;
 		}
@@ -37,7 +39,7 @@ function readJsonFile (path, callback) {
 	}
 function doCommand (theCommand, callback) {
 	var url = "http://" + config.domain + ":" + config.port + "/" + theCommand;
-	request (url, function (err, response, data) {
+	request (url, function (err, response, data) { 
 		if (err) {
 			callback (err);
 			}
@@ -141,11 +143,12 @@ function listCommand () {
 			console.log ("\n" + err.message + "\n");
 			}
 		else {
-			function line (ix, domain, port, fname, logfile, runningtime) {
-				const maxlengthdomain = 15;
+			function line (ix, domain, port, fname, logfile, restarts, runningtime) {
+				const maxlengthdomain = 30;
 				const maxlengthfname = 15;
-				const maxlengthlogfile = 20;
+				const maxlengthlogfile = 30;
 				const maxlengthport = 5;
+				const maxlengthrestarts = 6;
 				var s = "";
 				function pushval (val) {
 					s += val + " \t";
@@ -162,14 +165,16 @@ function listCommand () {
 				pushval (pad (port, " ", maxlengthport));
 				pushval (pad (fname, " ", maxlengthfname));
 				pushval (pad (logfile, " ", maxlengthlogfile));
+				pushval (pad (restarts, " ", maxlengthrestarts));
 				pushval (runningtime);
 				console.log (s);
 				}
 			console.log ("\n");
-			line (undefined, "domain", "port", "fname", "logfile", "runningtime");
+			line (undefined, "domain", "port", "fname", "logfile", "starts", "runningtime");
 			theList.forEach (function (item, ix) {
+				var domain = (item.domain === undefined) ? "" : item.domain;
 				var runningtime = item.running ? utils.getFacebookTimeString (item.ctime, false) : "STOPPED";
-				line (ix, item.domain, item.port, fileFromPath (item.file), item.logfile, runningtime);
+				line (ix, domain, item.port, fileFromPath (item.file), item.logfile, item.restarts, runningtime);
 				});
 			console.log ("\n");
 			}
@@ -179,15 +184,6 @@ function fileFromPath (f) {
 	return (utils.stringLastField (f, "/"));
 	}
 function startup () {
-	console.log (pad (8, "0", 4));
-	
-	var whenstart = new Date (), x;
-	for (var i = 0; i < 1000000; i++) {
-		x = pad (utils.random (0, 999), "0", 4);
-		}
-	console.log (utils.secondsSince (whenstart));
-	
-	
 	readJsonFile ("config.json", function (theData) {
 		if (theData !== undefined) {
 			for (var x in theData) {

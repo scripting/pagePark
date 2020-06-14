@@ -2,6 +2,9 @@
 	"name": "pageParkCommandLine",
 	"version": "0.4.0",
 	"main": "cli.js",
+	"bin": {
+		"pp": "cli.js"
+		},
 	"dependencies" : {
 		"daveutils": "*",
 		"child_process": "*",
