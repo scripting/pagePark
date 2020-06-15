@@ -1,21 +1,27 @@
 #!/usr/bin/env node
 
-var myVersion = "0.4.0", myProductName = "pageParkCommandLine";
+var myVersion = "0.4.1", myProductName = "pageParkCommandLine";
 
 const fs = require ("fs"); 
 const utils = require ("daveutils");
 const request = require ("request");
 const childProcess = require ("child_process");
+const colors = require ("colors");
 
 var config = { 
 	domain: "localhost",  
 	port: 1349   
 	};
 
-function pad (val, withchar, ctplaces) {
+function pad (val, withchar, ctplaces, flleftalign) {
 	var s = (val === undefined) ? "" : val.toString ();
 	while (s.length < ctplaces) {
-		s = withchar + s;
+		if (flleftalign) {
+			s = s + withchar;
+			}
+		else {
+			s = withchar + s;
+			}
 		}
 	return (s);
 	}
@@ -143,7 +149,7 @@ function listCommand () {
 			console.log ("\n" + err.message + "\n");
 			}
 		else {
-			function line (ix, domain, port, fname, logfile, restarts, runningtime) {
+			function line (ix, domain, port, fname, logfile, restarts, runningtime, fltitleline) {
 				const maxlengthdomain = 30;
 				const maxlengthfname = 15;
 				const maxlengthlogfile = 30;
@@ -151,6 +157,9 @@ function listCommand () {
 				const maxlengthrestarts = 6;
 				var s = "";
 				function pushval (val) {
+					if (fltitleline) {
+						val = val.blue.bold;
+						}
 					s += val + " \t";
 					}
 				
@@ -161,16 +170,16 @@ function listCommand () {
 					s += pad ("[" + ix + "]", " " , 5) + ": ";
 					}
 				
-				pushval (pad (domain, " ", maxlengthdomain));
-				pushval (pad (port, " ", maxlengthport));
-				pushval (pad (fname, " ", maxlengthfname));
-				pushval (pad (logfile, " ", maxlengthlogfile));
-				pushval (pad (restarts, " ", maxlengthrestarts));
+				pushval (pad (domain, " ", maxlengthdomain, true));
+				pushval (pad (port, " ", maxlengthport, true));
+				pushval (pad (fname, " ", maxlengthfname, true));
+				pushval (pad (logfile, " ", maxlengthlogfile, true));
+				pushval (pad (restarts, " ", maxlengthrestarts, true));
 				pushval (runningtime);
 				console.log (s);
 				}
 			console.log ("\n");
-			line (undefined, "domain", "port", "fname", "logfile", "starts", "runningtime");
+			line (undefined, "domain", "port", "fname", "logfile", "starts", "runningtime", true);
 			theList.forEach (function (item, ix) {
 				var domain = (item.domain === undefined) ? "" : item.domain;
 				var runningtime = item.running ? utils.getFacebookTimeString (item.ctime, false) : "STOPPED";
@@ -216,6 +225,9 @@ function startup () {
 						logCommand (process.argv [ix + 1]);
 						break;
 					}
+				}
+			else {
+				listCommand (); //pp with no params is the list command
 				}
 			});
 		});
