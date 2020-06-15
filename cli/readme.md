@@ -38,6 +38,8 @@ Shows you the log for process 3. It scrolls, not stopping until you press Contro
 
 Here's a <a href="http://scripting.com/images/2020/06/15/ppCommandLineScreenShot.png">screen shot</a> of the table displayed by pp list, and a description for each column.
 
+<img src="http://scripting.com/images/2020/06/15/ppCommandLineScreenShot.png">
+
 domain -- the domain name mapped to that process. Any requests with that host are sent there. 
 
 port -- when launching the app, PagePark assigns it a port through process.env.PORT. This is that port.
