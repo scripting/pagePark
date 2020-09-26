@@ -60,10 +60,10 @@ body {
 	letter-spacing: -0.01em;
 	}
 .divOutlineDescription {
-	margin-top: 2px;
-	margin-left: 4px;
-	margin-bottom: 5px;
-	color: gray;
+	font-size: 20px;
+	line-height: 140%;
+	margin-left: 3px;
+	margin-top: 5px;
 	}
 .divOutlineFooter {
 	}

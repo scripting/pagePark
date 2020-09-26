@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-var myVersion = "0.4.1", myProductName = "pageParkCommandLine";
+const myVersion = "0.4.1", myProductName = "pageParkCommandLine", shortProductName = "pp";
+
 
 const fs = require ("fs"); 
 const utils = require ("daveutils");
@@ -66,6 +67,23 @@ function getProcessList (callback) {
 			}
 		else {
 			try {
+				console.log ("getProcessList: val == " + val);
+				var jstruct = JSON.parse (val);
+				callback (undefined, jstruct);
+				}
+			catch (err) {
+				callback (err);
+				}
+			}
+		});
+	}
+function rescanCommand (callback) {
+	doCommand ("rescan", function (err, val) {
+		if (err) {
+			callback (err);
+			}
+		else {
+			try {
 				var jstruct = JSON.parse (val);
 				callback (undefined, jstruct);
 				}
@@ -120,6 +138,7 @@ function stopCommand (ixProcess, callback) {
 		});
 	}
 function restartCommand (ixProcess, callback) {
+	console.log ("restartCommand");
 	applyToProcessCommand (ixProcess, "restart", function (err, msg) {
 		if (err) {
 			console.log ("\n" + err.message + "\n");
@@ -144,17 +163,20 @@ function logCommand (ixProcess) { //start scrolling the log for the indicated pr
 		});
 	}
 function listCommand () {
+	
+	
 	getProcessList (function (err, theList) {
 		if (err) {
 			console.log ("\n" + err.message + "\n");
 			}
 		else {
-			function line (ix, domain, port, fname, logfile, restarts, runningtime, fltitleline) {
+			function line (ix, domain, port, fname, logfile, restarts, runningtime, ctHits, whenLastHit, fltitleline) {
 				const maxlengthdomain = 30;
 				const maxlengthfname = 15;
 				const maxlengthlogfile = 30;
 				const maxlengthport = 5;
 				const maxlengthrestarts = 6;
+				const maxlengthcthits = 6;
 				var s = "";
 				function pushval (val) {
 					if (fltitleline) {
@@ -174,24 +196,45 @@ function listCommand () {
 				pushval (pad (port, " ", maxlengthport, true));
 				pushval (pad (fname, " ", maxlengthfname, true));
 				pushval (pad (logfile, " ", maxlengthlogfile, true));
+				pushval (pad (ctHits, " ", maxlengthcthits, true));
 				pushval (pad (restarts, " ", maxlengthrestarts, true));
 				pushval (runningtime);
 				console.log (s);
 				}
 			console.log ("\n");
-			line (undefined, "domain", "port", "fname", "logfile", "starts", "runningtime", true);
+			line (undefined, "domain", "port", "fname", "logfile", "starts", "last-start", "hits", "when", true);
 			theList.forEach (function (item, ix) {
 				var domain = (item.domain === undefined) ? "" : item.domain;
 				var runningtime = item.running ? utils.getFacebookTimeString (item.ctime, false) : "STOPPED";
-				line (ix, domain, item.port, fileFromPath (item.file), item.logfile, item.restarts, runningtime);
+				
+				line (ix, domain, item.port, fileFromPath (item.file), item.logfile, item.restarts + 1, runningtime, item.ctHits, item.whenLastHit, false);
 				});
 			console.log ("\n");
 			}
 		});
 	}
+function helpCommand () {
+	const maxcommandlength = 30;
+	function onecommand (theCommand, theMeaning) {
+		theCommand = pad (theCommand, " ", maxcommandlength, true);
+		console.log (theCommand + theMeaning);
+		}
+	console.log ("\nList of commands supported by " + myProductName + " v" + myVersion + ".\n");
+	console.log ((pad ("Command", " ", maxcommandlength, true) + "Meaning").blue.bold);
+	onecommand ("list", "list all the apps running in pagePark.");
+	onecommand ("rescan", "search the domains folder for apps that aren't yet running and try to launch them.");
+	onecommand ("stop appnum", "stops the app indicated by appnum.");
+	onecommand ("restart appnum", "restarts the app indicated by appnum.");
+	onecommand ("log appnum", "scrolls the log for the app indicated by appnum.");
+	onecommand ("now", "the current time on the server");
+	onecommand ("help", "show a list of commands that " + shortProductName + " supports.");
+	console.log ("\n");
+	}
 function fileFromPath (f) {
 	return (utils.stringLastField (f, "/"));
 	}
+
+
 function startup () {
 	readJsonFile ("config.json", function (theData) {
 		if (theData !== undefined) {
@@ -199,37 +242,37 @@ function startup () {
 				config [x] = theData [x];
 				}
 			}
-		process.argv.forEach (function (item, ix) {
-			if (ix > 1) { //first two args are not from the command line
-				switch (item) {
-					case "now":
-						doCommand (item, function (err, val) {
-							if (err) {
-								console.log (err.message);
-								}
-							else {
-								console.log (val);
-								}
-							});
-						break;
-					case "list":
-						listCommand ();
-						break;
-					case "stop":
-						stopCommand (process.argv [ix + 1]);
-						break;
-					case "restart":
-						restartCommand (process.argv [ix + 1]);
-						break;
-					case "log":
-						logCommand (process.argv [ix + 1]);
-						break;
-					}
+		var fldone = false;
+		if (process.argv.length <= 2) {
+			listCommand (); //pp with no params is the list command
+			}
+		else {
+			switch (process.argv [2]) {
+				case "now":
+					console.log ("\n" + new Date () + "\n");
+					break;
+				case "list":
+					listCommand ();
+					break;
+				case "rescan":
+					rescanCommand (function (err, launchList) {
+						console.log ("\npagePark tried to launch " + launchList.length + " new apps from the domains folder.\n");
+						});
+					break;
+				case "help":
+					helpCommand ();
+					break;
+				case "stop":
+					stopCommand (process.argv [3]);
+					break;
+				case "restart":
+					restartCommand (process.argv [3]);
+					break;
+				case "log":
+					logCommand (process.argv [3]);
+					break;
 				}
-			else {
-				listCommand (); //pp with no params is the list command
-				}
-			});
+			}
 		});
 	}
 startup ();
