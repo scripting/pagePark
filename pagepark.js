@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.16";    
+var myProductName = "PagePark", myVersion = "0.8.17";     
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2020 Dave Winer
@@ -49,9 +49,9 @@ var pageparkPrefs = {
 	error404File: "prefs/error.html", //7/16/15 by DW
 	legalPathChars: "", //7/19/15 by DW,
 	flCacheTemplatesLocally: false, //12/21/19 by DW -- switched the default from true
-	urlDefaultMarkdownTemplate: "http://scripting.com/code/pagepark/defaultmarkdowntemplate.txt", //6/17/17 by DW
-	urlDefaultOpmlTemplate: "http://scripting.com/code/pagepark/templates/opml/template.txt", //6/17/17 by DW
-	urlDefaultErrorPage: "http://scripting.com/code/pagepark/prefs/error.html", //6/17/17 by DW
+	urlDefaultMarkdownTemplate: "http://scripting.com/code/pagepark/templates/markdown/template.txt", 
+	urlDefaultOpmlTemplate: "http://scripting.com/code/pagepark/templates/opml/template.txt",
+	urlDefaultErrorPage: "http://scripting.com/code/pagepark/prefs/error.html", 
 	flUnicasePaths: false, //11/7/17 by DW
 	defaultType: "text/html", //7/21/18 by DW
 	flHiddenFilesCheck: true, //12/9/19 by DW -- check if file or folder name begins with _
