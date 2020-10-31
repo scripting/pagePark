@@ -1,6 +1,6 @@
 # PagePark plug-ins
 
-A plug-in is a JavaScript module. 
+A plug-in is a bit of JavaScript code that handles all requests for a domain. 
 
 ### Background
 
@@ -10,23 +10,23 @@ I've wanted the ability to extend PagePark with JavaScript since the beginning, 
 
 2. Using the [vm module](https://nodejs.org/api/vm.html). 
 
-### A plug-in is a module
+### A plug-in is a bit of JavaScript code
 
-If the directory for a domain has a file named filter.js, it fully determines what to serve.
+If the directory for a domain has a file named filter.js, we run the script and it fully determines the response to the request. The other files in the domain directory are ignored. 
 
-The filter must be a Node <a href="https://www.w3schools.com/nodejs/nodejs_modules.asp">module</a>, and must export a function named filter. 
+Three globals from the PagePark environment are accessible to the filter script: 
 
-When a request for that domain comes in, the filter is opened via require, and we call the filter function with two params, an options object and a callback script. Options contains various information PagePark wants to make available to filters. Right now it includes the httpRequest we received from Node and a function that serves a file. 
+* options -- data provided from PP to the script including the HTTP request and a function that serves a local file. It's there so we can share more data from PP with the filters in the future. 
 
-The callback takes one param, an object with three values: code, type and val. We return an HTTP response using those values. However you don't have to call the callback if you're able to completely handle the request. That's why serveFile is provided in options. 
+* localStorage -- PP has localStorage that works like localStorage in browser-based apps. It provides persistence across invocations of the filter script, and a way for scripts to share information with other scripts.
 
-I found you can't require fs in your filter, and it screwed things up pretty badly -- buffers no longer functioned properly. If necessary we can transfer those via the options object, or perhaps via import, which doesn't appear to be supported in Node yet (it's part of the Ecma module spec).
+* system -- provides functions for interfacing with the local operating system. Currently there's one function, that runs a Unix shell command.
 
 ### Example
 
 Here's an example of a simple plug-in, almost Hello World level.
 
-https://gist.github.com/scripting/a676b0da36c13576877a91fc77a34ecb
+https://gist.github.com/scripting/a2d4ab4275a787e912f02e0e28d354da
 
 ### What I like best about it
 
