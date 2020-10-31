@@ -10,7 +10,7 @@ I've wanted the ability to extend PagePark with JavaScript since the beginning, 
 
 2. Using the [vm module](https://nodejs.org/api/vm.html). 
 
-There's a better way -- the <a href="https://www.npmjs.com/package/require-from-string">require-from-string</a> package. Technically, we load the code from the file, wrap it in a module template and pass it through require-from-string. 
+There's a better way -- we use the <a href="https://www.npmjs.com/package/require-from-string">require-from-string</a> package. 
 
 ### A plug-in is a bit of JavaScript code
 
