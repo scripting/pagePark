@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const myVersion = "0.4.1", myProductName = "pageParkCommandLine", shortProductName = "pp";
+const myVersion = "0.4.2", myProductName = "pageParkCommandLine", shortProductName = "pp";
 
 
 const fs = require ("fs"); 
@@ -67,7 +67,6 @@ function getProcessList (callback) {
 			}
 		else {
 			try {
-				console.log ("getProcessList: val == " + val);
 				var jstruct = JSON.parse (val);
 				callback (undefined, jstruct);
 				}
@@ -201,7 +200,6 @@ function listCommand () {
 				pushval (runningtime);
 				console.log (s);
 				}
-			console.log ("\n");
 			line (undefined, "domain", "port", "fname", "logfile", "starts", "last-start", "hits", "when", true);
 			theList.forEach (function (item, ix) {
 				var domain = (item.domain === undefined) ? "" : item.domain;
@@ -234,14 +232,16 @@ function fileFromPath (f) {
 	return (utils.stringLastField (f, "/"));
 	}
 
-
 function startup () {
-	readJsonFile ("config.json", function (theData) {
+	var myDir = __dirname;
+	readJsonFile (myDir + "/config.json", function (theData) {
 		if (theData !== undefined) {
 			for (var x in theData) {
 				config [x] = theData [x];
 				}
 			}
+		config.myDir = myDir; //2/4/21 by DW
+		console.log ("\n" + myProductName + " v" + myVersion + ", config == " + utils.jsonStringify (config));
 		var fldone = false;
 		if (process.argv.length <= 2) {
 			listCommand (); //pp with no params is the list command
