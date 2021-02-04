@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const myVersion = "0.4.2", myProductName = "pageParkCommandLine", shortProductName = "pp";
+const myVersion = "0.4.3", myProductName = "pageParkCommandLine", shortProductName = "pp"; 
 
 
 const fs = require ("fs"); 

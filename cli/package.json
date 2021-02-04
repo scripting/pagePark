@@ -1,6 +1,6 @@
 {
 	"name": "pageParkCommandLine",
-	"version": "0.4.2",
+	"version": "0.4.3",
 	"main": "cli.js",
 	"bin": {
 		"pp": "cli.js"
