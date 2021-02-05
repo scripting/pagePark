@@ -232,6 +232,8 @@ Here's a magic incantation that works on Ubuntu that maps requests for port 80 t
 
 <pre>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 1339</pre>
 
+<pre>sudo iptables -t nat -A OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 1339</pre>
+
 ### Example pages
 
 http://morningcoffeenotes.com/ -- simple home page
