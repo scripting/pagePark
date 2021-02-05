@@ -230,13 +230,9 @@ I made the default 1339 because I wanted it to work "out of the box" for first-t
 
 Here's a magic incantation that works on Ubuntu that maps requests for port 80 to port 1339.
 
-<pre>
+<pre>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 1339
 
-sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 1339
-
-sudo iptables -t nat -A OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 1339
-
-</pre>
+sudo iptables -t nat -A OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 1339</pre>
 
 ### Example pages
 
