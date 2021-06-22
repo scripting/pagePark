@@ -272,7 +272,7 @@ There will always be more work to do here. ;-)
 
 #### v0.8.18 6/22/21 by DW
 
-In previous versions, if you used the mirrors feature in config.json, we would read a file and return exactly what was in it. 
+In previous versions, if you used the <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#mirrors-works-like-redirects">mirrors</a> feature in config.json, we would read a file and return exactly what was in it. 
 
 In this version, we read the file, and process it as if it were a local file. 
 

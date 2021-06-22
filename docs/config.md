@@ -62,6 +62,8 @@ Mirrors work much like redirects. If there's an object in a domain's config.json
 
 Here's an example of a <a href="https://gist.github.com/scripting/bc94224619c9bbe6c608aec1a41222a1">config.json</a> file that serves the home page of a site with an image from another site. 
 
+Updated 6/22/21, we now <a href="https://github.com/scripting/pagePark#v0818-62221-by-dw">render</a> the files from the source site. 
+
 ### flProcessScriptFiles
 
 If you set this value false, none of the JavaScript files in the domain folder will be processed. They will be served as text, with the source code in the file. 
