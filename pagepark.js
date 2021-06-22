@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.18";     
+var myProductName = "PagePark", myVersion = "0.8.19";     
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2021 Dave Winer
@@ -37,7 +37,7 @@ const s3 = require ("daves3"); //6/4/18 by DW
 const githubpub = require ("githubpub"); //12/3/19 by DW
 const freeDiskSpace = require ("davediskspace"); //12/20/19 by DW
 const requireFromString = require ("require-from-string"); //5/9/20 by DW
-const package = require ("pagepark"); //5/6/20 by DW
+const thePackage = require ("pagepark"); //5/6/20 by DW
 
 var pageparkPrefs = {
 	myPort: 1339, //1/8/15 by DW -- was 80, see note in readme.md
@@ -305,7 +305,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 						}
 					};
 				try {
-					package.runJavaScriptCode (f, options, callback);
+					thePackage.runJavaScriptCode (f, options, callback);
 					}
 				catch (err) {
 					httpRespond (500, "text/plain", err.message);
@@ -696,7 +696,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				return;
 				}
 			}
-		var port = package.findAppWithDomain (domain);
+		var port = thePackage.findAppWithDomain (domain);
 		callback (port); //if undefined, it's one of our domains, handle it here
 		}
 	function pathParse (domainfolder, path, callback) { //11/7/17 by DW
@@ -1092,12 +1092,12 @@ function handleCliRequest (httpRequest, httpResponse) { //5/27/20 by DW
 				httpRespond (200, "text/plain", new Date ().toString ());
 				return;
 			case "/list":
-				package.getAppInfo (function (err, theInfo) {
+				thePackage.getAppInfo (function (err, theInfo) {
 					httpRespond (200, "application/json", utils.jsonStringify (theInfo));
 					});
 				return;
 			case "/stop":
-				package.stopApp (parsedUrl.query.file, function (errrorMessage, msg) {
+				thePackage.stopApp (parsedUrl.query.file, function (errrorMessage, msg) {
 					if (errrorMessage) {
 						console.log ("stopapp error");
 						httpRespond (500, "text/plain", errrorMessage);
@@ -1109,7 +1109,7 @@ function handleCliRequest (httpRequest, httpResponse) { //5/27/20 by DW
 					});
 				return;
 			case "/restart":
-				package.restartApp (parsedUrl.query.file, function (errrorMessage, msg) {
+				thePackage.restartApp (parsedUrl.query.file, function (errrorMessage, msg) {
 					if (errrorMessage) {
 						httpRespond (500, "text/plain", errrorMessage);
 						}
@@ -1119,7 +1119,7 @@ function handleCliRequest (httpRequest, httpResponse) { //5/27/20 by DW
 					});
 				return;
 			case "/rescan": //7/4/20 by DW
-				package.startPersistentApps (function (launchList) { //returns the list of apps we tried to launch
+				thePackage.startPersistentApps (function (launchList) { //returns the list of apps we tried to launch
 					httpRespond (200, "application/json", utils.jsonStringify (launchList));
 					});
 				return;
@@ -1236,7 +1236,7 @@ function startup () {
 			logsFolder: "/tmp/logs/"
 			};
 		console.log ("\n" + myProductName + " v" + myVersion + " running on port " + pageparkPrefs.myPort + ".\n"); 
-		package.start (environment, pageparkPrefs, function () { //5/6/20 by DW
+		thePackage.start (environment, pageparkPrefs, function () { //5/6/20 by DW
 			if (process.env.PORT) { //4/18/20 by DW -- this is how Glitch and Heroku tell us what port to run on
 				pageparkPrefs.myPort = process.env.PORT;
 				}
