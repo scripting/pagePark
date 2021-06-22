@@ -652,7 +652,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		}
 	function serveRedirect (lowerpath, config, parsedUrl) { //7/30/15 by DW -- return true if we handled the request
 		if (config.redirects !== undefined) {
-			for (x in config.redirects) {
+			for (var x in config.redirects) {
 				if (x.toLowerCase () == lowerpath) {
 					var urlRedirectTo = config.redirects [x];
 					returnRedirect (urlRedirectTo);
@@ -661,7 +661,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			}
 		if (config.mirrors !== undefined) { //4/10/20 by DW
-			for (x in config.mirrors) {
+			for (var x in config.mirrors) {
 				if (x.toLowerCase () == lowerpath) {
 					serveMirrorWithPagePark (config.mirrors [x], config, parsedUrl)
 					return (true);
