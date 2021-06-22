@@ -270,6 +270,18 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.18 6/22/21 by DW
+
+In previous versions, if you used the mirrors feature in config.json, we would read a file and return exactly what was in it. 
+
+In this version, we read the file, and process it as if it were a local file. 
+
+For example, if the file has a .md extension, we run it through the template for Markdown files.
+
+If the file has a .opml extension, it is rendered as an outline. 
+
+Here's a <a href="https://gist.github.com/scripting/c524e2bdd535c342560a73594cd5d96e">config.json</a> you can put into a folder to test the feature. I have uploaded the files to the scripting.com publicfolder sub-folder. 
+
 #### v0.8.10 5/10/20 by DW
 
 Moved the script-running code into a <a href="https://www.npmjs.com/package/pagepark">new package</a>, which I'm eventually going to move all the core functionality of PagePark into. The top level will just call into the package. Will allow code to be reused in other projects. Having a full-featured web server as a replacement for <a href="https://github.com/scripting/http">davehttp</a> which is very bare-bones. 

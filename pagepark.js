@@ -1,7 +1,7 @@
-var myProductName = "PagePark", myVersion = "0.8.17";     
+var myProductName = "PagePark", myVersion = "0.8.18";     
 
 /*  The MIT License (MIT)
-	Copyright (c) 2014-2020 Dave Winer
+	Copyright (c) 2014-2021 Dave Winer
 	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -298,6 +298,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			else {
 				const options = {
 					httpRequest,
+					httpResponse, //6/21/21 by DW
 					serveLocalFile: function (f) {
 						console.log ("serveLocalFile (" + f + ")");
 						serveFile (f, config);
@@ -567,6 +568,30 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			serveS3Object (s3path);
 			}
 		}
+	function serveMirrorWithPagePark (urlToServeFrom, config, parsedUrl) { //6/22/21 by DW
+		var theRequest = {
+			url: urlToServeFrom, 
+			encoding: null,
+			headers: {
+				"User-Agent": myProductName + " v" + myVersion
+				}
+			};
+		request (theRequest, function (err, response, body) {
+			if (err) {
+				return404 ();
+				}
+			else {
+				if (response.statusCode == 200) {
+					processResponse (parsedUrl.pathname, body, config, function (code, type, text) {
+						httpRespond (code, type, text);
+						});
+					}
+				else {
+					httpRespond (response.statusCode, response.headers ["content-type"], body);
+					}
+				}
+			});
+		}
 	function serveFromGithubRepo (config, parsedUrl) { //12/3/19 by DW
 		var path = config.githubServeFrom.path + parsedUrl.pathname;
 		function returnIndex (theArray) {
@@ -625,7 +650,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			});
 		}
-	function serveRedirect (lowerpath, config) { //7/30/15 by DW -- return true if we handled the request
+	function serveRedirect (lowerpath, config, parsedUrl) { //7/30/15 by DW -- return true if we handled the request
 		if (config.redirects !== undefined) {
 			for (x in config.redirects) {
 				if (x.toLowerCase () == lowerpath) {
@@ -638,7 +663,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		if (config.mirrors !== undefined) { //4/10/20 by DW
 			for (x in config.mirrors) {
 				if (x.toLowerCase () == lowerpath) {
-					delegateRequest (config.mirrors [x]);
+					serveMirrorWithPagePark (config.mirrors [x], config, parsedUrl)
 					return (true);
 					}
 				}
@@ -663,7 +688,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		var req = httpRequest.pipe (request (theRequest));
 		req.on ("error", handleError);
 		req.pipe (httpResponse).on ("error", handleError);
-		
 		}
 	function findMappedDomain (domain, callback) { //5/23/15 by DW
 		for (var x in pageparkPrefs.domainMap) {
@@ -992,14 +1016,14 @@ function handleHttpRequest (httpRequest, httpResponse) {
 																		});
 																	break;
 																default:
-																	if (!serveRedirect (lowerpath, config)) { //12/8/15 by DW -- it wasn't a redirect
+																	if (!serveRedirect (lowerpath, config, parsedUrl)) { //12/8/15 by DW -- it wasn't a redirect
 																		return404 (); 
 																		}
 																	break;
 																}
 															}
 														else {
-															if (!serveRedirect (lowerpath, config)) { //7/30/15 by DW -- it wasn't a redirect
+															if (!serveRedirect (lowerpath, config, parsedUrl)) { //7/30/15 by DW -- it wasn't a redirect
 																if (stats.isDirectory ()) {
 																	if (!utils.endsWith (f, "/")) {
 																		returnRedirect (httpRequest.url + "/", false); //7/5/17 by DW
