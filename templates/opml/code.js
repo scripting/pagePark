@@ -155,6 +155,20 @@ function setXmlIcon (urlOpml) {
 	$("#idXmlIcon").html ("<a href=\"" + urlOpml + "\"><img src=\"http://scripting.com/images/xml.gif\" widt=\"36\" height=\"14\"></a>");
 	console.log ("setXmlIcon: urlOpmlFile == " + urlOpml);
 	}
+
+function addPermalinks () { //6/24/21 by DW
+	function addToSubs (theSubs) {
+		theSubs.forEach (function (sub) {
+			sub.flPermalink = true;
+			if (sub.subs !== undefined) {
+				addToSubs (sub.subs);
+				}
+			});
+		}
+	addToSubs (jstruct.opml.body.subs);
+	}
+
+
 function startup () {
 	console.log ("startup");
 	
@@ -165,11 +179,8 @@ function startup () {
 	hitCounter (); 
 	initGoogleAnalytics (); 
 	
-	//add top level permalinks
-		var toplevel = jstruct.opml.body.subs;
-		for (var i = 0; i < toplevel.length; i++) {
-			toplevel [i].flPermalink = true;
-			}
+	addPermalinks (); //6/24/21 by DW
+	
 	outlineBrowserData.flTextBasedPermalinks = false;
 	
 	viewTypedOutline (jstruct.opml.head, jstruct.opml.body, function () {
