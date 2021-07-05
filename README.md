@@ -234,6 +234,8 @@ Here's a magic incantation that works on Ubuntu that maps requests for port 80 t
 
 sudo iptables -t nat -A OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 1339</pre>
 
+If you have questions about how and why this is necessary, see <a href="https://github.com/scripting/pagePark/issues/17">this thread</a> on the PagePark repo.
+
 ### Example pages
 
 http://morningcoffeenotes.com/ -- simple home page
@@ -274,7 +276,7 @@ There will always be more work to do here. ;-)
 
 If a request comes in for a host that doesn't have a corresponding domains folder, and there is a folder called default, we serve the request from the default folder.
 
-The <a href="https://github.com/scripting/pagePark#v057-51115-by-dw">wildcard folder</a> takes precedence, for examle if a request comes in for yo.bullmancuso.com, and there is no domains folder with that name, and there is a wildcard folder, *.bullmancuso.com and a default folder, the request goes to the wildcard folder. 
+A <a href="https://github.com/scripting/pagePark#v057-51115-by-dw">wildcard folder</a>, if it exists, takes precedence, for examle if a request comes in for yo.bullmancuso.com, and there is no domains folder with that name, and there is a wildcard folder, *.bullmancuso.com and a default folder, the request goes to the wildcard folder. 
 
 You can put config.json file in a default folder. 
 
