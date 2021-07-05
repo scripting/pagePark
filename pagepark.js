@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.19";     
+var myProductName = "PagePark", myVersion = "0.8.20";     
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2021 Dave Winer
@@ -59,6 +59,7 @@ var pageparkPrefs = {
 	flRunChronologicalScripts: false, //5/13/20 by DW
 	flRunPersistentScripts: false, //5/13/20 by DW
 	flCliPortEnabled: false, cliPort: 1349, //5/27/20 by DW
+	defaultDomanFolderName: "default" //7/5/21 by DW
 	};
 var pageparkStats = {
 	ctStarts: 0, 
@@ -240,6 +241,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		var folder = getFullFilePath (domainsPath);
 		var domainfolder = folder + host;
 		fs.exists (domainfolder, function (flExists) {
+			function useDefaultFolder () {
+				var name = pageparkPrefs.defaultDomanFolderName;
+				callback (folder + name, name);
+				}
 			if (flExists) {
 				callback (domainfolder, host);
 				}
@@ -248,10 +253,17 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					var firstpart = utils.stringNthField (host, ".", 1);
 					var wildcardhost = "*" + utils.stringDelete (host, 1, firstpart.length);
 					domainfolder = folder + wildcardhost;
-					callback (domainfolder, wildcardhost);
+					fs.exists (domainfolder, function (flExists) { //7/5/21 by DW
+						if (flExists) {
+							callback (domainfolder, wildcardhost);
+							}
+						else {
+							useDefaultFolder ();
+							}
+						});
 					}
 				else {
-					callback (domainfolder, host);
+					useDefaultFolder ();
 					}
 				}
 			});

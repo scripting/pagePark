@@ -270,6 +270,14 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.20 7/5/21 by DW
+
+If a request comes in for a host that doesn't have a corresponding domains folder, and there is a folder called default, we serve the request from the default folder.
+
+The <a href="https://github.com/scripting/pagePark#v057-51115-by-dw">wildcard folder</a> takes precedence, for examle if a request comes in for yo.bullmancuso.com, and there is no domains folder with that name, and there is a wildcard folder, *.bullmancuso.com and a default folder, the request goes to the wildcard folder. 
+
+You can put config.json file in a default folder. 
+
 #### v0.8.18 6/22/21 by DW
 
 In previous versions, if you used the <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#mirrors-works-like-redirects">mirrors</a> feature in config.json, we would read a file and return exactly what was in it. 
