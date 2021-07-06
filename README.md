@@ -278,7 +278,7 @@ If a request comes in for a host that doesn't have a corresponding domains folde
 
 A <a href="https://github.com/scripting/pagePark#v057-51115-by-dw">wildcard folder</a>, if it exists, takes precedence, for examle if a request comes in for yo.bullmancuso.com, and there is no domains folder with that name, and there is a wildcard folder, *.bullmancuso.com and a default folder, the request goes to the wildcard folder. 
 
-You can put config.json file in a default folder. 
+You can put a config.json file in the default folder. 
 
 #### v0.8.18 6/22/21 by DW
 
