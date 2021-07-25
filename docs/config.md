@@ -64,7 +64,7 @@ Here's an example of a <a href="https://gist.github.com/scripting/bc94224619c9bb
 
 Updated 6/22/21, we now <a href="https://github.com/scripting/pagePark#v0818-62221-by-dw">render</a> the files from the source site. 
 
-### defaultExtension gives control how files are rendered
+### defaultExtension
 
 <i>New feature 7/25/21.</i>
 

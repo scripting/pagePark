@@ -274,7 +274,7 @@ There will always be more work to do here. ;-)
 
 #### v0.8.21 7/25/21 by DW
 
-New defaultExtension value in config.json.
+New <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#defaultextension">defaultExtension</a> value in config.json.
 
 #### v0.8.20 7/5/21 by DW
 
