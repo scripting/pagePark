@@ -64,6 +64,16 @@ Here's an example of a <a href="https://gist.github.com/scripting/bc94224619c9bb
 
 Updated 6/22/21, we now <a href="https://github.com/scripting/pagePark#v0818-62221-by-dw">render</a> the files from the source site. 
 
+### defaultExtension gives control how files are rendered
+
+<i>New feature 7/25/21.</i>
+
+Some files may not have extensions, but the xxx feature lets you control how they are rendered. 
+
+Here's an example <a href="https://gist.github.com/scripting/486758f8edd58ee7af34eca50394b114">config.json</a> file that serves an <a href="http://hosting.opml.org/dave/spec/states.opml">example outline</a> in a readable way, through mirrors.
+
+This feature is implemented in a general way so the defaultExtension value should work in other situations where files don't have extension.
+
 ### flProcessScriptFiles
 
 If you set this value false, none of the JavaScript files in the domain folder will be processed. They will be served as text, with the source code in the file. 

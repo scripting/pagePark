@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.20";     
+var myProductName = "PagePark", myVersion = "0.8.21";     
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2021 Dave Winer
@@ -59,7 +59,8 @@ var pageparkPrefs = {
 	flRunChronologicalScripts: false, //5/13/20 by DW
 	flRunPersistentScripts: false, //5/13/20 by DW
 	flCliPortEnabled: false, cliPort: 1349, //5/27/20 by DW
-	defaultDomanFolderName: "default" //7/5/21 by DW
+	defaultDomanFolderName: "default", //7/5/21 by DW
+	defaultExtension: "" //7/25/21 by DW
 	};
 var pageparkStats = {
 	ctStarts: 0, 
@@ -386,6 +387,14 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		if (parsedUrl.query.format !== undefined) {
 			formatParam = parsedUrl.query.format.toLowerCase ()
 			}
+		function getFileExtension (path) { //7/25/21 by DW
+			var fname = utils.stringLastField (path, "/");
+			var ext = utils.stringLastField (fname, ".");
+			if (ext == fname) { //has no extension
+				ext = config.defaultExtension;
+				}
+			return (ext.toLowerCase ());
+			}
 		function getReturnType (path) { //7/6/18 by DW
 			var fname = utils.stringLastField (path, "/");
 			var ext = utils.stringLastField (fname, ".");
@@ -424,7 +433,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			return (true); //it wasn't a redirect, continue processing
 			}
-		var ext = utils.stringLastField (path, ".").toLowerCase ();
+		var ext = getFileExtension (path);
 		var type = getReturnType (path); //12/4/19 by DW -- it was passing ext which was not what the routine calls for
 		if (checkForRedirect ()) { //it wasn't a redirect file
 			switch (ext) {

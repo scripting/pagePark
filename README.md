@@ -272,6 +272,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.21 7/25/21 by DW
+
+New defaultExtension value in config.json.
+
 #### v0.8.20 7/5/21 by DW
 
 If a request comes in for a host that doesn't have a corresponding domains folder, and there is a folder called default, we serve the request from the default folder.
