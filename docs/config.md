@@ -68,11 +68,11 @@ Updated 6/22/21, we now <a href="https://github.com/scripting/pagePark#v0818-622
 
 <i>New feature 7/25/21.</i>
 
-Some files may not have extensions, but the xxx feature lets you control how they are rendered. 
+Some files may not have extensions, but the defaultExtension feature lets you control how they are rendered. 
 
-Here's an example <a href="https://gist.github.com/scripting/486758f8edd58ee7af34eca50394b114">config.json</a> file that serves an <a href="http://hosting.opml.org/dave/spec/states.opml">example outline</a> in a readable way, through mirrors.
+Here's a <a href="https://gist.github.com/scripting/486758f8edd58ee7af34eca50394b114">config.json</a> file that serves an <a href="http://hosting.opml.org/dave/spec/states.opml">example outline</a> in a readable way, through mirrors.
 
-This feature is implemented in a general way so the defaultExtension value should work in other situations where files don't have extension.
+This feature is implemented in a general way so the defaultExtension value should work in other situations where files don't have extension, not just mirrors.
 
 ### flProcessScriptFiles
 
