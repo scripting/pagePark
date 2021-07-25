@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.21";     
+var myProductName = "PagePark", myVersion = "0.8.22";     
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2021 Dave Winer
@@ -392,6 +392,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			var ext = utils.stringLastField (fname, ".");
 			if (ext == fname) { //has no extension
 				ext = config.defaultExtension;
+				if (utils.beginsWith (ext, ".")) {
+					ext = utils.stringDelete (ext, 1, 1);
+					}
 				}
 			return (ext.toLowerCase ());
 			}

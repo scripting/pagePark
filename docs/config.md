@@ -68,11 +68,19 @@ Updated 6/22/21, we now <a href="https://github.com/scripting/pagePark#v0818-622
 
 <i>New feature 7/25/21.</i>
 
-Some files may not have extensions, but the defaultExtension feature lets you control how they are rendered. 
+Setting a defaultExtension for a domain makes it possible to serve files without extensions as rendered markdown or outline files. 
 
-Here's a <a href="https://gist.github.com/scripting/486758f8edd58ee7af34eca50394b114">config.json</a> file that serves an <a href="http://hosting.opml.org/dave/spec/states.opml">example outline</a> in a readable way, through mirrors.
+For example if you set config.defaultExtension to "md" any file without an extension will be rendered through a markdown interpreter. Here's a <a href="https://gist.github.com/scripting/3bf72d4a7dc967ce8a682fe2e7ce07e7">config.json</a> file that illustrates.
+
+If you set defaultExtension to "opml", any file without an extension will be rendered as an outline. 
+
+This is especially useful for mirrors (above) if you're serving the index file from another location. "/" doesn't have an extension, but you can say how to serve the file using this value. 
+
+Here's a <a href="https://gist.github.com/scripting/486758f8edd58ee7af34eca50394b114">config.json</a> file that serves an <a href="http://hosting.opml.org/dave/spec/states.opml">example outline</a> in a readable way, through mirrors. I set up a <a href="http://defaultextensiondemo.userland.com/">domain</a> to test this feature. 
 
 This feature is implemented in a general way so the defaultExtension value should work in other situations where files don't have extension, not just mirrors.
+
+Here are <a href="https://github.com/scripting/pagePark/issues/21#issuecomment-886229200">notes</a> from the development work.
 
 ### flProcessScriptFiles
 

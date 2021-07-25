@@ -272,6 +272,12 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.22 7/25/21 by DW
+
+We allow you to specify config.defaultExtension with a leading dot, for example ".opml" or ".md".
+
+It's a common thing to do so why not make sense of it?
+
 #### v0.8.21 7/25/21 by DW
 
 New <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#defaultextension">defaultExtension</a> value in config.json.
