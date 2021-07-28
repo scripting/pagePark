@@ -154,3 +154,5 @@ It defaults false.
 
 This was an oversight, imho we should not have been serving config.json files. We closed the door in July 2021, but in case people have an application for it, it's possible to open door for a single domain or globally using config.flServeConfigJson.
 
+An example <a href="https://gist.github.com/scripting/80bf3e84a5e68ee3cafd3aff979d361c">config.json</a> for this feature.
+
