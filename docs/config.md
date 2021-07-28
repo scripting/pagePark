@@ -144,3 +144,13 @@ In config.json at the top level of the folder containing the domain's content, a
 
 Here's an <a href="https://gist.github.com/scripting/102c34a6ed3143c037eea1ac5c5473f3">example</a> of a config.json file that sets the default type to "text/html".
 
+### Serving config.json
+
+config.flServeConfigJson determines whether we serve the config.json file from each domains sub-folder that has one. 
+
+if flServeConfigJson is false, we will return "404 not found" for config.json files in domains sub-folders. If it's true, we'll serve it just like any other file.
+
+It defaults false. 
+
+This was an oversight, imho we should not have been serving config.json files. We closed the door in July 2021, but in case people have an application for it, it's possible to open door for a single domain or globally using config.flServeConfigJson.
+

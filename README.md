@@ -272,6 +272,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.23 7/28/21 by DW
+
+config.flServeConfigJson -- a new config value -- defaults false. 
+
 #### v0.8.22 7/25/21 by DW
 
 We allow you to specify config.defaultExtension with a leading dot, for example ".opml" or ".md".
