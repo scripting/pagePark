@@ -276,6 +276,10 @@ There will always be more work to do here. ;-)
 
 <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#serving-configjson">config.flServeConfigJson</a> -- a new config value -- defaults false. Possible breakage.
 
+Updated the <a href="https://github.com/scripting/pagePark/blob/master/docs/persistentapps.md">persistent apps docs</a>. It previously said there was no way to launch a new app once PagePark has booted. This is no longer true, there is a command-line command that does a rescan of the folders, and launches any newly qualified apps. 
+
+Updated the <a href="https://github.com/scripting/pagePark/blob/master/cli/readme.md">command line tool docs</a>. A few commands were added since the docs were written. 
+
 #### v0.8.22 7/25/21 by DW
 
 We allow you to specify config.defaultExtension with a leading dot, for example ".opml" or ".md".

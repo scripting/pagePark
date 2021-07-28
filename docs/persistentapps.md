@@ -18,7 +18,7 @@ If a folder contains a package.json file and a node_modules folder, it then look
 
 ### Limits, unfinished business
 
-1. There's no way to launch an app after PagePark boots, for now, to install a new app you have to reboot PP.
+1. You can launch an app after PagePark boots, through the command-line app, pp rescan. 
 
 3. It should be possible to disable an app even if it has a package.json file and a node_modules folder. Probably something in its config.json file. 
 
