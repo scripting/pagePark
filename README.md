@@ -274,7 +274,7 @@ There will always be more work to do here. ;-)
 
 #### v0.8.23 7/28/21 by DW
 
-config.flServeConfigJson -- a new config value -- defaults false. 
+<a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#serving-configjson">config.flServeConfigJson</a> -- a new config value -- defaults false. Possible breakage.
 
 #### v0.8.22 7/25/21 by DW
 
