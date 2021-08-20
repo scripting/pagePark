@@ -272,6 +272,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.24 8/17/21 by DW
+
+config.urlOpmlTemplate and config.urlMarkdownTemplate.
+
 #### v0.8.23 7/28/21 by DW
 
 <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#serving-configjson">config.flServeConfigJson</a> -- a new config value -- defaults false. Possible breakage.

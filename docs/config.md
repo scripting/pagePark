@@ -156,3 +156,17 @@ This was an oversight, imho we should not have been serving config.json files. W
 
 An example <a href="https://gist.github.com/scripting/80bf3e84a5e68ee3cafd3aff979d361c">config.json</a> for this feature.
 
+### Templates for individual websites. 
+
+<i>New feature 8/20/21.</i>
+
+PagePark has default templates for OPML and Markdown files that apply to all sites on a server. 
+
+What if you want to do a custom template that applies only to one site?
+
+Two config options, config.urlOpmlTemplate and config.urlMarkdownTemplate, let you specify a different template on a per-domain basis. 
+
+Example -- a customized template for outlines in opml.org. 
+
+<pre>"urlOpmlTemplate": "http://opml.org/templates/opml/template.txt"<</pre>
+

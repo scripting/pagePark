@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.23";     
+var myProductName = "PagePark", myVersion = "0.8.24";     
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2021 Dave Winer
@@ -196,33 +196,43 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			});
 		}
 	function getOpmlTemplate (callback) { //6/23/15 by DW
-		if (config.opmlTemplatePath !== undefined) {
-			fs.readFile (config.opmlTemplatePath, function (err, data) {
-				if (err) {
-					getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
-					}
-				else {
-					callback (data.toString ());
-					}
-				});
+		if (config.urlOpmlTemplate !== undefined) { //8/17/21 by DW
+			getTemplate (undefined, config.urlOpmlTemplate, callback);
 			}
 		else {
-			getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
+			if (config.opmlTemplatePath !== undefined) {
+				fs.readFile (config.opmlTemplatePath, function (err, data) {
+					if (err) {
+						getTemplate (opmlTemplatePath, config.urlDefaultOpmlTemplate, callback);
+						}
+					else {
+						callback (data.toString ());
+						}
+					});
+				}
+			else {
+				getTemplate (opmlTemplatePath, pageparkPrefs.urlDefaultOpmlTemplate, callback);
+				}
 			}
 		}
 	function getMarkdownTemplate (callback) {
-		if (config.mdTemplatePath !== undefined) {
-			fs.readFile (config.mdTemplatePath, function (err, data) {
-				if (err) {
-					getTemplate (mdTemplatePath, config.urlDefaultMarkdownTemplate, callback);
-					}
-				else {
-					callback (data.toString ());
-					}
-				});
+		if (config.urlMarkdownTemplate !== undefined) { //8/17/21 by DW
+			getTemplate (undefined, config.urlMarkdownTemplate, callback);
 			}
 		else {
-			getTemplate (mdTemplatePath, config.urlDefaultMarkdownTemplate, callback);
+			if (config.mdTemplatePath !== undefined) {
+				fs.readFile (config.mdTemplatePath, function (err, data) {
+					if (err) {
+						getTemplate (mdTemplatePath, config.urlDefaultMarkdownTemplate, callback);
+						}
+					else {
+						callback (data.toString ());
+						}
+					});
+				}
+			else {
+				getTemplate (mdTemplatePath, config.urlDefaultMarkdownTemplate, callback);
+				}
 			}
 		}
 	function hasAcceptHeader (theHeader) {
