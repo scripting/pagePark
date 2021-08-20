@@ -272,9 +272,9 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
-#### v0.8.24 8/17/21 by DW
+#### v0.8.24 8/20/21 by DW
 
-config.urlOpmlTemplate and config.urlMarkdownTemplate.
+<a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#templates-for-individual-websites">config.urlOpmlTemplate and config.urlMarkdownTemplate</a>.
 
 #### v0.8.23 7/28/21 by DW
 

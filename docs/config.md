@@ -166,7 +166,7 @@ What if you want to do a custom template that applies only to one site?
 
 Two config options, config.urlOpmlTemplate and config.urlMarkdownTemplate, let you specify a different template on a per-domain basis. 
 
-Example -- a customized template for outlines in opml.org. 
+Example -- a customized template for outlines in <a href="http://opml.org/">opml.org</a>. 
 
 <pre>"urlOpmlTemplate": "http://opml.org/templates/opml/template.txt"<</pre>
 
