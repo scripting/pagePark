@@ -176,7 +176,7 @@ Example -- a customized template for outlines in <a href="http://opml.org/">opml
 
 Since PagePark specializes in serving outlines, and outlines for a specific site might define their own vocabularies, it made sense for a domain to "broadcast" a glossary to all the outlines served from that site. To do that, PagePark now supports a urlGlossary option for config.json.
 
-Example -- the config.json file for one of my sites. 
+Example -- from the config.json file for one of my sites. 
 
 <pre>"urlGlossary": "http://drummer.scripting.com/davewiner/glossary.opml"</pre>
 

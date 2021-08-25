@@ -274,7 +274,7 @@ There will always be more work to do here. ;-)
 
 #### v0.8.25 8/25/21 by DW
 
-urlGlossary in config.json
+<a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#urlglossary-for-individual-websites">urlGlossary in config.json</a>.
 
 #### v0.8.24 8/20/21 by DW
 
