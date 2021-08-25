@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.24";     
+var myProductName = "PagePark", myVersion = "0.8.25";     
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2021 Dave Winer
@@ -497,6 +497,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 										callback (500, "text/plain", "There was an error processing the OPML file."); 
 										}
 									else {
+										if (config.urlGlossary !== undefined) { //8/25/21 by DW
+											if (theOutline.opml.head.urlGlossary === undefined) {
+												theOutline.opml.head.urlGlossary = config.urlGlossary;
+												}
+											}
 										var pagetable = {
 											bodytext: utils.jsonStringify (theOutline),
 											title: utils.stringLastField (path, "/"),

@@ -272,6 +272,10 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.25 8/25/21 by DW
+
+urlGlossary in config.json
+
 #### v0.8.24 8/20/21 by DW
 
 <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#templates-for-individual-websites">Templates for individual websites</a>.
@@ -364,7 +368,7 @@ If the file or folder name begins with . do not serve it.
 
 This feature can be turned off with config.flHiddenFilesCheck.
 
-### v0.7.31 12/4/19 by DW
+#### v0.7.31 12/4/19 by DW
 
 flProcessScriptFiles defaults false. This is a breaking change. If you have pages that are implemented in JS you will have to switch this on for the site in question. 
 
