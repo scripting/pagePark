@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.25";     
+var myProductName = "PagePark", myVersion = "0.8.26";
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2021 Dave Winer
@@ -422,7 +422,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		function httpReturn (val, type) { //2/17/15 by DW
 			callback (200, type, val.toString ());
 			}
-		function defaultReturn (type, data) {
+		function defaultReturn (type, data) { 
 			callback (200, type, data);
 			}
 		function checkForRedirect () { //6/6/18 by DW
@@ -899,6 +899,28 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			}
 		}
 	
+	function isDomainValid (theDomain) { //11/12/21 by DW
+		var requestHost = utils.stringNthField (httpRequest.headers.host, ":", 1);
+		if (requestHost == "localhost") { //only accept requests from local apps
+			if (theDomain === undefined) { //domain param not supplied
+				httpRespond (404, "text/plain", "Not found");
+				}
+			else {
+				getDomainFolder (theDomain, function (folder, host) {
+					if (host === pageparkPrefs.defaultDomanFolderName) { 
+						httpRespond (404, "text/plain", "Not found");
+						}
+					else {
+						httpRespond (200, "text/plain", host); //yes, it's a domain we serve
+						}
+					});
+				}
+			}
+		else {
+			httpRespond (403, "text/plain", "Forbidden");
+			}
+		}
+	
 	try {
 		var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
 		var lowerpath = parsedUrl.pathname.toLowerCase ();
@@ -1065,6 +1087,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 																		getDiskSpace (function (err, stats) {
 																			httpRespond (200, "application/json", utils.jsonStringify (stats));
 																			});
+																		break;
+																	case "/isdomainvalid": //11/12/21 by DW
+																		isDomainValid (parsedUrl.query.domain);
 																		break;
 																	default:
 																		if (!serveRedirect (lowerpath, config, parsedUrl)) { //12/8/15 by DW -- it wasn't a redirect

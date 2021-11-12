@@ -5,6 +5,8 @@ var savedState = { //9/22/17 by DW
 	expansionStates: {
 		}
 	};
+var mySocket = undefined; //11/7/21 by DW
+
 function collapseEverything () {
 	$(".aOutlineWedgeLink i").each (function () {
 		var id = $(this).attr ("id"); //something like idOutlineWedge17
@@ -149,13 +151,55 @@ function viewTypedOutline (head, theOutline, callback) {
 		finishStart ();
 		}
 	}
+
+function checkWebSocket () { //11/7/21 by DW
+	function wsWatchForChange (urlSocketServer, urlOpmlFile, callback) { //connect with socket server, if not already connected
+		if (urlSocketServer !== undefined) {
+			mySocket = new WebSocket (urlSocketServer); 
+			mySocket.onopen = function (evt) {
+				var msg = "watch " + urlOpmlFile;
+				mySocket.send (msg);
+				console.log ("wsWatchForChange: socket is open. sent msg == " + msg);
+				};
+			mySocket.onmessage = function (evt) {
+				var s = evt.data;
+				if (s !== undefined) { //no error
+					const updatekey = "update\r";
+					if (beginsWith (s, updatekey)) { //it's an update
+						var opmltext = stringDelete (s, 1, updatekey.length);
+						console.log ("wsWatchForChange: update received along with " + opmltext.length + " chars of OPML text.");
+						callback (undefined, opmltext);
+						}
+					}
+				};
+			mySocket.onclose = function (evt) {
+				mySocket = undefined;
+				};
+			mySocket.onerror = function (evt) {
+				console.log ("wsWatchForChange: socket for outline " + urlOpmlFile + " received an error.");
+				};
+			}
+		}
+	if (mySocket === undefined) {
+		wsWatchForChange (jstruct.opml.head.urlUpdateSocket, jstruct.opml.head.urlPublic, function (err, opmltext) {
+			if (err) {
+				console.log ("checkWebSocket: err.message == " + err.message);
+				}
+			else {
+				console.log ("checkWebSocket: opmltext.length == " + opmltext.length);
+				jstruct = opml.parse (opmltext);
+				viewTypedOutline (jstruct.opml.head, jstruct.opml.body, function () {
+					});
+				}
+			});
+		}
+	}
 function everySecond () {
+	checkWebSocket (); //11/7/21 by DW
 	}
 function setXmlIcon (urlOpml) {
 	$("#idXmlIcon").html ("<a href=\"" + urlOpml + "\"><img src=\"http://scripting.com/images/xml.gif\" widt=\"36\" height=\"14\"></a>");
-	console.log ("setXmlIcon: urlOpmlFile == " + urlOpml);
 	}
-
 function addPermalinks () { //6/24/21 by DW
 	function addToSubs (theSubs) {
 		theSubs.forEach (function (sub) {
@@ -167,8 +211,6 @@ function addPermalinks () { //6/24/21 by DW
 		}
 	addToSubs (jstruct.opml.body.subs);
 	}
-
-
 function startup () {
 	console.log ("startup");
 	

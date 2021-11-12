@@ -272,6 +272,12 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.26 11/12/21 by DW
+
+Added new call for apps running on the same machine as PagePark that makes it possible to find out if a particular domain his being served by PP.
+
+The feature was <a href="https://github.com/scripting/pagePark/issues/25">discussed</a> in this RFC thread. 
+
 #### v0.8.25 8/25/21 by DW
 
 <a href="https://github.com/scripting/pagePark/blob/master/docs/config.md#urlglossary-for-individual-websites">urlGlossary in config.json</a>.
