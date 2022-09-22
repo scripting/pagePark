@@ -272,6 +272,12 @@ There will always be more work to do here. ;-)
 
 ### Updates
 
+#### v0.8.27 9/22/22 by DW
+
+There's a new version of the marked package that breaks pagepark. 
+
+Changed <a href="https://github.com/scripting/pagePark/blob/master/package.json#L24">package.json</a> to use the last version that worked. 
+
 #### v0.8.26 11/12/21 by DW
 
 Added new call for apps running on the same machine as PagePark that makes it possible to find out if a particular domain his being served by PP.

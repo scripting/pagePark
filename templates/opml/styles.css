@@ -132,6 +132,11 @@ body {
 		color: black;
 		cursor: pointer;
 		}
+/* 5/29/22 by DW */
+	.divRenderedOutline .divOutlineText {
+		font-size: 0.85em;
+		line-height: 135%;
+		}
 
 /* styles for tablet */
 	@media only screen 

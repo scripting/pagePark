@@ -8,7 +8,9 @@ For more info on processes see the <a href="https://github.com/scripting/pagePar
 
 1. cd into the cli directory
 
-2. npm install -g
+2. chmod u+x cli.js
+
+3. npm install -g
 
 From there you can type pp at the command line to get a list of all your running processes, including those that were launched by PagePark. 
 

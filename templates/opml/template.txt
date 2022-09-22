@@ -17,8 +17,9 @@
 		<link rel="stylesheet" href="http://fargo.io/code/shared/emojify.css"/>
 		<script src="http://fargo.io/code/markdownConverter.js"></script>
 		<script src="http://fargo.io/cms/dateFormat.js"></script>
-		<script src="http://fargo.io/code/browsers/outlinebrowser.js"></script>
-		<link href="http://fargo.io/code/browsers/outlinebrowser.css" rel="stylesheet" type="text/css">
+		
+		<script src="http://scripting.com/code/outlinebrowser/code.js"></script>
+		<link href="http://scripting.com/code/outlinebrowser/styles.css" rel="stylesheet" type="text/css">
 		
 		<script src="http://fargo.io/code/shared/xml.js"></script>
 		<script src="http://fargo.io/code/shared/reader.js"></script>
