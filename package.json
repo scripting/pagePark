@@ -1,4 +1,4 @@
-{
+{ 
 	"name": "PagePark",
 	"description": "A simple Node.js folder-based HTTP server that serves static and dynamic pages for domains.",
 	"author": "Dave Winer <dave@scripting.com>",

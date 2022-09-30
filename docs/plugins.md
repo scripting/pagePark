@@ -26,9 +26,9 @@ Three globals from the PagePark environment are accessible to the filter script:
 
 ### Example
 
-Here's an example of a simple plug-in, almost Hello World level.
+Here's an example of a simple Hello World plug-in.
 
-https://gist.github.com/scripting/a2d4ab4275a787e912f02e0e28d354da
+https://gist.github.com/scripting/f2a07f405291110347bf8a4e6a5442f4
 
 ### What I like best about it
 
