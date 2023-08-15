@@ -198,7 +198,7 @@ function everySecond () {
 	checkWebSocket (); //11/7/21 by DW
 	}
 function setXmlIcon (urlOpml) {
-	$("#idXmlIcon").html ("<a href=\"" + urlOpml + "\"><img src=\"http://scripting.com/images/xml.gif\" widt=\"36\" height=\"14\"></a>");
+	$("#idXmlIcon").html ("<a href=\"" + urlOpml + "\"><img src=\"//s3.amazonaws.com/scripting.com/images/xml.gif\" widt=\"36\" height=\"14\"></a>");
 	}
 function addPermalinks () { //6/24/21 by DW
 	function addToSubs (theSubs) {

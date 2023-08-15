@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.27";
+var myProductName = "PagePark", myVersion = "0.8.28"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2021 Dave Winer
@@ -927,6 +927,9 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		var remoteAddress = httpRequest.connection.remoteAddress;
 		//set host, port
 			host = httpRequest.headers.host;
+			if (host === undefined) { //8/15/23 by DW
+				host = "";
+				}
 			if (utils.stringContains (host, ":")) {
 				port = utils.stringNthField (host, ":", 2);
 				host = utils.stringNthField (host, ":", 1);
@@ -1144,6 +1147,9 @@ function handleCliRequest (httpRequest, httpResponse) { //5/27/20 by DW
 	var remoteAddress = httpRequest.connection.remoteAddress;
 	//set host, port
 		host = httpRequest.headers.host;
+		if (host === undefined) { //8/15/23 by DW
+			host = "";
+			}
 		if (utils.stringContains (host, ":")) {
 			port = utils.stringNthField (host, ":", 2);
 			host = utils.stringNthField (host, ":", 1);

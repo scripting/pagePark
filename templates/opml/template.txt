@@ -12,22 +12,20 @@
 		<script src="//s3.amazonaws.com/scripting.com/code/includes/basic/code.js"></script>
 		<link href="//s3.amazonaws.com/scripting.com/code/includes/basic/styles.css" rel="stylesheet" type="text/css">
 		
-		<script src="http://api.nodestorage.io/api.js"></script>
-		<script src="http://fargo.io/code/shared/emojify.js"></script>
-		<link rel="stylesheet" href="http://fargo.io/code/shared/emojify.css"/>
-		<script src="http://fargo.io/code/markdownConverter.js"></script>
-		<script src="http://fargo.io/cms/dateFormat.js"></script>
+		<script src="//s3.amazonaws.com/api.nodestorage.io/api.js"></script>
+		<script src="//s3.amazonaws.com/fargo.io/code/shared/emojify.js"></script>
+		<link rel="stylesheet" href="//s3.amazonaws.com/fargo.io/code/shared/emojify.css"/>
+		<script src="//s3.amazonaws.com/fargo.io/code/markdownConverter.js"></script>
+		<script src="//s3.amazonaws.com/fargo.io/cms/dateFormat.js"></script>
 		
-		<script src="http://scripting.com/code/outlinebrowser/code.js"></script>
-		<link href="http://scripting.com/code/outlinebrowser/styles.css" rel="stylesheet" type="text/css">
+		<script src="//s3.amazonaws.com/scripting.com/code/outlinebrowser/code.js"></script>
+		<link href="//s3.amazonaws.com/scripting.com/code/outlinebrowser/styles.css" rel="stylesheet" type="text/css">
 		
-		<script src="http://fargo.io/code/shared/xml.js"></script>
-		<script src="http://fargo.io/code/shared/reader.js"></script>
-		
-		<script src="http://scripting.com/code/opmlpackage/client/opml.js"></script>
-		
-		<script src="http://scripting.com/code/pagepark/templates/opml/code.js"></script>
-		<link href="http://scripting.com/code/pagepark/templates/opml/styles.css" rel="stylesheet" type="text/css">
+		<script src="//s3.amazonaws.com/fargo.io/code/shared/xml.js"></script>
+		<script src="//s3.amazonaws.com/fargo.io/code/shared/reader.js"></script>
+		<script src="//s3.amazonaws.com/scripting.com/code/opmlpackage/client/opml.js"></script>
+		<script src="//s3.amazonaws.com/scripting.com/code/pagepark/templates/opml/code.js"></script>
+		<link href="//s3.amazonaws.com/scripting.com/code/pagepark/templates/opml/styles.css" rel="stylesheet" type="text/css">
 		
 		<!-- Facebook metadata -->
 			<meta property="og:url" content="[%url%]" />
