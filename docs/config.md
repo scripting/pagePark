@@ -168,7 +168,7 @@ Two config options, config.urlOpmlTemplate and config.urlMarkdownTemplate, let y
 
 Example -- a customized template for outlines in <a href="http://opml.org/">opml.org</a>. 
 
-<pre>"urlOpmlTemplate": "http://opml.org/templates/opml/template.txt"<</pre>
+<pre>"urlOpmlTemplate": "http://opml.org/templates/opml/template.txt"</pre>
 
 ### urlGlossary for individual websites
 
