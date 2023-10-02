@@ -1,12 +1,12 @@
 #### 10/2/23; 10:52:58 AM by DW
 
-We can now server from private GitHub repos. 
+We can now serve from private GitHub repos. 
 
-To do so, add an accessToken value to your githubServeFrom object in config.json.
+To do so, add an <i>accessToken</i> value to your <i>githubServeFrom</i> object in config.json.
 
 When we get the page text from GitHub that will be in the Authorization header in the request. 
 
-An example of a PagePark <a href="https://gist.github.com/scripting/3f43bd5b7b5b05dad62214102085c2aa">config.json file</a> to access a private repo via the web
+An example of a PagePark <a href="https://gist.github.com/scripting/3f43bd5b7b5b05dad62214102085c2aa">config.json file</a> to access a private repo via the web.
 
 #### 9/20/23; 8:53:50 AM by DW
 
