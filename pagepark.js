@@ -1,7 +1,7 @@
 var myProductName = "PagePark", myVersion = "0.8.29"; 
 
 /*  The MIT License (MIT)
-	Copyright (c) 2014-2021 Dave Winer
+	Copyright (c) 2014-2023 Dave Winer
 	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
