@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.28"; 
+var myProductName = "PagePark", myVersion = "0.8.29"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2021 Dave Winer
@@ -651,7 +651,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		var options = { 
 			flCanUseCache: !utils.getBoolean (parsedUrl.query.nocache)
 			}
-		console.log ("serveFromGithubRepo: options.flCanUseCache == " + options.flCanUseCache + ", path == " + path);
+		
+		if (config.githubServeFrom.accessToken !== undefined) { //10/2/23 by DW
+			options.accessToken = config.githubServeFrom.accessToken;
+			}
+		
 		githubpub.getFromGitHub (config.githubServeFrom.username, config.githubServeFrom.repository, path, options, function (err, jstruct) {
 			if (err) {
 				return404 ();
