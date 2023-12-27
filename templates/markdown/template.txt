@@ -1,12 +1,12 @@
 <html>
 	<head>
 		<title>[%title%]</title>
-		<script src="http://fargo.io/code/jquery-1.9.1.min.js"></script>
-		<link href="http://fargo.io/code/bootstrap.css" rel="stylesheet">
-		<script src="http://fargo.io/code/bootstrap.min.js"></script>
-		<link rel="stylesheet" href="http://fargo.io/code/fontAwesome/css/font-awesome.min.css"/>
-		<link href="http://fargo.io/code/ubuntuFont.css" rel="stylesheet" type="text/css">
-		<link href="http://scripting.com/code/pagepark/templates/markdown/styles.css" rel="stylesheet" type="text/css">
+		<script src="//s3.amazonaws.com/fargo.io/code/jquery-1.9.1.min.js"></script>
+		<link href="//s3.amazonaws.com/fargo.io/code/bootstrap.css" rel="stylesheet">
+		<script src="//s3.amazonaws.com/fargo.io/code/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="//s3.amazonaws.com/fargo.io/code/fontAwesome/css/font-awesome.min.css"/>
+		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu">
+		<link href="//s3.amazonaws.com/scripting.com/code/pagepark/templates/markdown/styles.css" rel="stylesheet" type="text/css">
 		<script>
 			function startup () {
 				console.log ("startup");

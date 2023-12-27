@@ -10,7 +10,7 @@
 		"type" : "git",
 		"url" : "https://github.com/scripting/pagePark.git"
 		},
-	"dependencies" : {
+	"dependencies" : { 
 		"request": "*",
 		"pagepark": "*",
 		"opmltojs": "*",
