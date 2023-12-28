@@ -2,6 +2,32 @@
 
 Running news products for FeedLand. 
 
+We were and still are using filter.js to hook up newsproducts via a PagePark domain. 
+
+I wanted to simplify the connecting code and make it part of PagePark.
+
+To invoke a newsproduct: 
+
+``
+
+const newsProductOptions = {
+
+urlServer: "https://feedland.com/newsproduct",
+
+urlApp: "http://scripting.com/code/newsproducthome/index.html",
+
+urlTemplate: "http://scripting.com/publicfolder/feedland/products/newsScriptingCom.opml"
+
+};
+
+options.runNewsProduct (newsProductOptions);
+
+``
+
+This will change, as we use JSON in place of OPML for templates. 
+
+Some of the terminology may change as well.
+
 #### 10/2/23; 10:52:58 AM by DW
 
 We can now serve from private GitHub repos. 
