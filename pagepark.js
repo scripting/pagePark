@@ -187,6 +187,39 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		when: now
 		};
 	
+	function runNewsProduct (options, callback) { //12/27/23 by DW
+		const url = utils.stringNthField (httpRequest.url, "?", 1);
+		if (url == "/") {
+			function encode (s) {
+				return (encodeURIComponent (s));
+				}
+			const urlServer = options.urlServer + "?template=" + encode (options.urlTemplate) + "&app=" + encode (options.urlApp); //12/27/23 by DW
+			request (urlServer, function (err, response, htmltext) {
+				if (err) {
+					httpRespond (500, "text/plain", err.message);
+					}
+				else {
+					if ((response.statusCode >= 200) && (response.statusCode <= 299)) {
+						httpRespond (200, "text/html", htmltext);
+						}
+					else {
+						httpRespond (response.statusCode, "text/plain", "Error response from server == " + response.statusCode);
+						}
+					}
+				});
+			}
+		else {
+			switch (httpRequest.url) {
+				case "/favicon.ico":
+					returnRedirect ("//s3.amazonaws.com/scripting.com/publicfolder/misc/newsproductfavicon.ico", false);
+					break;
+				default: 
+					return404 ();
+					break;
+				}
+			}
+		}
+	
 	function getDiskSpace (callback) { //12/20/19 by DW
 		var stats = new Object (); 
 		freeDiskSpace.get (stats, function () {
@@ -326,7 +359,8 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					serveLocalFile: function (f) {
 						console.log ("serveLocalFile (" + f + ")");
 						serveFile (f, config);
-						}
+						},
+					runNewsProduct //12/27/23 by DW
 					};
 				try {
 					thePackage.runJavaScriptCode (f, options, callback);
