@@ -8,21 +8,7 @@ I wanted to simplify the connecting code and make it part of PagePark.
 
 To invoke a newsproduct: 
 
-``
-
-const newsProductOptions = {
-
-urlServer: "https://feedland.com/newsproduct",
-
-urlApp: "http://scripting.com/code/newsproducthome/index.html",
-
-urlTemplate: "http://scripting.com/publicfolder/feedland/products/newsScriptingCom.opml"
-
-};
-
-options.runNewsProduct (newsProductOptions);
-
-``
+```javascriptconst newsProductOptions = {	urlServer: "https://feedland.com/newsproduct",	urlApp: "http://scripting.com/code/newsproducthome/index.html",	urlTemplate: "http://scripting.com/publicfolder/feedland/products/newsScriptingCom.opml"	};options.runNewsProduct (newsProductOptions);```
 
 This will change, as we use JSON in place of OPML for templates. 
 
