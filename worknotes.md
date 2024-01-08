@@ -1,3 +1,17 @@
+#### 1/8/24; 9:38:20 AM by DW
+
+You can create specs for news products using JSON in addition to OPML. 
+
+The data supplied is basically the same, the format is different.
+
+An <a href="http://scripting.com/code/newsproducthome/newsscriptingcom2.json">example</a> of a JSON-spec. Also it's explained on the <a href="https://docs.feedland.dev/extras.md">FeedLand docs</a> site. 
+
+The new method is also supported in PagePark.
+
+```javascriptconst newsProductOptions = {	urlServer: "https://feedland.com/newsproduct",	urlApp: "http://scripting.com/code/newsproducthome/index.html",	urlNewsProductSpec: "http://scripting.com/code/newsproducthome/newsscriptingcom2.json"	};options.runNewsProduct (newsProductOptions);```
+
+The big difference is that instead of a `urlTemplate` value, there's `urlNewsProductSpec`.
+
 #### 12/27/23; 1:05:46 PM by DW
 
 Running news products for FeedLand. 
