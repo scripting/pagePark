@@ -1,7 +1,7 @@
-var myProductName = "PagePark", myVersion = "0.8.31"; 
+var myProductName = "PagePark", myVersion = "0.8.30"; 
 
 /*  The MIT License (MIT)
-	Copyright (c) 2014-2024 Dave Winer
+	Copyright (c) 2014-2023 Dave Winer
 	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -301,11 +301,11 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				callback (domainfolder, host);
 				}
 			else {
-				let ctfields = utils.stringCountFields (host, ".");
-				if (ctfields == 2) { //like hello.com, see if *.hello.com exists -- 1/17/24 by DW
-					let wildcardhost = "*." + host;
+				if (utils.stringCountFields (host, ".") == 3) {
+					var firstpart = utils.stringNthField (host, ".", 1);
+					var wildcardhost = "*" + utils.stringDelete (host, 1, firstpart.length);
 					domainfolder = folder + wildcardhost;
-					fs.exists (wildcardhost, function (flExists) {
+					fs.exists (domainfolder, function (flExists) { //7/5/21 by DW
 						if (flExists) {
 							callback (domainfolder, wildcardhost);
 							}
@@ -315,22 +315,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 						});
 					}
 				else {
-					if (ctfields == 3) {
-						var firstpart = utils.stringNthField (host, ".", 1);
-						var wildcardhost = "*" + utils.stringDelete (host, 1, firstpart.length);
-						domainfolder = folder + wildcardhost;
-						fs.exists (domainfolder, function (flExists) { //7/5/21 by DW
-							if (flExists) {
-								callback (domainfolder, wildcardhost);
-								}
-							else {
-								useDefaultFolder ();
-								}
-							});
-						}
-					else {
-						useDefaultFolder ();
-						}
+					useDefaultFolder ();
 					}
 				}
 			});
