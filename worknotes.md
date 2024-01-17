@@ -1,6 +1,14 @@
+#### 1/17/24; 10:58:38 AM by DW
+
+The wildcard feature worked but only for three-part names like dave.hello.com.
+
+It wouldn't find hello.com, because it doesn't have three parts.
+
+Look for fix in getDomainFolder.
+
 #### 1/8/24; 9:38:20 AM by DW
 
-PagePark now works with specs for news products using JSON in addition to OPML. 
+PagePark now works with specs for news products using JSON in addition to OPML.  
 
 The data supplied is basically the same, the format is different.
 
