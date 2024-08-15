@@ -437,7 +437,12 @@ function handleHttpRequest (httpRequest, httpResponse) {
 	function processResponse (path, data, config, callback) { //9/26/17 by DW
 		var formatParam; //url ends with ?format=abc -- 6/24/15 by DW
 		if (parsedUrl.query.format !== undefined) {
-			formatParam = parsedUrl.query.format.toLowerCase ()
+			try { //8/15/24 by DW
+				formatParam = parsedUrl.query.format.toLowerCase ()
+				}
+			catch (err) {
+				formatParam = undefined;
+				}
 			}
 		function getFileExtension (path) { //7/25/21 by DW
 			var fname = utils.stringLastField (path, "/");

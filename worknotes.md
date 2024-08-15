@@ -1,3 +1,23 @@
+#### 8/15/24; 12:23:14 PM by DW
+
+Prevented a crashing bug in processResponse.
+
+#### 2/5/24; 11:46:02 AM by DW
+
+I wish there were a way to configure the domains folder, but it isn't there. So I'm using a symlink.
+
+here's the directory I want to link to
+
+~/Dropbox/Miami/pagePark/domains
+
+and the directory I want to link from
+
+~/taos/pagepark/domains
+
+apparently the command is
+
+ln -s ~/Dropbox/Miami/pagePark/domains ~/taos/pagepark/domains
+
 #### 1/8/24; 9:38:20 AM by DW
 
 PagePark now works with specs for news products using JSON in addition to OPML.  
