@@ -1,3 +1,9 @@
+#### 5/3/25; 12:13:13 PM by DW
+
+I'm having difficulty with Caddy, it's sending attempts to connect via WebSockets to WordLand. It only handles HTTP.
+
+Added new config value -- flWebsocketsIsError, defaults false. Don't want to break any apps that do handle WS requests. 
+
 #### 8/15/24; 12:23:14 PM by DW
 
 Prevented a crashing bug in processResponse.

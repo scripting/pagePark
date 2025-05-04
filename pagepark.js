@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.30"; 
+var myProductName = "PagePark", myVersion = "0.8.31"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2023 Dave Winer
@@ -61,7 +61,8 @@ var pageparkPrefs = {
 	flCliPortEnabled: false, cliPort: 1349, //5/27/20 by DW
 	defaultDomanFolderName: "default", //7/5/21 by DW
 	defaultExtension: "", //7/25/21 by DW
-	flServeConfigJson: false //7/28/21 by DW
+	flServeConfigJson: false, //7/28/21 by DW
+	flWebsocketsIsError: false //5/3/25 by DW
 	};
 var pageparkStats = {
 	ctStarts: 0, 
@@ -180,12 +181,41 @@ function getMarkdownTitle (mdtext) { //12/31/19 by DW
 		}
 	return (undefined);
 	}
+
 function handleHttpRequest (httpRequest, httpResponse) {
 	var config; 
 	var now = new Date ();
 	var logInfo = { //2/17/18 by DW
 		when: now
 		};
+	
+	
+	function isWebsocketRequest () { //5/3/25 by DW
+		const headers = httpRequest.headers;
+		console.log ("\nisWebsocketRequest");
+		for (var x in headers) {
+			console.log ("\t" + x + " == " + headers [x]);
+			}
+		function getHeader (name) {
+			if (headers [name] === undefined) {
+				return ("");
+				}
+			else {
+				return (utils.stringLower (headers [name]));
+				}
+			}
+		if (getHeader ("upgrade") === "websocket") {
+			if (utils.stringContains (getHeader ("connection"), "upgrade")) {
+				if (headers ["sec-websocket-key"] !== undefined) {
+					console.log ("true");
+					return (true);
+					}
+				}
+			}
+		console.log ("false");
+		return (false);
+		}
+	
 	
 	function runNewsProduct (options, callback) { //12/27/23 by DW
 		const url = utils.stringNthField (httpRequest.url, "?", 1);
@@ -226,7 +256,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 				}
 			}
 		}
-	
 	function getDiskSpace (callback) { //12/20/19 by DW
 		var stats = new Object (); 
 		freeDiskSpace.get (stats, function () {
@@ -971,6 +1000,13 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			}
 		}
 	
+	if (pageparkPrefs.flWebsocketsIsError) { //5/3/25 by DW
+		if (isWebsocketRequest ()) { 
+			httpRespond (400, "text/html",  "This HTTP server can't handle WebSocket connections.");
+			return;
+			}
+		}
+	
 	try {
 		var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
 		var lowerpath = parsedUrl.pathname.toLowerCase ();
@@ -1191,6 +1227,7 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		httpRespond (500, "text/plain", err.message);
 		}
 	}
+
 function handleCliRequest (httpRequest, httpResponse) { //5/27/20 by DW
 	var parsedUrl = urlpack.parse (httpRequest.url, true), host, lowerhost, port, referrer;
 	var lowerpath = parsedUrl.pathname.toLowerCase ();
