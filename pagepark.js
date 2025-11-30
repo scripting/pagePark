@@ -192,10 +192,6 @@ function handleHttpRequest (httpRequest, httpResponse) {
 	
 	function isWebsocketRequest () { //5/3/25 by DW
 		const headers = httpRequest.headers;
-		console.log ("\nisWebsocketRequest");
-		for (var x in headers) {
-			console.log ("\t" + x + " == " + headers [x]);
-			}
 		function getHeader (name) {
 			if (headers [name] === undefined) {
 				return ("");
@@ -207,12 +203,10 @@ function handleHttpRequest (httpRequest, httpResponse) {
 		if (getHeader ("upgrade") === "websocket") {
 			if (utils.stringContains (getHeader ("connection"), "upgrade")) {
 				if (headers ["sec-websocket-key"] !== undefined) {
-					console.log ("true");
 					return (true);
 					}
 				}
 			}
-		console.log ("false");
 		return (false);
 		}
 	
