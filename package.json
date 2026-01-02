@@ -21,7 +21,7 @@
 		"pagepark": "*",
 		"nodejs-websocket": "*",
 		"require-from-string": "*",
-		"marked": "3.0.8",
+		"marked": "4.0.10",
 		"child_process": "*",
 		"forever": "*",
 		"forever-monitor": "*"
