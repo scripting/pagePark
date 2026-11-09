@@ -1,3 +1,7 @@
+#### 11/9/26; 12:44:28 PM by DW
+
+Support new feature, a default folder can now specify what cnames it's ready to handle, and we reply to Caddy accordingly. 
+
 #### 5/3/25; 12:13:13 PM by DW 
 
 I'm having difficulty with Caddy, it's sending attempts to connect via WebSockets to WordLand. It only handles HTTP.

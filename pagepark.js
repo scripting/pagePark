@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.8.31"; 
+var myProductName = "PagePark", myVersion = "0.9.0"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2023 Dave Winer
@@ -981,7 +981,32 @@ function handleHttpRequest (httpRequest, httpResponse) {
 			else {
 				getDomainFolder (theDomain, function (folder, host) {
 					if (host === pageparkPrefs.defaultDomanFolderName) { 
-						httpRespond (404, "text/plain", "Not found");
+						getConfigFile (host, function (config) { //11/9/26 by CC
+							if (config.cnamesFile === undefined) {
+								httpRespond (404, "text/plain", "Not found");
+								}
+							else {
+								var f = folder + "/" + config.cnamesFile;
+								fs.readFile (f, function (err, data) {
+									var flFound = false;
+									if (!err) {
+										try {
+											var cnames = JSON.parse (data.toString ());
+											flFound = (cnames [theDomain] !== undefined);
+											}
+										catch (err) {
+											console.log ("isDomainValid: error reading " + f + ". " + err.message);
+											}
+										}
+									if (flFound) {
+										httpRespond (200, "text/plain", theDomain); //yes, it's a name in the default folder's list
+										}
+									else {
+										httpRespond (404, "text/plain", "Not found");
+										}
+									});
+								}
+							});
 						}
 					else {
 						httpRespond (200, "text/plain", host); //yes, it's a domain we serve
