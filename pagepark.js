@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.9.0"; 
+var myProductName = "PagePark", myVersion = "0.9.1"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2023 Dave Winer
@@ -1109,135 +1109,149 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					}
 				else { //no mapping, we handle the request
 					getDomainFolder (host, function (domainfolder, actualhost) { //might be a wildcard folder
-						pathParse (domainfolder, parsedUrl.pathname, function (err, f) { //handles unicase paths via folder diving
-							if (f === undefined) {
-								f = domainfolder + parsedUrl.pathname;
+						var flDelegated = false; //11/10/26 by DW
+						if (actualhost === pageparkPrefs.defaultDomanFolderName) { //11/10/26 by DW -- an app in the default folder handles every request that falls to it
+							var defaultPort = thePackage.findAppWithDomain (actualhost);
+							if (defaultPort !== undefined) {
+								parsedUrl.protocol = "http:";
+								parsedUrl.host = "localhost:" + defaultPort;
+								parsedUrl.hostname = "localhost";
+								parsedUrl.port = defaultPort;
+								delegateRequest (urlpack.format (parsedUrl));
+								flDelegated = true;
 								}
-							if (validatePath (f)) {
-								utils.sureFilePath (domainsPath, function () { //make sure domains folder exists
-									getConfigFile (actualhost, function (configForThisDomain) { //get config.json, if it exists -- 1/18/15 by DW
-										config = (configForThisDomain === undefined) ? new Object () : configForThisDomain; //set a global to this request -- 12/10/19 by DW
-										if (configJsonCheck (f, config)) { //7/28/21 by DW
-											gatherAttributes (domainfolder, parsedUrl.pathname, function (err, atts) { //12/31/19 by DW
-												if (atts !== undefined) { //1/2/20 by DW -- this is all we do with atts for now
-													config.mdTemplatePath = atts ["mdtemplate.html"]; 
-													config.opmlTemplatePath = atts ["opmltemplate.html"]; 
-													}
-												runFilterScript (actualhost, function (flRanScript) { //3/23/20 by DW
-													if (!flRanScript) {
-														if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
-															try {
-																var urlRedirect = eval (config.jsSiteRedirect.toString ());
+							}
+						if (!flDelegated) {
+							pathParse (domainfolder, parsedUrl.pathname, function (err, f) { //handles unicase paths via folder diving
+								if (f === undefined) {
+									f = domainfolder + parsedUrl.pathname;
+									}
+								if (validatePath (f)) {
+									utils.sureFilePath (domainsPath, function () { //make sure domains folder exists
+										getConfigFile (actualhost, function (configForThisDomain) { //get config.json, if it exists -- 1/18/15 by DW
+											config = (configForThisDomain === undefined) ? new Object () : configForThisDomain; //set a global to this request -- 12/10/19 by DW
+											if (configJsonCheck (f, config)) { //7/28/21 by DW
+												gatherAttributes (domainfolder, parsedUrl.pathname, function (err, atts) { //12/31/19 by DW
+													if (atts !== undefined) { //1/2/20 by DW -- this is all we do with atts for now
+														config.mdTemplatePath = atts ["mdtemplate.html"]; 
+														config.opmlTemplatePath = atts ["opmltemplate.html"]; 
+														}
+													runFilterScript (actualhost, function (flRanScript) { //3/23/20 by DW
+														if (!flRanScript) {
+															if (config.jsSiteRedirect != undefined) { //7/7/15 by DW
+																try {
+																	var urlRedirect = eval (config.jsSiteRedirect.toString ());
+																	returnRedirect (urlRedirect.toString (), false); //9/30/17 by DW
+																	}
+																catch (err) {
+																	httpRespond (500, "text/plain", "Error running " + config.jsSiteRedirect + ": \"" + err.message + "\"");
+																	}
+																return; 
+																}
+															if (config.urlSiteRedirect != undefined) {
+																var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
 																returnRedirect (urlRedirect.toString (), false); //9/30/17 by DW
+																return; 
 																}
-															catch (err) {
-																httpRespond (500, "text/plain", "Error running " + config.jsSiteRedirect + ": \"" + err.message + "\"");
+															if (config.urlSiteContents != undefined) { //4/26/15 by DW -- v0.55
+																delegateRequest (config.urlSiteContents + httpRequest.url);
+																return; 
 																}
-															return; 
-															}
-														if (config.urlSiteRedirect != undefined) {
-															var urlRedirect = config.urlSiteRedirect + parsedUrl.pathname;
-															returnRedirect (urlRedirect.toString (), false); //9/30/17 by DW
-															return; 
-															}
-														if (config.urlSiteContents != undefined) { //4/26/15 by DW -- v0.55
-															delegateRequest (config.urlSiteContents + httpRequest.url);
-															return; 
-															}
-														if (config.fargoS3Path != undefined) { //5/11/15 PM by DW v0.58
-															var firstPartOfHost = utils.stringNthField (host, ".", 1); //if it's dave.smallpict.com, this value is "dave"
-															var s3url = "http:/" + config.fargoS3Path + firstPartOfHost + parsedUrl.pathname; //xxx
-															request (s3url, function (error, response, body) {
-																if (error) {
-																	httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
-																	}
-																else {
-																	httpRespond (response.statusCode, response.headers ["content-type"], body);
-																	}
-																});
-															return;
-															}
-														if (config.s3Path != undefined) { //9/26/17 by DW
-															serveFromS3 (config, parsedUrl);
-															return;
-															}
-														if (config.s3ServeFromPath != undefined) { //6/4/18 by DW
-															serveFromS3WithPagePark (config, parsedUrl);
-															return;
-															}
-														if (config.githubServeFrom != undefined) { //12/3/19 by DW
-															serveFromGithubRepo (config, parsedUrl);
-															return;
-															}
-														if (config.localPath != undefined) { //9/26/17 by DW
-															var localFile = config.localPath + parsedUrl.pathname;
-															console.log ("localFile == " + localFile);
-															serveFile (localFile, config);
-															return;
-															}
-														fs.stat (f, function (err, stats) {
-															if (err) {
-																switch (lowerpath) {
-																	case "/version":
-																		httpRespond (200, "text/plain", myVersion);
-																		break;
-																	case "/now": 
-																		httpRespond (200, "text/plain", now.toString ());
-																		break;
-																	case "/status": 
-																		var status = {
-																			prefs: pageparkPrefs,
-																			status: pageparkStats
-																			}
-																		httpRespond (200, "text/plain", utils.jsonStringify (status));
-																		break;
-																	case "/freediskspace": //12/20/19 by DW
-																		getDiskSpace (function (err, stats) {
-																			httpRespond (200, "application/json", utils.jsonStringify (stats));
-																			});
-																		break;
-																	case "/isdomainvalid": //11/12/21 by DW
-																		isDomainValid (parsedUrl.query.domain);
-																		break;
-																	default:
-																		if (!serveRedirect (lowerpath, config, parsedUrl)) { //12/8/15 by DW -- it wasn't a redirect
-																			return404 (); 
-																			}
-																		break;
-																	}
-																}
-															else {
-																if (!serveRedirect (lowerpath, config, parsedUrl)) { //7/30/15 by DW -- it wasn't a redirect
-																	if (stats.isDirectory ()) {
-																		if (!utils.endsWith (f, "/")) {
-																			returnRedirect (httpRequest.url + "/", false); //7/5/17 by DW
-																			}
-																		else {
-																			findSpecificFile (f, config.indexFilename, function (findex) {
-																				serveFile (findex, config);
-																				});
-																			}
+															if (config.fargoS3Path != undefined) { //5/11/15 PM by DW v0.58
+																var firstPartOfHost = utils.stringNthField (host, ".", 1); //if it's dave.smallpict.com, this value is "dave"
+																var s3url = "http:/" + config.fargoS3Path + firstPartOfHost + parsedUrl.pathname; //xxx
+																request (s3url, function (error, response, body) {
+																	if (error) {
+																		httpRespond (500, "text/plain", "Error accessing S3 data: " + error.message);
 																		}
 																	else {
-																		serveFile (f, config);
+																		httpRespond (response.statusCode, response.headers ["content-type"], body);
+																		}
+																	});
+																return;
+																}
+															if (config.s3Path != undefined) { //9/26/17 by DW
+																serveFromS3 (config, parsedUrl);
+																return;
+																}
+															if (config.s3ServeFromPath != undefined) { //6/4/18 by DW
+																serveFromS3WithPagePark (config, parsedUrl);
+																return;
+																}
+															if (config.githubServeFrom != undefined) { //12/3/19 by DW
+																serveFromGithubRepo (config, parsedUrl);
+																return;
+																}
+															if (config.localPath != undefined) { //9/26/17 by DW
+																var localFile = config.localPath + parsedUrl.pathname;
+																console.log ("localFile == " + localFile);
+																serveFile (localFile, config);
+																return;
+																}
+															fs.stat (f, function (err, stats) {
+																if (err) {
+																	switch (lowerpath) {
+																		case "/version":
+																			httpRespond (200, "text/plain", myVersion);
+																			break;
+																		case "/now": 
+																			httpRespond (200, "text/plain", now.toString ());
+																			break;
+																		case "/status": 
+																			var status = {
+																				prefs: pageparkPrefs,
+																				status: pageparkStats
+																				}
+																			httpRespond (200, "text/plain", utils.jsonStringify (status));
+																			break;
+																		case "/freediskspace": //12/20/19 by DW
+																			getDiskSpace (function (err, stats) {
+																				httpRespond (200, "application/json", utils.jsonStringify (stats));
+																				});
+																			break;
+																		case "/isdomainvalid": //11/12/21 by DW
+																			isDomainValid (parsedUrl.query.domain);
+																			break;
+																		default:
+																			if (!serveRedirect (lowerpath, config, parsedUrl)) { //12/8/15 by DW -- it wasn't a redirect
+																				return404 (); 
+																				}
+																			break;
 																		}
 																	}
-																}
-															});
-														}
+																else {
+																	if (!serveRedirect (lowerpath, config, parsedUrl)) { //7/30/15 by DW -- it wasn't a redirect
+																		if (stats.isDirectory ()) {
+																			if (!utils.endsWith (f, "/")) {
+																				returnRedirect (httpRequest.url + "/", false); //7/5/17 by DW
+																				}
+																			else {
+																				findSpecificFile (f, config.indexFilename, function (findex) {
+																					serveFile (findex, config);
+																					});
+																				}
+																			}
+																		else {
+																			serveFile (f, config);
+																			}
+																		}
+																	}
+																});
+															}
+														});
 													});
-												});
-											}
-										else {
-											return404 (); //7/28/21 by DW -- don't serve config.json
-											}
+												}
+											else {
+												return404 (); //7/28/21 by DW -- don't serve config.json
+												}
+											});
 										});
-									});
-								}
-							else {
-								httpRespond (400, "text/plain", "The file name contains illegal characters.");
-								}
-							});
+									}
+								else {
+									httpRespond (400, "text/plain", "The file name contains illegal characters.");
+									}
+								});
+							}
 						});
 					}
 				});

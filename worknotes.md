@@ -1,3 +1,7 @@
+#### 11/10/26; 9:29:09 AM by DW
+
+An app in the default folder now handles every request that falls to that folder, the way an app in a domain’s own folder handles that domain’s requests.
+
 #### 11/9/26; 12:44:28 PM by DW
 
 Support new feature, a default folder can now specify what cnames it's ready to handle, and we reply to Caddy accordingly. 
