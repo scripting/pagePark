@@ -2,6 +2,8 @@
 
 An app in the default folder now handles every request that falls to that folder, the way an app in a domain’s own folder handles that domain’s requests.
 
+Also an app in the default folder handles every request that falls to it, except Caddy's certificate question, which PagePark answers itself.
+
 #### 11/9/26; 12:44:28 PM by DW
 
 Support new feature, a default folder can now specify what cnames it's ready to handle, and we reply to Caddy accordingly. 

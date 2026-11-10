@@ -1,4 +1,4 @@
-var myProductName = "PagePark", myVersion = "0.9.1"; 
+var myProductName = "PagePark", myVersion = "0.9.2"; 
 
 /*  The MIT License (MIT)
 	Copyright (c) 2014-2023 Dave Winer
@@ -1111,14 +1111,16 @@ function handleHttpRequest (httpRequest, httpResponse) {
 					getDomainFolder (host, function (domainfolder, actualhost) { //might be a wildcard folder
 						var flDelegated = false; //11/10/26 by DW
 						if (actualhost === pageparkPrefs.defaultDomanFolderName) { //11/10/26 by DW -- an app in the default folder handles every request that falls to it
-							var defaultPort = thePackage.findAppWithDomain (actualhost);
-							if (defaultPort !== undefined) {
-								parsedUrl.protocol = "http:";
-								parsedUrl.host = "localhost:" + defaultPort;
-								parsedUrl.hostname = "localhost";
-								parsedUrl.port = defaultPort;
-								delegateRequest (urlpack.format (parsedUrl));
-								flDelegated = true;
+							if (lowerpath !== "/isdomainvalid") { //11/10/26 by DW -- an app in the default folder handles every request that falls to it, except Caddy's certificate question, which PagePark answers itself
+								var defaultPort = thePackage.findAppWithDomain (actualhost);
+								if (defaultPort !== undefined) {
+									parsedUrl.protocol = "http:";
+									parsedUrl.host = "localhost:" + defaultPort;
+									parsedUrl.hostname = "localhost";
+									parsedUrl.port = defaultPort;
+									delegateRequest (urlpack.format (parsedUrl));
+									flDelegated = true;
+									}
 								}
 							}
 						if (!flDelegated) {
